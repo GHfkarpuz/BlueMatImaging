@@ -1,4 +1,4 @@
-# Install script for directory: /home/karpuzfa/CodeDirks/flexBox_CPP/source/bindings
+# Install script for directory: /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/bindings
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,6 +45,6 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bindings/install_local_manifest.txt"
+  file(WRITE "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bindings/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

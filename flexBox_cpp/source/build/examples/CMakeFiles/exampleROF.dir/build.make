@@ -53,10 +53,10 @@ RM = /home/karpuzfa/cmake/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source
+CMAKE_SOURCE_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source/build
+CMAKE_BINARY_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build
 
 # Include any dependencies generated for this target.
 include examples/CMakeFiles/exampleROF.dir/depend.make
@@ -73,18 +73,18 @@ examples/CMakeFiles/exampleROF.dir/codegen:
 .PHONY : examples/CMakeFiles/exampleROF.dir/codegen
 
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: examples/CMakeFiles/exampleROF.dir/flags.make
-examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleROF.cpp
+examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: examples/CMakeFiles/exampleROF.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o -MF CMakeFiles/exampleROF.dir/exampleROF.cpp.o.d -o CMakeFiles/exampleROF.dir/exampleROF.cpp.o -c /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleROF.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o"
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o -MF CMakeFiles/exampleROF.dir/exampleROF.cpp.o.d -o CMakeFiles/exampleROF.dir/exampleROF.cpp.o -c /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp
 
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/exampleROF.dir/exampleROF.cpp.i"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleROF.cpp > CMakeFiles/exampleROF.dir/exampleROF.cpp.i
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp > CMakeFiles/exampleROF.dir/exampleROF.cpp.i
 
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/exampleROF.dir/exampleROF.cpp.s"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleROF.cpp -o CMakeFiles/exampleROF.dir/exampleROF.cpp.s
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp -o CMakeFiles/exampleROF.dir/exampleROF.cpp.s
 
 # Object files for target exampleROF
 exampleROF_OBJECTS = \
@@ -98,18 +98,18 @@ examples/exampleROF: examples/CMakeFiles/exampleROF.dir/build.make
 examples/exampleROF: examples/CMakeFiles/exampleROF.dir/compiler_depend.ts
 examples/exampleROF: /usr/lib/x86_64-linux-gnu/libX11.so
 examples/exampleROF: examples/CMakeFiles/exampleROF.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable exampleROF"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/exampleROF.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable exampleROF"
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/exampleROF.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 examples/CMakeFiles/exampleROF.dir/build: examples/exampleROF
 .PHONY : examples/CMakeFiles/exampleROF.dir/build
 
 examples/CMakeFiles/exampleROF.dir/clean:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && $(CMAKE_COMMAND) -P CMakeFiles/exampleROF.dir/cmake_clean.cmake
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && $(CMAKE_COMMAND) -P CMakeFiles/exampleROF.dir/cmake_clean.cmake
 .PHONY : examples/CMakeFiles/exampleROF.dir/clean
 
 examples/CMakeFiles/exampleROF.dir/depend:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/karpuzfa/CodeDirks/flexBox_CPP/source /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples /home/karpuzfa/CodeDirks/flexBox_CPP/source/build /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/CMakeFiles/exampleROF.dir/DependInfo.cmake "--color=$(COLOR)" exampleROF
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/CMakeFiles/exampleROF.dir/DependInfo.cmake "--color=$(COLOR)" exampleROF
 .PHONY : examples/CMakeFiles/exampleROF.dir/depend
 

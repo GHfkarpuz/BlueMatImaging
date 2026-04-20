@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/examples -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/. -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/data -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/operator -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/prox -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/solver -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/term -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/bindings
+CXX_INCLUDES = -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/. -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/data -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/solver -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/term -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/bindings
 
 CXX_FLAGS = -O3 -DNDEBUG  -std=gnu++11
 

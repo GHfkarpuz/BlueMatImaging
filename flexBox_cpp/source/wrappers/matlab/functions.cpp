@@ -781,9 +781,9 @@ void copyMatlabToFlexmatrix(const mxArray *input, flexMatrix<floatingType> *outp
 {
 	double  *pr;
 	mwIndex  *ir, *jc;
-	mwSize      col, total = 0;
+	size_t      col, total = 0;
 	mwIndex   starting_row_index, stopping_row_index, current_row_index;
-	mwSize      n;
+	size_t      n;
 
 	std::vector<int> indexI(0, 0);
 	std::vector<int> indexJ(0, 0);

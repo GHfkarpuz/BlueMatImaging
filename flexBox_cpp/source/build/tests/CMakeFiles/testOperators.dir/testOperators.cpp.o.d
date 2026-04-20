@@ -1,5 +1,5 @@
 tests/CMakeFiles/testOperators.dir/testOperators.cpp.o: \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testOperators.cpp \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testOperators.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/13/vector \
  /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
@@ -156,7 +156,7 @@ tests/CMakeFiles/testOperators.dir/testOperators.cpp.o: \
  /usr/include/c++/13/bits/basic_ios.tcc \
  /usr/include/c++/13/bits/ostream.tcc /usr/include/c++/13/istream \
  /usr/include/c++/13/bits/istream.tcc \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/catch.hpp \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/catch.hpp \
  /usr/include/c++/13/sstream /usr/include/c++/13/bits/sstream.tcc \
  /usr/include/c++/13/algorithm /usr/include/c++/13/bits/stl_algo.h \
  /usr/include/c++/13/bits/algorithmfwd.h \
@@ -189,7 +189,7 @@ tests/CMakeFiles/testOperators.dir/testOperators.cpp.o: \
  /usr/include/c++/13/bits/stl_set.h \
  /usr/include/c++/13/bits/stl_multiset.h \
  /usr/include/c++/13/bits/erase_if.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./tools.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./tools.h \
  /usr/include/c++/13/numeric /usr/include/c++/13/bits/stl_numeric.h \
  /usr/include/c++/13/functional /usr/include/c++/13/bits/std_function.h \
  /usr/include/c++/13/chrono /usr/include/c++/13/bits/chrono.h \
@@ -198,23 +198,23 @@ tests/CMakeFiles/testOperators.dir/testOperators.cpp.o: \
  /usr/include/x86_64-linux-gnu/c++/13/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++io.h \
  /usr/include/c++/13/bits/fstream.tcc \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./flexBox.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./term/flexTerm.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./operator/flexLinearOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./prox/flexProx.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./data/flexBoxData.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./solver/flexSolverPrimalDual.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./solver/flexSolver.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./data/flexBoxDataCPU.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./data/flexBoxData.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexLinearOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexConcatOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexLinearOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexDiagonalOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexFullMatrix.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexGradientOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexIdentityOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexMatrix.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexMatrixLogical.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexSuperpixelOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexZeroOperator.h
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./flexBox.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./term/flexTerm.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexLinearOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProx.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./data/flexBoxData.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./solver/flexSolverPrimalDual.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./solver/flexSolver.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./data/flexBoxDataCPU.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./data/flexBoxData.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexLinearOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexConcatOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexLinearOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexDiagonalOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexFullMatrix.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexIdentityOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexMatrix.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexMatrixLogical.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexSuperpixelOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexZeroOperator.h

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DflexBoxPy_EXPORTS
 
-CXX_INCLUDES = -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/source -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/. -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/data -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/operator -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/prox -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/solver -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/term -I/home/karpuzfa/CodeDirks/flexBox_CPP/source/bindings -isystem /usr/include/python3.12 -isystem /home/karpuzfa/venv/lib/python3.12/site-packages/pybind11/include
+CXX_INCLUDES = -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/source -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/. -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/data -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/solver -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/term -I/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/bindings -isystem /usr/include/python3.12 -isystem /home/karpuzfa/venv/lib/python3.12/site-packages/pybind11/include
 
 CXX_FLAGS = -O3 -DNDEBUG  -std=gnu++11 -fPIC -fvisibility=hidden -flto=auto -fno-fat-lto-objects
 

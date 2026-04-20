@@ -57,10 +57,10 @@ RM = /home/karpuzfa/cmake/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source
+CMAKE_SOURCE_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source/build
+CMAKE_BINARY_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,21 +132,21 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples//CMakeFiles/progress.marks
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples//CMakeFiles/progress.marks
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 .PHONY : all
 
 # The main codegen target
 codegen: cmake_check_build_system
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples//CMakeFiles/progress.marks
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/codegen
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples//CMakeFiles/progress.marks
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/codegen
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 .PHONY : codegen
 
 # The main clean target
 clean:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/clean
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/clean
 .PHONY : clean
 
 # The main clean target
@@ -155,22 +155,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/preinstall
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/preinstall
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 examples/CMakeFiles/exampleROF.dir/rule:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/CMakeFiles/exampleROF.dir/rule
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/CMakeFiles/exampleROF.dir/rule
 .PHONY : examples/CMakeFiles/exampleROF.dir/rule
 
 # Convenience name for target.
@@ -179,12 +179,12 @@ exampleROF: examples/CMakeFiles/exampleROF.dir/rule
 
 # fast build rule for target.
 exampleROF/fast:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/build
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/build
 .PHONY : exampleROF/fast
 
 # Convenience name for target.
 examples/CMakeFiles/exampleSegmentation.dir/rule:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/CMakeFiles/exampleSegmentation.dir/rule
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/CMakeFiles/exampleSegmentation.dir/rule
 .PHONY : examples/CMakeFiles/exampleSegmentation.dir/rule
 
 # Convenience name for target.
@@ -193,7 +193,7 @@ exampleSegmentation: examples/CMakeFiles/exampleSegmentation.dir/rule
 
 # fast build rule for target.
 exampleSegmentation/fast:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/build
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/build
 .PHONY : exampleSegmentation/fast
 
 exampleROF.o: exampleROF.cpp.o
@@ -201,7 +201,7 @@ exampleROF.o: exampleROF.cpp.o
 
 # target to build an object file
 exampleROF.cpp.o:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o
 .PHONY : exampleROF.cpp.o
 
 exampleROF.i: exampleROF.cpp.i
@@ -209,7 +209,7 @@ exampleROF.i: exampleROF.cpp.i
 
 # target to preprocess a source file
 exampleROF.cpp.i:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.i
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.i
 .PHONY : exampleROF.cpp.i
 
 exampleROF.s: exampleROF.cpp.s
@@ -217,7 +217,7 @@ exampleROF.s: exampleROF.cpp.s
 
 # target to generate assembly for a file
 exampleROF.cpp.s:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.s
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.s
 .PHONY : exampleROF.cpp.s
 
 exampleSegmentation.o: exampleSegmentation.cpp.o
@@ -225,7 +225,7 @@ exampleSegmentation.o: exampleSegmentation.cpp.o
 
 # target to build an object file
 exampleSegmentation.cpp.o:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o
 .PHONY : exampleSegmentation.cpp.o
 
 exampleSegmentation.i: exampleSegmentation.cpp.i
@@ -233,7 +233,7 @@ exampleSegmentation.i: exampleSegmentation.cpp.i
 
 # target to preprocess a source file
 exampleSegmentation.cpp.i:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.i
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.i
 .PHONY : exampleSegmentation.cpp.i
 
 exampleSegmentation.s: exampleSegmentation.cpp.s
@@ -241,7 +241,7 @@ exampleSegmentation.s: exampleSegmentation.cpp.s
 
 # target to generate assembly for a file
 exampleSegmentation.cpp.s:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.s
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.s
 .PHONY : exampleSegmentation.cpp.s
 
 # Help Target
@@ -276,6 +276,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

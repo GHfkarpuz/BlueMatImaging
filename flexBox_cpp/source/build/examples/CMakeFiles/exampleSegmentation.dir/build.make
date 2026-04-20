@@ -53,10 +53,10 @@ RM = /home/karpuzfa/cmake/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source
+CMAKE_SOURCE_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source/build
+CMAKE_BINARY_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build
 
 # Include any dependencies generated for this target.
 include examples/CMakeFiles/exampleSegmentation.dir/depend.make
@@ -73,18 +73,18 @@ examples/CMakeFiles/exampleSegmentation.dir/codegen:
 .PHONY : examples/CMakeFiles/exampleSegmentation.dir/codegen
 
 examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o: examples/CMakeFiles/exampleSegmentation.dir/flags.make
-examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o: /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleSegmentation.cpp
+examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o: /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleSegmentation.cpp
 examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o: examples/CMakeFiles/exampleSegmentation.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o -MF CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o.d -o CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o -c /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleSegmentation.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o"
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o -MF CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o.d -o CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o -c /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleSegmentation.cpp
 
 examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.i"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleSegmentation.cpp > CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.i
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleSegmentation.cpp > CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.i
 
 examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.s"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleSegmentation.cpp -o CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.s
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleSegmentation.cpp -o CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.s
 
 # Object files for target exampleSegmentation
 exampleSegmentation_OBJECTS = \
@@ -98,18 +98,18 @@ examples/exampleSegmentation: examples/CMakeFiles/exampleSegmentation.dir/build.
 examples/exampleSegmentation: examples/CMakeFiles/exampleSegmentation.dir/compiler_depend.ts
 examples/exampleSegmentation: /usr/lib/x86_64-linux-gnu/libX11.so
 examples/exampleSegmentation: examples/CMakeFiles/exampleSegmentation.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable exampleSegmentation"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/exampleSegmentation.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable exampleSegmentation"
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/exampleSegmentation.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 examples/CMakeFiles/exampleSegmentation.dir/build: examples/exampleSegmentation
 .PHONY : examples/CMakeFiles/exampleSegmentation.dir/build
 
 examples/CMakeFiles/exampleSegmentation.dir/clean:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples && $(CMAKE_COMMAND) -P CMakeFiles/exampleSegmentation.dir/cmake_clean.cmake
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && $(CMAKE_COMMAND) -P CMakeFiles/exampleSegmentation.dir/cmake_clean.cmake
 .PHONY : examples/CMakeFiles/exampleSegmentation.dir/clean
 
 examples/CMakeFiles/exampleSegmentation.dir/depend:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/karpuzfa/CodeDirks/flexBox_CPP/source /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples /home/karpuzfa/CodeDirks/flexBox_CPP/source/build /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/CMakeFiles/exampleSegmentation.dir/DependInfo.cmake "--color=$(COLOR)" exampleSegmentation
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/CMakeFiles/exampleSegmentation.dir/DependInfo.cmake "--color=$(COLOR)" exampleSegmentation
 .PHONY : examples/CMakeFiles/exampleSegmentation.dir/depend
 

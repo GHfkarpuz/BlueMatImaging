@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/karpuzfa/CodeDirks/flexBox_CPP/source/bindings/flexBoxPy.cpp" "bindings/CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o" "gcc" "bindings/CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o.d"
+  "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/bindings/flexBoxPy.cpp" "bindings/CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o" "gcc" "bindings/CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o.d"
   "" "bindings/flexBoxPy.cpython-312-x86_64-linux-gnu.so" "gcc" "bindings/CMakeFiles/flexBoxPy.dir/link.d"
   )
 

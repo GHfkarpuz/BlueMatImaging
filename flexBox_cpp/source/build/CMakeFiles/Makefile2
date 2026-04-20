@@ -54,10 +54,10 @@ RM = /home/karpuzfa/cmake/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source
+CMAKE_SOURCE_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source/build
+CMAKE_BINARY_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -157,14 +157,14 @@ tests/clean: tests/CMakeFiles/testOperators.dir/clean
 CMakeFiles/IDE.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IDE.dir/build.make CMakeFiles/IDE.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IDE.dir/build.make CMakeFiles/IDE.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num= "Built target IDE"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num= "Built target IDE"
 .PHONY : CMakeFiles/IDE.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/IDE.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/IDE.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 .PHONY : CMakeFiles/IDE.dir/rule
 
 # Convenience name for target.
@@ -174,7 +174,7 @@ IDE: CMakeFiles/IDE.dir/rule
 # codegen rule for target.
 CMakeFiles/IDE.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IDE.dir/build.make CMakeFiles/IDE.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num= "Finished codegen for target IDE"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num= "Finished codegen for target IDE"
 .PHONY : CMakeFiles/IDE.dir/codegen
 
 # clean rule for target.
@@ -189,14 +189,14 @@ CMakeFiles/IDE.dir/clean:
 examples/CMakeFiles/exampleROF.dir/all:
 	$(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/depend
 	$(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=1,2 "Built target exampleROF"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=1,2 "Built target exampleROF"
 .PHONY : examples/CMakeFiles/exampleROF.dir/all
 
 # Build rule for subdir invocation for target.
 examples/CMakeFiles/exampleROF.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/CMakeFiles/exampleROF.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 .PHONY : examples/CMakeFiles/exampleROF.dir/rule
 
 # Convenience name for target.
@@ -206,7 +206,7 @@ exampleROF: examples/CMakeFiles/exampleROF.dir/rule
 # codegen rule for target.
 examples/CMakeFiles/exampleROF.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleROF.dir/build.make examples/CMakeFiles/exampleROF.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=1,2 "Finished codegen for target exampleROF"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=1,2 "Finished codegen for target exampleROF"
 .PHONY : examples/CMakeFiles/exampleROF.dir/codegen
 
 # clean rule for target.
@@ -221,14 +221,14 @@ examples/CMakeFiles/exampleROF.dir/clean:
 examples/CMakeFiles/exampleSegmentation.dir/all:
 	$(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/depend
 	$(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=3,4 "Built target exampleSegmentation"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=3,4 "Built target exampleSegmentation"
 .PHONY : examples/CMakeFiles/exampleSegmentation.dir/all
 
 # Build rule for subdir invocation for target.
 examples/CMakeFiles/exampleSegmentation.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/CMakeFiles/exampleSegmentation.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 .PHONY : examples/CMakeFiles/exampleSegmentation.dir/rule
 
 # Convenience name for target.
@@ -238,7 +238,7 @@ exampleSegmentation: examples/CMakeFiles/exampleSegmentation.dir/rule
 # codegen rule for target.
 examples/CMakeFiles/exampleSegmentation.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f examples/CMakeFiles/exampleSegmentation.dir/build.make examples/CMakeFiles/exampleSegmentation.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=3,4 "Finished codegen for target exampleSegmentation"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=3,4 "Finished codegen for target exampleSegmentation"
 .PHONY : examples/CMakeFiles/exampleSegmentation.dir/codegen
 
 # clean rule for target.
@@ -253,14 +253,14 @@ examples/CMakeFiles/exampleSegmentation.dir/clean:
 tests/CMakeFiles/testProx.dir/all:
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testProx.dir/build.make tests/CMakeFiles/testProx.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testProx.dir/build.make tests/CMakeFiles/testProx.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=10,11,12 "Built target testProx"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=10,11,12 "Built target testProx"
 .PHONY : tests/CMakeFiles/testProx.dir/all
 
 # Build rule for subdir invocation for target.
 tests/CMakeFiles/testProx.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/testProx.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 .PHONY : tests/CMakeFiles/testProx.dir/rule
 
 # Convenience name for target.
@@ -270,7 +270,7 @@ testProx: tests/CMakeFiles/testProx.dir/rule
 # codegen rule for target.
 tests/CMakeFiles/testProx.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testProx.dir/build.make tests/CMakeFiles/testProx.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=10,11,12 "Finished codegen for target testProx"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=10,11,12 "Finished codegen for target testProx"
 .PHONY : tests/CMakeFiles/testProx.dir/codegen
 
 # clean rule for target.
@@ -285,14 +285,14 @@ tests/CMakeFiles/testProx.dir/clean:
 tests/CMakeFiles/testOperators.dir/all:
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testOperators.dir/build.make tests/CMakeFiles/testOperators.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testOperators.dir/build.make tests/CMakeFiles/testOperators.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=7,8,9 "Built target testOperators"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=7,8,9 "Built target testOperators"
 .PHONY : tests/CMakeFiles/testOperators.dir/all
 
 # Build rule for subdir invocation for target.
 tests/CMakeFiles/testOperators.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/testOperators.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 .PHONY : tests/CMakeFiles/testOperators.dir/rule
 
 # Convenience name for target.
@@ -302,7 +302,7 @@ testOperators: tests/CMakeFiles/testOperators.dir/rule
 # codegen rule for target.
 tests/CMakeFiles/testOperators.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testOperators.dir/build.make tests/CMakeFiles/testOperators.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=7,8,9 "Finished codegen for target testOperators"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=7,8,9 "Finished codegen for target testOperators"
 .PHONY : tests/CMakeFiles/testOperators.dir/codegen
 
 # clean rule for target.
@@ -317,14 +317,14 @@ tests/CMakeFiles/testOperators.dir/clean:
 bindings/CMakeFiles/flexBoxPy.dir/all:
 	$(MAKE) $(MAKESILENT) -f bindings/CMakeFiles/flexBoxPy.dir/build.make bindings/CMakeFiles/flexBoxPy.dir/depend
 	$(MAKE) $(MAKESILENT) -f bindings/CMakeFiles/flexBoxPy.dir/build.make bindings/CMakeFiles/flexBoxPy.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=5,6 "Built target flexBoxPy"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=5,6 "Built target flexBoxPy"
 .PHONY : bindings/CMakeFiles/flexBoxPy.dir/all
 
 # Build rule for subdir invocation for target.
 bindings/CMakeFiles/flexBoxPy.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 bindings/CMakeFiles/flexBoxPy.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles 0
 .PHONY : bindings/CMakeFiles/flexBoxPy.dir/rule
 
 # Convenience name for target.
@@ -334,7 +334,7 @@ flexBoxPy: bindings/CMakeFiles/flexBoxPy.dir/rule
 # codegen rule for target.
 bindings/CMakeFiles/flexBoxPy.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f bindings/CMakeFiles/flexBoxPy.dir/build.make bindings/CMakeFiles/flexBoxPy.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=5,6 "Finished codegen for target flexBoxPy"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=5,6 "Finished codegen for target flexBoxPy"
 .PHONY : bindings/CMakeFiles/flexBoxPy.dir/codegen
 
 # clean rule for target.

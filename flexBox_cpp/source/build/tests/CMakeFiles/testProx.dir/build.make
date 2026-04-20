@@ -53,10 +53,10 @@ RM = /home/karpuzfa/cmake/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source
+CMAKE_SOURCE_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source/build
+CMAKE_BINARY_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build
 
 # Include any dependencies generated for this target.
 include tests/CMakeFiles/testProx.dir/depend.make
@@ -73,32 +73,32 @@ tests/CMakeFiles/testProx.dir/codegen:
 .PHONY : tests/CMakeFiles/testProx.dir/codegen
 
 tests/CMakeFiles/testProx.dir/testMain.cpp.o: tests/CMakeFiles/testProx.dir/flags.make
-tests/CMakeFiles/testProx.dir/testMain.cpp.o: /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testMain.cpp
+tests/CMakeFiles/testProx.dir/testMain.cpp.o: /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testMain.cpp
 tests/CMakeFiles/testProx.dir/testMain.cpp.o: tests/CMakeFiles/testProx.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object tests/CMakeFiles/testProx.dir/testMain.cpp.o"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT tests/CMakeFiles/testProx.dir/testMain.cpp.o -MF CMakeFiles/testProx.dir/testMain.cpp.o.d -o CMakeFiles/testProx.dir/testMain.cpp.o -c /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testMain.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object tests/CMakeFiles/testProx.dir/testMain.cpp.o"
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT tests/CMakeFiles/testProx.dir/testMain.cpp.o -MF CMakeFiles/testProx.dir/testMain.cpp.o.d -o CMakeFiles/testProx.dir/testMain.cpp.o -c /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testMain.cpp
 
 tests/CMakeFiles/testProx.dir/testMain.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/testProx.dir/testMain.cpp.i"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testMain.cpp > CMakeFiles/testProx.dir/testMain.cpp.i
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testMain.cpp > CMakeFiles/testProx.dir/testMain.cpp.i
 
 tests/CMakeFiles/testProx.dir/testMain.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/testProx.dir/testMain.cpp.s"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testMain.cpp -o CMakeFiles/testProx.dir/testMain.cpp.s
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testMain.cpp -o CMakeFiles/testProx.dir/testMain.cpp.s
 
 tests/CMakeFiles/testProx.dir/testProx.cpp.o: tests/CMakeFiles/testProx.dir/flags.make
-tests/CMakeFiles/testProx.dir/testProx.cpp.o: /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testProx.cpp
+tests/CMakeFiles/testProx.dir/testProx.cpp.o: /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testProx.cpp
 tests/CMakeFiles/testProx.dir/testProx.cpp.o: tests/CMakeFiles/testProx.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object tests/CMakeFiles/testProx.dir/testProx.cpp.o"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT tests/CMakeFiles/testProx.dir/testProx.cpp.o -MF CMakeFiles/testProx.dir/testProx.cpp.o.d -o CMakeFiles/testProx.dir/testProx.cpp.o -c /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testProx.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object tests/CMakeFiles/testProx.dir/testProx.cpp.o"
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT tests/CMakeFiles/testProx.dir/testProx.cpp.o -MF CMakeFiles/testProx.dir/testProx.cpp.o.d -o CMakeFiles/testProx.dir/testProx.cpp.o -c /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testProx.cpp
 
 tests/CMakeFiles/testProx.dir/testProx.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/testProx.dir/testProx.cpp.i"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testProx.cpp > CMakeFiles/testProx.dir/testProx.cpp.i
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testProx.cpp > CMakeFiles/testProx.dir/testProx.cpp.i
 
 tests/CMakeFiles/testProx.dir/testProx.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/testProx.dir/testProx.cpp.s"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testProx.cpp -o CMakeFiles/testProx.dir/testProx.cpp.s
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testProx.cpp -o CMakeFiles/testProx.dir/testProx.cpp.s
 
 # Object files for target testProx
 testProx_OBJECTS = \
@@ -113,18 +113,18 @@ tests/testProx: tests/CMakeFiles/testProx.dir/testProx.cpp.o
 tests/testProx: tests/CMakeFiles/testProx.dir/build.make
 tests/testProx: tests/CMakeFiles/testProx.dir/compiler_depend.ts
 tests/testProx: tests/CMakeFiles/testProx.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable testProx"
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/testProx.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable testProx"
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/testProx.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 tests/CMakeFiles/testProx.dir/build: tests/testProx
 .PHONY : tests/CMakeFiles/testProx.dir/build
 
 tests/CMakeFiles/testProx.dir/clean:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests && $(CMAKE_COMMAND) -P CMakeFiles/testProx.dir/cmake_clean.cmake
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests && $(CMAKE_COMMAND) -P CMakeFiles/testProx.dir/cmake_clean.cmake
 .PHONY : tests/CMakeFiles/testProx.dir/clean
 
 tests/CMakeFiles/testProx.dir/depend:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/karpuzfa/CodeDirks/flexBox_CPP/source /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests /home/karpuzfa/CodeDirks/flexBox_CPP/source/build /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests/CMakeFiles/testProx.dir/DependInfo.cmake "--color=$(COLOR)" testProx
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests/CMakeFiles/testProx.dir/DependInfo.cmake "--color=$(COLOR)" testProx
 .PHONY : tests/CMakeFiles/testProx.dir/depend
 

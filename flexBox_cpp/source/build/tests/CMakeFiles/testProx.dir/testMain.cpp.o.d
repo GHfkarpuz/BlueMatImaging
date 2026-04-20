@@ -1,7 +1,7 @@
 tests/CMakeFiles/testProx.dir/testMain.cpp.o: \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testMain.cpp \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testMain.cpp \
  /usr/include/stdc-predef.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/catch.hpp \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/catch.hpp \
  /usr/include/c++/13/sstream /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \

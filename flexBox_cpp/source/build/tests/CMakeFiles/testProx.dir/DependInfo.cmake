@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testMain.cpp" "tests/CMakeFiles/testProx.dir/testMain.cpp.o" "gcc" "tests/CMakeFiles/testProx.dir/testMain.cpp.o.d"
-  "/home/karpuzfa/CodeDirks/flexBox_CPP/source/tests/testProx.cpp" "tests/CMakeFiles/testProx.dir/testProx.cpp.o" "gcc" "tests/CMakeFiles/testProx.dir/testProx.cpp.o.d"
+  "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testMain.cpp" "tests/CMakeFiles/testProx.dir/testMain.cpp.o" "gcc" "tests/CMakeFiles/testProx.dir/testMain.cpp.o.d"
+  "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/tests/testProx.cpp" "tests/CMakeFiles/testProx.dir/testProx.cpp.o" "gcc" "tests/CMakeFiles/testProx.dir/testProx.cpp.o.d"
   "" "tests/testProx" "gcc" "tests/CMakeFiles/testProx.dir/link.d"
   )
 

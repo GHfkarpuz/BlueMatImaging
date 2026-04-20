@@ -1,10 +1,10 @@
 {
 	"InstallScripts" : 
 	[
-		"/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/cmake_install.cmake",
-		"/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/cmake_install.cmake",
-		"/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests/cmake_install.cmake",
-		"/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bindings/cmake_install.cmake"
+		"/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/cmake_install.cmake",
+		"/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/cmake_install.cmake",
+		"/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests/cmake_install.cmake",
+		"/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bindings/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

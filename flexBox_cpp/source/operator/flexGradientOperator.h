@@ -1004,6 +1004,162 @@ public:
 		}
 	}
 
+
+	float dxUpwind(const float *data,const float *v,  const size_t *sizeMat, int i, int j, int k)
+	{
+	if (k < sizeMat[2] - 1)
+	{
+		if (v[index3DtoLinear(sizeMat, i, j , k)]<0)
+		{
+			if (i < sizeMat[0] - 1)
+			{
+				return v[index3DtoLinear(sizeMat, i, j , k)]*(data[index3DtoLinear(sizeMat, i + 1, j , k)] - data[index3DtoLinear(sizeMat, i, j , k)]);
+			}
+			else
+			{
+				return 0.0f;
+			}
+		}
+		else
+		{
+			if (i > 0)
+			{
+				return v[index3DtoLinear(sizeMat, i, j , k)]*(data[index3DtoLinear(sizeMat, i, j , k)] - data[index3DtoLinear(sizeMat, i - 1, j , k)]);
+			}
+			else
+			{
+				return 0.0f;
+			}
+		}
+	}
+	return 0.0f;
+	}
+
+	float dyUpwind(const float *data,const float *v, const size_t *sizeMat, int i, int j, int k)
+	{
+	if (k < sizeMat[2] - 1)
+	{
+		if (v[index3DtoLinear(sizeMat, i, j , k)]<0)
+		{
+			if (j < sizeMat[1] - 1)
+			{
+				return v[index3DtoLinear(sizeMat, i, j , k)]*(data[index3DtoLinear(sizeMat, i, j + 1, k)] - data[index3DtoLinear(sizeMat, i, j , k)]);
+			}
+			else
+			{
+				return 0.0f;
+			}
+		}
+		else
+		{
+			if (j > 0)
+			{
+				return v[index3DtoLinear(sizeMat, i, j , k)]*(data[index3DtoLinear(sizeMat, i, j , k)] - data[index3DtoLinear(sizeMat, i , j - 1 , k)]);
+			}
+			else
+			{
+				return 0.0f;
+			}
+		}
+	}
+	return 0.0f;
+	}
+
+	float dxUpwindT(const float *data,const float *v,  const size_t *sizeMat, int i, int j, int k)
+	{
+	//int indexIJK = index3DtoLinear(sizeMat, i, j , k);
+
+	if (k < sizeMat[2] - 1)
+	{
+		if (i == 0)
+		{
+			if (v[index3DtoLinear(sizeMat, i, j , k)] < 0)
+			{
+				return -v[index3DtoLinear(sizeMat, i, j , k)]*data[index3DtoLinear(sizeMat, i, j , k)];
+			}
+		}
+		else if (i == sizeMat[0] - 1)
+		{
+			if (v[index3DtoLinear(sizeMat, i, j , k)] > 0)
+			{
+				return v[index3DtoLinear(sizeMat, i, j , k)]*data[index3DtoLinear(sizeMat, i, j , k)];
+			}
+		}
+		else
+		{
+			float tmp = 0.0f;
+			
+			if (v[index3DtoLinear(sizeMat, i, j , k)] < 0)
+			{
+				tmp -= v[index3DtoLinear(sizeMat, i, j , k)]*data[index3DtoLinear(sizeMat, i, j , k)];
+			}
+			else
+			{
+				tmp += v[index3DtoLinear(sizeMat, i, j , k)]*data[index3DtoLinear(sizeMat, i, j , k)];
+			}
+			
+			if (v[index3DtoLinear(sizeMat, i - 1, j , k)] < 0)
+			{
+				tmp += v[index3DtoLinear(sizeMat, i - 1, j , k)]*data[index3DtoLinear(sizeMat, i - 1, j , k)];
+			}
+			if (v[index3DtoLinear(sizeMat, i + 1, j , k)] > 0)
+			{
+				tmp -= v[index3DtoLinear(sizeMat, i + 1, j , k)]*data[index3DtoLinear(sizeMat, i + 1, j , k)];
+			}
+			return tmp;
+		}
+	}
+	return 0.0f;
+	}
+
+	float dyUpwindT(const float *data,const float *v, const size_t *sizeMat, int i, int j, int k)
+	{
+	//int indexIJK = index3DtoLinear(sizeMat, i, j , k);
+
+	if (k < sizeMat[2] - 1)
+	{
+		if (j == 0)
+		{
+			if (v[index3DtoLinear(sizeMat, i, j , k)] < 0)
+			{
+				return -v[index3DtoLinear(sizeMat, i, j , k)]*data[index3DtoLinear(sizeMat, i, j , k)];
+			}
+		}
+		else if (j == sizeMat[1] - 1)
+		{
+			if (v[index3DtoLinear(sizeMat, i, j , k)] > 0)
+			{
+				return v[index3DtoLinear(sizeMat, i, j , k)]*data[index3DtoLinear(sizeMat, i, j , k)];
+			}
+		}
+		else
+		{
+			float tmp = 0.0f;
+			
+			if (v[index3DtoLinear(sizeMat, i, j , k)] < 0)
+			{
+				tmp -= v[index3DtoLinear(sizeMat, i, j , k)]*data[index3DtoLinear(sizeMat, i, j , k)];
+			}
+			else
+			{
+				tmp += v[index3DtoLinear(sizeMat, i, j , k)]*data[index3DtoLinear(sizeMat, i, j , k)];
+			}
+			
+			if (v[index3DtoLinear(sizeMat, i , j - 1 , k)] < 0)
+			{
+				tmp += v[index3DtoLinear(sizeMat, i , j - 1 , k)]*data[index3DtoLinear(sizeMat, i , j - 1 , k)];
+			}
+			if (v[index3DtoLinear(sizeMat, i , j + 1 , k)] > 0)
+			{
+				tmp -= v[index3DtoLinear(sizeMat, i , j + 1 , k)]*data[index3DtoLinear(sizeMat, i , j + 1 , k)];
+			}
+			return tmp;
+		}
+	}
+	return 0.0f;
+	}
+
+
 	void doTimesCPU(bool transposed, const Tdata &input, Tdata &output, mySign s)
 	{
 		if (this->inputDimension.size() == 2)

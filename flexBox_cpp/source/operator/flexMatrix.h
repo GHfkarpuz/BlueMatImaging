@@ -44,6 +44,18 @@ public:
 		return A;
 	}
 
+	//! give the value list of the flexMatrix
+	std::vector<int> giveValueList()
+	{
+		return valueList;
+	}
+
+	//! set the whole values of the flexMatrix at once. Needed for flexBoxPy.cpp
+	void setValueList(Tdata valueListToSet)
+	{
+		valueList = valueListToSet;
+	}
+
 	void times(bool transposed, const Tdata &input, Tdata &output)
 	{
 

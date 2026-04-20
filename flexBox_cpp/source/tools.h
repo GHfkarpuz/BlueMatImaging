@@ -128,6 +128,7 @@ float pow2(float x)
 	return x * x;
 }
 
+//multiplies all entries of a vector together
 template < typename T >
 T vectorProduct(const std::vector<T> &v)
 {
@@ -135,7 +136,7 @@ T vectorProduct(const std::vector<T> &v)
 }
 
 
-
+//sums the entries of a vector up
 template < typename T >
 T vectorSum(const std::vector<T> &v)
 {
@@ -225,6 +226,33 @@ void vectorAddVectorTimesVector(std::vector<T> &result, const std::vector<T> &v1
 		}
 	}
 }
+
+int index2DtoLinear(const size_t *sizeMat, int i, int j)
+{
+	return (int)(i + j*sizeMat[0]);
+}
+
+int index3DtoLinear(const size_t *sizeMat, int i, int j,int k)
+{
+	return (int)(i + j*sizeMat[0] + k*sizeMat[0]*sizeMat[1]);
+}
+
+int linearTo3Di(const size_t *sizeMat, int index)
+{
+	return index%sizeMat[0];
+}
+
+int linearTo3Dj(const size_t *sizeMat, int index)
+{
+	return (index-linearTo3Di(sizeMat,index))/sizeMat[0] % sizeMat[1];
+}
+
+int linearTo3Dk(const size_t *sizeMat, int index)
+{
+	return ((index-linearTo3Di(sizeMat,index))/sizeMat[0] - linearTo3Dj(sizeMat,index)) / sizeMat[1] % sizeMat[2];
+}
+
+
 
 //! class for timing execution times
 /*!

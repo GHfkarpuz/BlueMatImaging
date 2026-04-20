@@ -53,10 +53,10 @@ RM = /home/karpuzfa/cmake/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source
+CMAKE_SOURCE_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/karpuzfa/CodeDirks/flexBox_CPP/source/build
+CMAKE_BINARY_DIR = /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build
 
 # Utility rule file for IDE.
 
@@ -81,6 +81,6 @@ CMakeFiles/IDE.dir/clean:
 .PHONY : CMakeFiles/IDE.dir/clean
 
 CMakeFiles/IDE.dir/depend:
-	cd /home/karpuzfa/CodeDirks/flexBox_CPP/source/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/karpuzfa/CodeDirks/flexBox_CPP/source /home/karpuzfa/CodeDirks/flexBox_CPP/source /home/karpuzfa/CodeDirks/flexBox_CPP/source/build /home/karpuzfa/CodeDirks/flexBox_CPP/source/build /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/CMakeFiles/IDE.dir/DependInfo.cmake "--color=$(COLOR)" IDE
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles/IDE.dir/DependInfo.cmake "--color=$(COLOR)" IDE
 .PHONY : CMakeFiles/IDE.dir/depend
 

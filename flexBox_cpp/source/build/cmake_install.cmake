@@ -1,4 +1,4 @@
-# Install script for directory: /home/karpuzfa/CodeDirks/flexBox_CPP/source
+# Install script for directory: /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,23 +44,23 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/cmake_install.cmake")
+  include("/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/tests/cmake_install.cmake")
+  include("/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bindings/cmake_install.cmake")
+  include("/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bindings/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/install_local_manifest.txt"
+  file(WRITE "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -76,6 +76,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

@@ -1,4 +1,4 @@
-# Install script for directory: /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples
+# Install script for directory: /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -43,64 +43,64 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleROF" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleROF")
+  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleROF" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleROF")
     file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleROF"
+         FILE "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleROF"
          RPATH "")
   endif()
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleROF")
+   "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleROF")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin" TYPE EXECUTABLE FILES "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/exampleROF")
-  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleROF" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleROF")
+  file(INSTALL DESTINATION "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin" TYPE EXECUTABLE FILES "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/exampleROF")
+  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleROF" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleROF")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleROF")
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleROF")
     endif()
   endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  include("/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/CMakeFiles/exampleROF.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
+  include("/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/CMakeFiles/exampleROF.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleSegmentation" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleSegmentation")
+  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleSegmentation" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleSegmentation")
     file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleSegmentation"
+         FILE "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleSegmentation"
          RPATH "")
   endif()
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleSegmentation")
+   "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleSegmentation")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin" TYPE EXECUTABLE FILES "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/exampleSegmentation")
-  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleSegmentation" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleSegmentation")
+  file(INSTALL DESTINATION "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin" TYPE EXECUTABLE FILES "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/exampleSegmentation")
+  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleSegmentation" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleSegmentation")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/bin/exampleSegmentation")
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/exampleSegmentation")
     endif()
   endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  include("/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/CMakeFiles/exampleSegmentation.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
+  include("/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/CMakeFiles/exampleSegmentation.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/install_local_manifest.txt"
+  file(WRITE "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

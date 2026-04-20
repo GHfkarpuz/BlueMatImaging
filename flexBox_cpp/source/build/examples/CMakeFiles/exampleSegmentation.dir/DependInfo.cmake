@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleSegmentation.cpp" "examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o" "gcc" "examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o.d"
+  "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleSegmentation.cpp" "examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o" "gcc" "examples/CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o.d"
   "" "examples/exampleSegmentation" "gcc" "examples/CMakeFiles/exampleSegmentation.dir/link.d"
   )
 

@@ -1,5 +1,5 @@
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/exampleROF.cpp \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/13/vector \
  /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
@@ -156,7 +156,7 @@ examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: \
  /usr/include/c++/13/bits/basic_ios.tcc \
  /usr/include/c++/13/bits/ostream.tcc /usr/include/c++/13/istream \
  /usr/include/c++/13/bits/istream.tcc \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/examples/CImg.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/CImg.h \
  /usr/include/c++/13/cstdarg /usr/include/c++/13/cstring \
  /usr/include/string.h /usr/include/strings.h \
  /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
@@ -219,7 +219,7 @@ examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: \
  /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h \
  /usr/include/X11/Xutil.h /usr/include/X11/keysym.h \
  /usr/include/X11/keysymdef.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./tools.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./tools.h \
  /usr/include/c++/13/numeric /usr/include/c++/13/bits/stl_numeric.h \
  /usr/include/c++/13/functional /usr/include/c++/13/tuple \
  /usr/include/c++/13/bits/uses_allocator.h \
@@ -235,20 +235,20 @@ examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++io.h \
  /usr/include/c++/13/bits/fstream.tcc /usr/include/c++/13/sstream \
  /usr/include/c++/13/bits/sstream.tcc \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./flexBox.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./term/flexTerm.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./operator/flexLinearOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./prox/flexProx.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./data/flexBoxData.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./solver/flexSolverPrimalDual.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./solver/flexSolver.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./data/flexBoxDataCPU.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/./data/flexBoxData.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexLinearOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexIdentityOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexLinearOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/operator/flexGradientOperator.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/prox/flexProxDualDataL2.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/prox/flexProx.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/prox/flexProxDualL1Iso.h \
- /home/karpuzfa/CodeDirks/flexBox_CPP/source/build/examples/sampleFiles.h
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./flexBox.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./term/flexTerm.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexLinearOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProx.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./data/flexBoxData.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./solver/flexSolverPrimalDual.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./solver/flexSolver.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./data/flexBoxDataCPU.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./data/flexBoxData.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexLinearOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexIdentityOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexLinearOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox/flexProxDualDataL2.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox/flexProx.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox/flexProxDualL1Iso.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/sampleFiles.h

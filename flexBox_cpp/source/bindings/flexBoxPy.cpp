@@ -173,7 +173,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
     }
 
     // ======================
-    // Parameter
+    // Parameters
     // ======================
     py::dict params = problem["params"];
     if (params.contains("maxIt")) mainObject->maxIterations = params["maxIt"].cast<int>();
@@ -192,7 +192,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
     }
 
     // ======================
-    // Primal Variablen
+    // Primal variables
     // ======================
     py::list x = problem["x"];
     int numPrimalVars = x.size();
@@ -208,7 +208,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
     }
 
     // ======================
-    // Dual Terms (nur beim ersten Run)
+    // Dual Terms (only for first run)
     // ======================
     if (firstRun) {
         py::list duals = problem["duals"];
@@ -252,7 +252,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
                 correspondingPrimals.push_back(item.cast<int>());
             }
 
-            // ---------- Operatoren ----------
+            // ---------- Operators ----------
             std::vector<flexLinearOperator<double>*> operatorList;
 
             if (dualTerm.contains("operators")) {
@@ -266,7 +266,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
                 }
             }
 
-            // ---------- Term hinzufügen ----------
+            // ---------- add a term ----------
             mainObject->addTerm(
                 new flexTerm<double>(
                     myProx,
@@ -281,12 +281,12 @@ py::tuple flexBoxWrapper(py::dict problem) {
     }
 
     // ======================
-    // Algorithmus starten
+    // start the algorithm
     // ======================
     mainObject->runAlgorithm();
 
     // ======================
-    // Ergebnisse zurückgeben
+    // return results
     // ======================
     py::list x_out, y_out;
 
@@ -308,4 +308,3 @@ py::tuple flexBoxWrapper(py::dict problem) {
 PYBIND11_MODULE(flexBoxPy, m) {
     m.def("run", &flexBoxWrapper, "FlexBox solver wrapper");
 }
-

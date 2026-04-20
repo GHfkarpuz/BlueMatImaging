@@ -1,5 +1,10 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath("../../flexBox_cpp/source/build/bindings"))
+
 import numpy as np
-import flexbox_py
+import flexBoxPy
 
 class FlexBoxSolver:
     def __init__(self, maxIt=1000, tol=1e-6, verbose=1, checkError=1):

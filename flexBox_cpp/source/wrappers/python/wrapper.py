@@ -26,12 +26,12 @@ class FlexBoxSolver:
 
     def add_dual(self, prox_type, alpha, f_list, corresponding_primals, operator_dict=None):
         """
-        Fügt einen Dual-Term hinzu.
-        prox_type: z.B. "L1IsoProxDual"
-        alpha: Gewichtung des Terms
-        f_list: Liste von NumPy Arrays
-        corresponding_primals: Liste von Indizes der Primal-Variablen
-        operator_dict: optional, falls Operator benötigt
+        adds a dual term.
+        prox_type:
+        alpha: weighting of the terms
+        f_list: List of NumPy arrays
+        corresponding_primals: List of indices of the primal variables
+        operator_dict: optional, if operators are needed
         """
         term = {
             "type": prox_type,

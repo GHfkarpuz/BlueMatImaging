@@ -14,8 +14,8 @@ class FlexBoxSolver:
                 "verbose": verbose,
                 "checkError": checkError
             },
-            "x": [],      # Liste von Primal-Variablen (NumPy Arrays)
-            "duals": []   # Liste von Dual-Terms (dicts)
+            "x": [],      # List of primal variables (NumPy Arrays)
+            "duals": []   # List of dual terms (dicts)
         }
 
     def add_primal(self, arr: np.ndarray):
@@ -41,7 +41,7 @@ class FlexBoxSolver:
         }
 
         if operator_dict is not None:
-            term["operator"] = operator_dict  # Optional, wenn du flexLinearOperator nutzen willst
+            term["operator"] = operator_dict
 
         self.problem_dict["duals"].append(term)
 
@@ -50,6 +50,6 @@ class FlexBoxSolver:
         does the optimization
         """
         x_out, y_out = flexbox_py.run(self.problem_dict)
-        # Nach dem ersten Run nicht mehr als firstRun markieren
+        
         self.problem_dict["firstRun"] = False
         return x_out, y_out

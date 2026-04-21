@@ -1,5 +1,5 @@
 # Comment
-In the following you see the README of the FlexBox_cpp which was built by Hendrik Dirks at the University of Münster. I take this code as the backbone for the solvers and have already included python bindings with pybind11. Some methods may be still implemented from the general flexBox which was written with Matlab if necessary.
+In the following you see the README of the FlexBox_cpp which was built by Hendrik Dirks at the University of Münster. I take this code (the version at the 3rd of April 2026) as the backbone for the solvers and extend it with other modalities and have already included python bindings with pybind11. Some methods may be still implemented from the general flexBox which was written with Matlab if necessary.
 
 # FlexBox - A **Flex**ible Primal-Dual Tool**Box**
 

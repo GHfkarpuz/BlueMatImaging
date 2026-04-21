@@ -54,7 +54,7 @@ class FlexBoxSolver:
         """
         does the optimization
         """
-        x_out, y_out = flexbox_py.run(self.problem_dict)
+        x_out, y_out = flexBoxPy.run(self.problem_dict)
         
         self.problem_dict["firstRun"] = False
         return x_out, y_out

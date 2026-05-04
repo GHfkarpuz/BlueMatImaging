@@ -6,7 +6,7 @@
 /*Method to create a term for the optical flow v · ∇u + u_t = 0
 input are an image sequence, the tolerance tol, the gradients ux, uy, ut,....*/
 template<T>
-void L1TVOpticalFlow(
+void L2L2OpticalFlow(
     const std::vector<std::vector<T>> &imageSequence,
     const std::vector<T>& ux,
     const std::vector<T>& uy,

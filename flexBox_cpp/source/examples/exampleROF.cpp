@@ -7,10 +7,12 @@
 #include "tools.h"
 #include "flexBox.h"
 #include "flexLinearOperator.h"
+#include "flexOpticalFlowOperator.h"
 #include "flexIdentityOperator.h"
 #include "flexGradientOperator.h"
 #include "flexProxDualDataL2.h"
 #include "flexProxDualL1Iso.h"
+#include "flexProxDualDataOpticalFlowL2.h"
 
 #include "sampleFiles.h"
 

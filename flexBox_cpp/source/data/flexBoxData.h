@@ -68,8 +68,8 @@ class flexBoxData
 		this->xError.push_back(emptyX);
 
 		this->tauElt.push_back(emptyX);
-
 	}
+	
 	void addDualVar(int numberOfElements)
 	{
 		Tdata emptyY(numberOfElements, static_cast<T>(0));

@@ -172,9 +172,8 @@ py::tuple flexBoxWrapper(py::dict problem) {
         mainObject->setFirstRun(false);
     }
 
-    // ======================
-    // Parameters
-    // ======================
+
+    // parameters
     py::dict params = problem["params"];
     if (params.contains("maxIt")) mainObject->maxIterations = params["maxIt"].cast<int>();
     if (params.contains("verbose")) mainObject->verbose = params["verbose"].cast<int>();
@@ -191,9 +190,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
         printf("checkError: %d\n", mainObject->checkError);
     }
 
-    // ======================
-    // Primal variables
-    // ======================
+    // primal variables
     py::list x = problem["x"];
     int numPrimalVars = x.size();
 
@@ -207,9 +204,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
         mainObject->setPrimal(i, vec);
     }
 
-    // ======================
     // Dual Terms (only for first run)
-    // ======================
     if (firstRun) {
         py::list duals = problem["duals"];
 
@@ -218,7 +213,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
 
             double alpha = dualTerm["factor"].cast<double>();
 
-            // ---------- Prox ----------
+            // Prox
             flexProx<double>* myProx = nullptr;
             std::string proxType = dualTerm["type"].cast<std::string>();
 
@@ -231,11 +226,14 @@ py::tuple flexBoxWrapper(py::dict problem) {
             else if (proxType == "L2proxDual") {
                 myProx = new flexProxDualL2<double>();
             }
+            else if (proxType == "L2proxDualData") {
+                myProx = new flexProxDualDataL2<double>();
+            }
             else {
                 throw std::runtime_error("Unknown prox type: " + proxType);
             }
 
-            // ---------- fList ----------
+            // fList
             py::list fListPy = dualTerm["f"];
             std::vector<std::vector<double>> fList(fListPy.size());
 
@@ -244,7 +242,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
                 fList[k] = std::vector<double>(arr.data(), arr.data() + arr.size());
             }
 
-            // ---------- corresponding primals ----------
+            // corresponding primals
             py::list corrPrimals = dualTerm["correspondingPrimals"];
             std::vector<int> correspondingPrimals;
 
@@ -252,7 +250,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
                 correspondingPrimals.push_back(item.cast<int>());
             }
 
-            // ---------- Operators ----------
+            // Operators
             std::vector<flexLinearOperator<double>*> operatorList;
 
             if (dualTerm.contains("operators")) {
@@ -266,7 +264,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
                 }
             }
 
-            // ---------- add a term ----------
+            // add a term 
             mainObject->addTerm(
                 new flexTerm<double>(
                     myProx,
@@ -280,14 +278,11 @@ py::tuple flexBoxWrapper(py::dict problem) {
         }
     }
 
-    // ======================
     // start the algorithm
-    // ======================
     mainObject->runAlgorithm();
 
-    // ======================
+
     // return results
-    // ======================
     py::list x_out, y_out;
 
     for (int i = 0; i < numPrimalVars; ++i) {

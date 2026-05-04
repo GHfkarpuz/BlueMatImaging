@@ -1,0 +1,6 @@
+frequently used bash commands:
+
+cmake .. -Dpybind11_DIR=/home/karpuzfa/venv/lib/python3.12/site-packages/pybind11/share/cmake/pybind11
+
+source ~/venv/bin/activate
+

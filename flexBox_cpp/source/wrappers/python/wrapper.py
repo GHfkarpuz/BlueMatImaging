@@ -46,7 +46,7 @@ class FlexBoxSolver:
         }
 
         if operator_dict is not None:
-            term["operator"] = operator_dict
+            term["operators"] = operator_dict
 
         self.problem_dict["duals"].append(term)
 

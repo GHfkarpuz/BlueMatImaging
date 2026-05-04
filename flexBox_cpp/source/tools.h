@@ -76,7 +76,8 @@ enum prox
     dualLInfDataProx,
 	dualKLDataProx,
 	dualBoxConstraintProx,
-	dualInnerProductProx
+	dualInnerProductProx,
+	dualOpticalFlowL2DataProx
 };
 
 //! enum representing the type of a linear operator
@@ -90,7 +91,8 @@ enum linOp
 	matrixGPUOp,
 	zeroOp,
 	superpixelOp,
-  concatOp
+  	concatOp,
+	opticalFlowOp
 };
 
 //! enum representing the type of gradient

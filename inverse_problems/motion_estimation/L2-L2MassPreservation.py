@@ -3,3 +3,8 @@ sys.path.append("/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/wrap
 
 import numpy as np
 import wrapper
+
+mainObject = FlexBoxSolver()
+
+mainObject.add_dual
+

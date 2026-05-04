@@ -49,6 +49,7 @@ set(SOURCES_IDE_OP
   operator/flexSuperpixelOperator.h
   operator/flexZeroOperator.h
   operator/flexConcatOperator.h
+  operator/flexOpticalFlowOperator.h
 )
 
 #prox
@@ -68,6 +69,7 @@ set(SOURCES_IDE_PROX
   prox/flexProxDualL2Inf.h
   prox/flexProxDualLabeling.h
   prox/flexProxDualLInf.h
+  prox/flexProxDualDataOpticalFlowL2.h
 )
 
 #solver

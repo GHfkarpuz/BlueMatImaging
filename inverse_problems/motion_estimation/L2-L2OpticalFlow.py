@@ -26,6 +26,8 @@ img1_np = np.array(img1).astype(np.float32)
 img2_np = np.array(img2).astype(np.float32)
 
 
+
+
 print("The 2-distance is:", np.linalg.norm(img2_np-img1_np))
 # dimensions
 inputDimension = list(img1_np.shape)
@@ -33,10 +35,10 @@ nPx = img1_np.size
 
 
 # flatten image for operator
-img1_vec = img1_np.flatten()
+img1_vec = img1_np.flatten(order="F")
 
 # initialise solver
-solver = FlexBoxSolver(maxIt=1000, tol=1e-6, verbose=1)
+solver = FlexBoxSolver(maxIt=10000, tol=1e-6, verbose=1)
 
 # primal variables
 dim = len(inputDimension)
@@ -67,7 +69,7 @@ opticalFlowOp2 = {
 
 # compute -u_t as the data
 if(dim == 2):
-    negUT = -(img2_np - img1_np)/timeStep
+    negUT = (-(img2_np - img1_np)/timeStep).flatten(order="F")
 
 #TODO ab hier weiter anpassen
 solver.add_dual(
@@ -121,8 +123,8 @@ plt.axis("off")
 v_vec1 = v_out[0]
 v_vec2 = v_out[1]
 
-result_1 = v_vec1.reshape(inputDimension)
-result_2 = v_vec2.reshape(inputDimension)
+result_1 = v_vec1.reshape(inputDimension, order="F")
+result_2 = v_vec2.reshape(inputDimension, order="F")
 
 magnitude = np.sqrt(result_1**2 + result_2**2)
 

@@ -420,6 +420,8 @@ bindings/CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o: \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexGradientOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexSuperpixelOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexConcatOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexOpticalFlowOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexGradientOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./flexBox.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./term/flexTerm.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProx.h \

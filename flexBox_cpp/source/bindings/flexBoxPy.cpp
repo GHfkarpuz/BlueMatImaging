@@ -21,6 +21,7 @@
 #include "operator/flexGradientOperator.h"
 #include "operator/flexSuperpixelOperator.h"
 #include "operator/flexConcatOperator.h"
+#include "operator/flexOpticalFlowOperator.h"
 
 #include "flexBox.h"
 
@@ -62,7 +63,7 @@ std::unique_ptr<flexBox<double>> mainObject = nullptr;
 
 void copyNumpyToFlexMatrix(py::array_t<double> mat, flexMatrix<double>* A)
 {
-    auto buf = mat.request();  // buffer info holen
+    auto buf = mat.request();  // get information aboout buffer
     floatingType* ptr = static_cast<floatingType*>(buf.ptr);
     size_t size = 1;
     for (auto r : buf.shape) {
@@ -155,6 +156,29 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         copyNumpyToFlexMatrix(mat, Atmp);
         A = Atmp;
     }
+    else if(type == "opticalFlowOp"){
+        //TODO Fehler fixen
+        if (verbose > 1) printf("Operator %d is type <opticalFlowOp>\n", operatorNumber);
+
+        py::array_t<double> img = operatorDict["image"].cast<py::array_t<double>>();
+        int direction = operatorDict["direction"].cast<int>();
+
+        //take the image
+        auto buf = img.request();
+
+        double* ptr = static_cast<double*>(buf.ptr);
+        size_t size = 1;
+        for (auto r : buf.shape) size *= r;
+
+        std::vector<double> imageVec(ptr, ptr + size);
+
+        //dimensions
+        std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
+
+        //create operator
+        auto AOpticalFlow = new flexOpticalFlowOperator<double>(imageVec, inputDimension, direction, isMinus);
+        A = AOpticalFlow;
+    }
     else {
         throw std::runtime_error("Operator type not supported!");
     }
@@ -226,13 +250,49 @@ py::tuple flexBoxWrapper(py::dict problem) {
             else if (proxType == "L2proxDual") {
                 myProx = new flexProxDualL2<double>();
             }
+            else if (proxType == "L1proxDualData") {
+                myProx = new flexProxDualDataL1<double>();
+            }
             else if (proxType == "L2proxDualData") {
                 myProx = new flexProxDualDataL2<double>();
+            }
+            else if(proxType == "dualOpticalFlowL2DataProx")
+            {
+                myProx = new flexProxDualDataL2<double>();
+                /*
+                // images is a list of two images
+                py::list<py::array_t<double>> images = dualTerm["f"].cast<py::list<py::array_t<double>>>();
+
+                double timeStep = dualTerm["timeStep"].cast<double>();
+
+                auto buf1 = images[0].request();
+                auto buf2 = images[1].request();
+
+                double* ptr1 = static_cast<double*>(buf1.ptr);
+                double* ptr2 = static_cast<double*>(buf2.ptr);
+
+                size_t N = 1;
+                for (auto r : buf1.shape) N *= r;
+
+                std::vector<double> negUT(N);
+
+                for (size_t i = 0; i < N; ++i)
+                {
+                    negUT[i] = -(ptr2[i] - ptr1[i]) / timeStep;
+                }
+
+                // set fList here as -u_t
+                std::vector<std::vector<double>> fList;
+                fList.push_back(negUT);
+
+                //for this case the fList will not be read from the dual list
+                */
             }
             else {
                 throw std::runtime_error("Unknown prox type: " + proxType);
             }
 
+            
             // fList
             py::list fListPy = dualTerm["f"];
             std::vector<std::vector<double>> fList(fListPy.size());
@@ -241,6 +301,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
                 py::array_t<double> arr = fListPy[k].cast<py::array_t<double>>();
                 fList[k] = std::vector<double>(arr.data(), arr.data() + arr.size());
             }
+            
 
             // corresponding primals
             py::list corrPrimals = dualTerm["correspondingPrimals"];

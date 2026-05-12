@@ -19,14 +19,14 @@ timeStep = 1.0
 
 
 # images
-img1 = Image.open("frame10.bmp").convert("L")
-img2 = Image.open("frame11.bmp").convert("L")
+img1 = np.load("shortened_image2_1.npy")
+img2 = np.load("translated_image2_1.npy")
 
 img1_np = np.array(img1).astype(np.float32)
 img2_np = np.array(img2).astype(np.float32)
 
-img1_np = img1_np/2000.0
-img2_np = img2_np/2000.0
+
+
 
 
 
@@ -40,7 +40,7 @@ nPx = img1_np.size
 img1_vec = img1_np.flatten(order="F")
 
 # initialise solver
-solver = FlexBoxSolver(maxIt=10000, tol=1e-6, verbose=2)
+solver = FlexBoxSolver(maxIt=10000, tol=1e-6, verbose=1)
 
 # primal variables
 dim = len(inputDimension)
@@ -55,15 +55,15 @@ for i in range(dim):
 corresponding_primals = [i for i in range(dim)]
 
 # operator. It has to be extended for the 3D-case.
-massPreservationOp1 = {
-    "type": "massPreservationOp",
+opticalFlowOp1 = {
+    "type": "opticalFlowOp",
     "image": img1_vec,
     "direction":0,
     "inputDimension": inputDimension
 }
 
-massPreservationOp2 = {
-    "type": "massPreservationOp",
+opticalFlowOp2 = {
+    "type": "opticalFlowOp",
     "image": img1_vec,
     "direction":1,
     "inputDimension": inputDimension
@@ -79,7 +79,7 @@ solver.add_dual(
         alpha = weight_data,
         f_list = [negUT],
         corresponding_primals = corresponding_primals,
-        operator_dict = [massPreservationOp1, massPreservationOp2]
+        operator_dict = [opticalFlowOp1, opticalFlowOp2]
     )
 
 #generate list of gradient operators with one entry for each dimension len(inputdimension)
@@ -97,24 +97,37 @@ for j in range(dim):
         prox_type="L2proxDual",
         alpha=weight_L2,
         f_list=[np.zeros(nPx)],  # no Offset
-        corresponding_primals= corresponding_primals,
-        operator_dict=grad_ops
+        corresponding_primals=[j],
+        operator_dict=[grad_ops[j]]
     )
 
 
 # start the solver
 v_out, _ = solver.solve()
 
+"""
+result = v_out.reshape(inputDimension)
+
+
+# vizualize
+plt.figure(figsize=(12,4))
+
+plt.subplot(1,2,1)
+plt.title("velocity field in first direction")
+plt.imshow(result[0], cmap="gray")
+plt.axis("off")
+
+plt.subplot(1,2,2)
+plt.title("velocity field in second direction")
+plt.imshow(result[1], cmap="gray")
+plt.axis("off")
+"""
 v_vec1 = v_out[0]
 v_vec2 = v_out[1]
 
 result_1 = v_vec1.reshape(inputDimension, order="F")
 result_2 = v_vec2.reshape(inputDimension, order="F")
 
-print(np.max(np.abs(result_1)))
-print(np.max(np.abs(result_2)))
-print(np.any(np.isnan(result_1)))
-print(np.any(np.isinf(result_1)))
 
 magnitude = np.sqrt(result_1**2 + result_2**2)
 
@@ -140,4 +153,35 @@ plt.title("magnitude")
 plt.imshow(magnitude, cmap="gray", vmin=0, vmax=vmax_mag)
 plt.axis("off")
 
-plt.savefig("resultL2L2MassPreservation.png", dpi=200, bbox_inches="tight")
+plt.savefig("resultExample2_1_L2L2OpticalFlow.png", dpi=200, bbox_inches="tight")
+
+#load real velocity fields
+v_x = np.load("v_x_2_1.npy")
+v_y = np.load("v_y_2_1.npy")
+
+
+magnitude = np.sqrt(v_x**2 + v_y**2)
+
+
+vmax1 = np.max(np.abs(v_x))
+vmax2 = np.max(np.abs(v_y))
+vmax_mag = np.percentile(magnitude, 99)
+
+plt.figure(figsize=(12,4))
+
+plt.subplot(1,3,1)
+plt.title("v_x")
+plt.imshow(v_x, cmap="seismic", vmin=-vmax1, vmax=vmax1)
+plt.axis("off")
+
+plt.subplot(1,3,2)
+plt.title("v_y")
+plt.imshow(v_y, cmap="seismic", vmin=-vmax2, vmax=vmax2)
+plt.axis("off")
+
+plt.subplot(1,3,3)
+plt.title("magnitude")
+plt.imshow(magnitude, cmap="gray", vmin=0, vmax=vmax_mag)
+plt.axis("off")
+
+plt.savefig("resultExample2_1_L2L2OpticalFlowRealVelocity_fields.png", dpi=200, bbox_inches="tight")

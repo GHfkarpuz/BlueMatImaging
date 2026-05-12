@@ -627,40 +627,58 @@ public:
 	{
 		switch (s)
 		{
-		case PLUS:
-		{
-			*ptr += value;
-			break;
-		}
-		case MINUS:
-		{
-			*ptr -= value;
-			break;
-		}
-		case EQUALS:
-		{
-			*ptr = value;
-			break;
-		}
+			case PLUS:
+				{
+					*ptr += value;
+					break;
+				}
+			case MINUS:
+				{
+					*ptr -= value;
+					break;
+				}
+			case EQUALS:
+				{
+					*ptr = value;
+					break;
+				}
 		}
 	}
 
 	void dxp3d(const Tdata &input, Tdata &output, mySign s)
 	{
 		int sizeZ = this->inputDimension[2];
-		int sizeY = this->inputDimension[1];
-		int sizeX = this->inputDimension[0] - 1;
-
-		#pragma omp parallel for
-		for (int k = 0; k < sizeZ; ++k)
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0] - 1;
+		if(this->type == forward)
 		{
-			for (int j = 0; j < sizeY; ++j)
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
 			{
-				for (int i = 0; i < sizeX; ++i)
+				for (int j = 0; j < sizeY; ++j)
 				{
-					const int tmpIndex = this->index3DtoLinear(i, j, k);
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
 
-					this->updateValue(&output[tmpIndex], s, input[tmpIndex + 1] - input[tmpIndex]);
+						this->updateValue(&output[tmpIndex], s, input[tmpIndex + 1] - input[tmpIndex]);
+					}
+				}
+			}
+		}
+		else if(this->type == central)
+		{
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
+			{
+				for (int j = 0; j < sizeY; ++j)
+				{
+					for (int i = 1; i < sizeX; ++i)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
+
+						this->updateValue(&output[tmpIndex], s, static_cast<T>(0.5) * (input[tmpIndex + 1] - input[tmpIndex-1]));
+					}
 				}
 			}
 		}
@@ -671,18 +689,39 @@ public:
 		int sizeZ = this->inputDimension[2];
 		int sizeY = this->inputDimension[1] - 1;
 		int sizeX = this->inputDimension[0];
-
-		#pragma omp parallel for
-		for (int k = 0; k < sizeZ; ++k)
+		
+		if(this->type == forward)
 		{
-			for (int j = 0; j < sizeY; ++j)
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
 			{
-				for (int i = 0; i < sizeX; ++i)
+				for (int j = 0; j < sizeY; ++j)
 				{
-					const int tmpIndex1 = this->index3DtoLinear(i, j, k);
-					const int tmpIndex2 = this->index3DtoLinear(i, j + 1, k);
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex1 = this->index3DtoLinear(i, j, k);
+						const int tmpIndex2 = this->index3DtoLinear(i, j + 1, k);
 
-					this->updateValue(&output[tmpIndex1], s, input[tmpIndex2] - input[tmpIndex1]);
+						this->updateValue(&output[tmpIndex1], s, input[tmpIndex2] - input[tmpIndex1]);
+					}
+				}
+			}
+		}
+		if(this->type == central)
+		{
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
+			{
+				for (int j = 1; j < sizeY; ++j)
+				{
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
+						const int tmpIndex1 = this->index3DtoLinear(i, j - 1, k);
+						const int tmpIndex2 = this->index3DtoLinear(i, j + 1, k);
+
+						this->updateValue(&output[tmpIndex], s, static_cast<T>(0.5) * (input[tmpIndex2] - input[tmpIndex1]));
+					}
 				}
 			}
 		}
@@ -694,17 +733,38 @@ public:
 		int sizeY = this->inputDimension[1];
 		int sizeX = this->inputDimension[0];
 
-		#pragma omp parallel for
-		for (int k = 0; k < sizeZ; ++k)
-		{
-			for (int j = 0; j < sizeY; ++j)
+		if(this->type == forward)
+		{	
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
 			{
-				for (int i = 0; i < sizeX; ++i)
+				for (int j = 0; j < sizeY; ++j)
 				{
-					const int tmpIndex1 = this->index3DtoLinear(i, j, k);
-					const int tmpIndex2 = this->index3DtoLinear(i, j, k + 1);
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex1 = this->index3DtoLinear(i, j, k);
+						const int tmpIndex2 = this->index3DtoLinear(i, j, k + 1);
 
-					this->updateValue(&output[tmpIndex1], s, input[tmpIndex2] - input[tmpIndex1]);
+						this->updateValue(&output[tmpIndex1], s, input[tmpIndex2] - input[tmpIndex1]);
+					}
+				}
+			}
+		}
+		if(this->type == central)
+		{	
+			#pragma omp parallel for
+			for (int k = 1; k < sizeZ; ++k)
+			{
+				for (int j = 0; j < sizeY; ++j)
+				{
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
+						const int tmpIndex1 = this->index3DtoLinear(i, j, k - 1);
+						const int tmpIndex2 = this->index3DtoLinear(i, j, k + 1);
+
+						this->updateValue(&output[tmpIndex], s, static_cast<T>(0.5) * (input[tmpIndex2] - input[tmpIndex1]));
+					}
 				}
 			}
 		}
@@ -715,32 +775,52 @@ public:
 		const int sizeZ = this->inputDimension[2];
 		const int sizeY = this->inputDimension[1];
 		const int sizeX = this->inputDimension[0] - 1;
-
-		#pragma omp parallel for
-		for (int k = 0; k < sizeZ; ++k)
+		
+		if(this->type == forward)
 		{
-			for (int j = 0; j < sizeY; ++j)
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
 			{
-				for (int i = 1; i < sizeX; ++i)
+				for (int j = 0; j < sizeY; ++j)
 				{
-					int tmpIndex = this->index3DtoLinear(i, j, k);
+					for (int i = 1; i < sizeX; ++i)
+					{
+						int tmpIndex = this->index3DtoLinear(i, j, k);
 
-					this->updateValue(&output[tmpIndex], s, -(input[tmpIndex] - input[tmpIndex - 1]));
+						this->updateValue(&output[tmpIndex], s, -(input[tmpIndex] - input[tmpIndex - 1]));
+					}
+				}
+			}
+
+			#pragma omp parallel for
+			for (int k = 0; k < this->inputDimension[2]; ++k)
+			{
+				for (int j = 0; j < this->inputDimension[1]; ++j)
+				{
+					const int index1 = this->index3DtoLinear(0, j, k);
+					const int index2 = this->index3DtoLinear(this->inputDimension[0] - 1, j, k);
+					const int index3 = this->index3DtoLinear(this->inputDimension[0] - 2, j, k);
+
+					this->updateValue(&output[index1], s, -input[index1]);
+					this->updateValue(&output[index2], s, input[index3]);
 				}
 			}
 		}
-
-		#pragma omp parallel for
-		for (int k = 0; k < this->inputDimension[2]; ++k)
+		
+		else if(this->type == central)
 		{
-			for (int j = 0; j < this->inputDimension[1]; ++j)
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
 			{
-				const int index1 = this->index3DtoLinear(0, j, k);
-				const int index2 = this->index3DtoLinear(this->inputDimension[0] - 1, j, k);
-				const int index3 = this->index3DtoLinear(this->inputDimension[0] - 2, j, k);
+				for (int j = 0; j < sizeY; ++j)
+				{
+					for (int i = 1; i < sizeX; ++i)
+					{
+						int tmpIndex = this->index3DtoLinear(i,j,k);
 
-				this->updateValue(&output[index1], s, -input[index1]);
-				this->updateValue(&output[index2], s, input[index3]);
+						this->updateValue(&output[tmpIndex],s,static_cast<T>(-0.5) *(input[tmpIndex + 1]-input[tmpIndex - 1]));
+					}
+				}
 			}
 		}
 	}
@@ -751,32 +831,53 @@ public:
 		const int sizeY = this->inputDimension[1] - 1;
 		const int sizeX = this->inputDimension[0];
 
-		#pragma omp parallel for
-		for (int k = 0; k < sizeZ; ++k)
+		if(this->type == forward)
 		{
-			for (int j = 1; j < sizeY; ++j)
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
 			{
-				for (int i = 0; i < sizeX; ++i)
+				for (int j = 1; j < sizeY; ++j)
 				{
-					const int tmpIndex1 = this->index3DtoLinear(i, j, k);
-					const int tmpIndex2 = this->index3DtoLinear(i, j - 1, k);
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex1 = this->index3DtoLinear(i, j, k);
+						const int tmpIndex2 = this->index3DtoLinear(i, j - 1, k);
 
-					this->updateValue(&output[tmpIndex1], s, -(input[tmpIndex1] - input[tmpIndex2]));
+						this->updateValue(&output[tmpIndex1], s, -(input[tmpIndex1] - input[tmpIndex2]));
+					}
+				}
+			}
+
+			#pragma omp parallel for
+			for (int k = 0; k < this->inputDimension[2]; ++k)
+			{
+				for (int i = 0; i < this->inputDimension[0]; ++i)
+				{
+					const int index1 = this->index3DtoLinear(i, 0, k);
+					const int index2 = this->index3DtoLinear(i, this->inputDimension[1] - 1, k);
+					const int index3 = this->index3DtoLinear(i, this->inputDimension[1] - 2, k);
+
+					this->updateValue(&output[index1], s, -input[index1]);
+					this->updateValue(&output[index2], s, input[index3]);
 				}
 			}
 		}
-
-		#pragma omp parallel for
-		for (int k = 0; k < this->inputDimension[2]; ++k)
+		if(this->type == central)
 		{
-			for (int i = 0; i < this->inputDimension[0]; ++i)
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
 			{
-				const int index1 = this->index3DtoLinear(i, 0, k);
-				const int index2 = this->index3DtoLinear(i, this->inputDimension[1] - 1, k);
-				const int index3 = this->index3DtoLinear(i, this->inputDimension[1] - 2, k);
+				for (int j = 1; j < sizeY; ++j)
+				{
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
+						const int tmpIndex1 = this->index3DtoLinear(i, j - 1, k);
+						const int tmpIndex2 = this->index3DtoLinear(i, j + 1, k);
 
-				this->updateValue(&output[index1], s, -input[index1]);
-				this->updateValue(&output[index2], s, input[index3]);
+						this->updateValue(&output[tmpIndex], s, static_cast<T>(-0.5) * (input[tmpIndex2] - input[tmpIndex1]));
+					}
+				}
 			}
 		}
 	}
@@ -787,32 +888,53 @@ public:
 		const int sizeY = this->inputDimension[1];
 		const int sizeX = this->inputDimension[0];
 
-		#pragma omp parallel for
-		for (int k = 1; k < sizeZ; ++k)
+		if(this->type == forward)
 		{
-			for (int j = 0; j < sizeY; ++j)
+			#pragma omp parallel for
+			for (int k = 1; k < sizeZ; ++k)
 			{
-				for (int i = 0; i < sizeX; ++i)
+				for (int j = 0; j < sizeY; ++j)
 				{
-					const int tmpIndex1 = this->index3DtoLinear(i, j, k);
-					const int tmpIndex2 = this->index3DtoLinear(i, j, k - 1);
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex1 = this->index3DtoLinear(i, j, k);
+						const int tmpIndex2 = this->index3DtoLinear(i, j, k - 1);
 
-					this->updateValue(&output[tmpIndex1], s, -(input[tmpIndex1] - input[tmpIndex2]));
+						this->updateValue(&output[tmpIndex1], s, -(input[tmpIndex1] - input[tmpIndex2]));
+					}
+				}
+			}
+
+			#pragma omp parallel for
+			for (int j = 0; j < this->inputDimension[1]; ++j)
+			{
+				for (int i = 0; i < this->inputDimension[0]; ++i)
+				{
+					const int index1 = this->index3DtoLinear(i, j, 0);
+					const int index2 = this->index3DtoLinear(i, j, this->inputDimension[2] - 1);
+					const int index3 = this->index3DtoLinear(i, j, this->inputDimension[2] - 2);
+
+					this->updateValue(&output[index1], s, -input[index1]);
+					this->updateValue(&output[index2], s, input[index3]);
 				}
 			}
 		}
-
-		#pragma omp parallel for
-		for (int j = 0; j < this->inputDimension[1]; ++j)
-		{
-			for (int i = 0; i < this->inputDimension[0]; ++i)
+		if(this->type == central)
+		{	
+			#pragma omp parallel for
+			for (int k = 1; k < sizeZ; ++k)
 			{
-				const int index1 = this->index3DtoLinear(i, j, 0);
-				const int index2 = this->index3DtoLinear(i, j, this->inputDimension[2] - 1);
-				const int index3 = this->index3DtoLinear(i, j, this->inputDimension[2] - 2);
+				for (int j = 0; j < sizeY; ++j)
+				{
+					for (int i = 0; i < sizeX; ++i)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
+						const int tmpIndex1 = this->index3DtoLinear(i, j, k - 1);
+						const int tmpIndex2 = this->index3DtoLinear(i, j, k + 1);
 
-				this->updateValue(&output[index1], s, -input[index1]);
-				this->updateValue(&output[index2], s, input[index3]);
+						this->updateValue(&output[tmpIndex], s, static_cast<T>(-0.5) * (input[tmpIndex2] - input[tmpIndex1]));
+					}
+				}
 			}
 		}
 	}
@@ -823,29 +945,62 @@ public:
 		int sizeY = this->inputDimension[1];
 		int sizeX = this->inputDimension[0] - 1;
 
-		#pragma omp parallel for
-		for (int j = 0; j < sizeY; ++j)
+		if(this->type == forward)
 		{
-			for (int i = 0; i < sizeX; ++i)
+			#pragma omp parallel for
+			for (int j = 0; j < sizeY; ++j)
 			{
-				const int tmpIndex = this->index2DtoLinear(i, j);
-
-				switch (s)
+				for (int i = 0; i < sizeX; ++i)
 				{
-					case PLUS:
+					const int tmpIndex = this->index2DtoLinear(i, j);
+
+					switch (s)
 					{
-						output[tmpIndex] += input[tmpIndex + 1] - input[tmpIndex];
-						break;
+						case PLUS:
+						{
+							output[tmpIndex] += input[tmpIndex + 1] - input[tmpIndex];
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex] -= input[tmpIndex + 1] - input[tmpIndex];
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex] = input[tmpIndex + 1] - input[tmpIndex];
+							break;
+						}
 					}
-					case MINUS:
+				}
+			}
+		}
+		if(this->type == central)
+		{
+			#pragma omp parallel for
+			for (int j = 0; j < sizeY; ++j)
+			{
+				for (int i = 1; i < sizeX; ++i)
+				{
+					const int tmpIndex = this->index2DtoLinear(i, j);
+
+					switch (s)
 					{
-						output[tmpIndex] -= input[tmpIndex + 1] - input[tmpIndex];
-						break;
-					}
-					case EQUALS:
-					{
-						output[tmpIndex] = input[tmpIndex + 1] - input[tmpIndex];
-						break;
+						case PLUS:
+						{
+							output[tmpIndex] += 0.5*(input[tmpIndex + 1] - input[tmpIndex - 1]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex] -= 0.5*(input[tmpIndex + 1] - input[tmpIndex - 1]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex] = 0.5*(input[tmpIndex + 1] - input[tmpIndex - 1]);
+							break;
+						}
 					}
 				}
 			}
@@ -857,29 +1012,62 @@ public:
 		int sizeY = this->inputDimension[1] - 1;
 		int sizeX = this->inputDimension[0];
 
-		#pragma omp parallel for
-		for (int j = 0; j < sizeY; ++j)
+		if (this->type == forward)
 		{
-			for (int i = 0; i < sizeX; ++i)
+			#pragma omp parallel for
+			for (int j = 0; j < sizeY; ++j)
 			{
-				const int tmpIndex = this->index2DtoLinear(i, j);
-
-				switch (s)
+				for (int i = 0; i < sizeX; ++i)
 				{
-					case PLUS:
+					const int tmpIndex = this->index2DtoLinear(i, j);
+
+					switch (s)
 					{
-						output[tmpIndex] += input[tmpIndex + sizeX] - input[tmpIndex];
-						break;
+						case PLUS:
+						{
+							output[tmpIndex] += input[tmpIndex + sizeX] - input[tmpIndex];
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex] -= input[tmpIndex + sizeX] - input[tmpIndex];
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex] = input[tmpIndex + sizeX] - input[tmpIndex];
+							break;
+						}
 					}
-					case MINUS:
+				}
+			}
+		}
+		if(this->type == central)
+		{
+			#pragma omp parallel for
+			for (int j = 1; j < sizeY; ++j)
+			{
+				for (int i = 0; i < sizeX; ++i)
+				{
+					const int tmpIndex = this->index2DtoLinear(i, j);
+
+					switch (s)
 					{
-						output[tmpIndex] -= input[tmpIndex + sizeX] - input[tmpIndex];
-						break;
-					}
-					case EQUALS:
-					{
-						output[tmpIndex] = input[tmpIndex + sizeX] - input[tmpIndex];
-						break;
+						case PLUS:
+						{
+							output[tmpIndex] += 0.5*(input[tmpIndex + sizeX] - input[tmpIndex - sizeX]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex] -= 0.5*(input[tmpIndex + sizeX] - input[tmpIndex - sizeX]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex] = 0.5*(input[tmpIndex + sizeX] - input[tmpIndex - sizeX]);
+							break;
+						}
 					}
 				}
 			}
@@ -891,55 +1079,87 @@ public:
 		int sizeY = this->inputDimension[1];
 		int sizeX = this->inputDimension[0] - 1;
 
-		#pragma omp parallel for
-		for (int j = 0; j < sizeY; ++j)
+		if(this->type == forward)
 		{
-			for (int i = 1; i < sizeX; ++i)
+			#pragma omp parallel for
+			for (int j = 0; j < sizeY; ++j)
 			{
-				int tmpIndex = this->index2DtoLinear(i, j);
+				for (int i = 1; i < sizeX; ++i)
+				{
+					int tmpIndex = this->index2DtoLinear(i, j);
 
+					switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - 1]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - 1]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - 1]);
+							break;
+						}
+					}
+				}
+			}
+
+			for (int j = 0; j < this->inputDimension[1]; ++j)
+			{
 				switch (s)
 				{
 					case PLUS:
 					{
-						output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - 1]);
+						output[this->index2DtoLinear(0, j)] += -input[this->index2DtoLinear(0, j)];
+						output[this->index2DtoLinear(this->inputDimension[0] - 1, j)] += input[this->index2DtoLinear(this->inputDimension[0] - 2, j)];
 						break;
 					}
 					case MINUS:
 					{
-						output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - 1]);
+						output[this->index2DtoLinear(0, j)] -= -input[this->index2DtoLinear(0, j)];
+						output[this->index2DtoLinear(this->inputDimension[0] - 1, j)] -= input[this->index2DtoLinear(this->inputDimension[0] - 2, j)];
 						break;
 					}
 					case EQUALS:
 					{
-						output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - 1]);
+						output[this->index2DtoLinear(0, j)] = -input[this->index2DtoLinear(0, j)];
+						output[this->index2DtoLinear(this->inputDimension[0] - 1, j)] = input[this->index2DtoLinear(this->inputDimension[0] - 2, j)];
 						break;
 					}
 				}
 			}
 		}
-
-		for (int j = 0; j < this->inputDimension[1]; ++j)
+		else if(this->type == central)
 		{
-			switch (s)
+			#pragma omp parallel for
+			for (int j = 0; j < sizeY; ++j)
 			{
-				case PLUS:
+				for (int i = 1; i < sizeX; ++i)
 				{
-					output[this->index2DtoLinear(0, j)] += -input[this->index2DtoLinear(0, j)];
-					output[this->index2DtoLinear(this->inputDimension[0] - 1, j)] += input[this->index2DtoLinear(this->inputDimension[0] - 2, j)];
-					break;
-				}
-				case MINUS:
-				{
-					output[this->index2DtoLinear(0, j)] -= -input[this->index2DtoLinear(0, j)];
-					output[this->index2DtoLinear(this->inputDimension[0] - 1, j)] -= input[this->index2DtoLinear(this->inputDimension[0] - 2, j)];
-					break;
-				}
-				case EQUALS:
-				{
-					output[this->index2DtoLinear(0, j)] = -input[this->index2DtoLinear(0, j)];
-					output[this->index2DtoLinear(this->inputDimension[0] - 1, j)] = input[this->index2DtoLinear(this->inputDimension[0] - 2, j)];
-					break;
+					int tmpIndex = this->index2DtoLinear(i,j);
+					switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex] += static_cast<T>(-0.5) *(input[tmpIndex + 1]-input[tmpIndex - 1]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex] -= static_cast<T>(-0.5) *(input[tmpIndex + 1]-input[tmpIndex - 1]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex] = static_cast<T>(-0.5) *(input[tmpIndex + 1]-input[tmpIndex - 1]);
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -950,56 +1170,91 @@ public:
 		int sizeY = this->inputDimension[1] - 1;
 		int sizeX = this->inputDimension[0];
 
-		#pragma omp parallel for
-		for (int j = 1; j < sizeY; ++j)
+		if(this->type == forward)
 		{
-			for (int i = 0; i < sizeX; ++i)
+			#pragma omp parallel for
+			for (int j = 1; j < sizeY; ++j)
 			{
-				int tmpIndex = this->index2DtoLinear(i, j);
+				for (int i = 0; i < sizeX; ++i)
+				{
+					int tmpIndex = this->index2DtoLinear(i, j);
 
+					switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - sizeX]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - sizeX]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - sizeX]);
+							break;
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < this->inputDimension[0]; ++i)
+			{
 				switch (s)
 				{
 					case PLUS:
 					{
-						output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - sizeX]);
+						output[this->index2DtoLinear(i, 0)] += -input[this->index2DtoLinear(i, 0)];
+						output[this->index2DtoLinear(i, this->inputDimension[1] - 1)] += input[this->index2DtoLinear(i, this->inputDimension[1] - 2)];
 						break;
 					}
 					case MINUS:
 					{
-						output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - sizeX]);
+						output[this->index2DtoLinear(i, 0)] -= -input[this->index2DtoLinear(i, 0)];
+						output[this->index2DtoLinear(i, this->inputDimension[1] - 1)] -= input[this->index2DtoLinear(i, this->inputDimension[1] - 2)];
 						break;
 					}
 					case EQUALS:
 					{
-						output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - sizeX]);
+						output[this->index2DtoLinear(i, 0)] = -input[this->index2DtoLinear(i, 0)];
+						output[this->index2DtoLinear(i, this->inputDimension[1] - 1)] = input[this->index2DtoLinear(i, this->inputDimension[1] - 2)];
 						break;
 					}
 				}
 			}
 		}
-
-		for (int i = 0; i < this->inputDimension[0]; ++i)
+		else if(this->type == central)
 		{
-			switch (s)
+			#pragma omp parallel for
+			for (int j = 1; j < sizeY; ++j)
 			{
-			case PLUS:
-			{
-				output[this->index2DtoLinear(i, 0)] += -input[this->index2DtoLinear(i, 0)];
-				output[this->index2DtoLinear(i, this->inputDimension[1] - 1)] += input[this->index2DtoLinear(i, this->inputDimension[1] - 2)];
-				break;
-			}
-			case MINUS:
-			{
-				output[this->index2DtoLinear(i, 0)] -= -input[this->index2DtoLinear(i, 0)];
-				output[this->index2DtoLinear(i, this->inputDimension[1] - 1)] -= input[this->index2DtoLinear(i, this->inputDimension[1] - 2)];
-				break;
-			}
-			case EQUALS:
-			{
-				output[this->index2DtoLinear(i, 0)] = -input[this->index2DtoLinear(i, 0)];
-				output[this->index2DtoLinear(i, this->inputDimension[1] - 1)] = input[this->index2DtoLinear(i, this->inputDimension[1] - 2)];
-				break;
-			}
+				for (int i = 0; i < sizeX; ++i)
+				{
+					int tmpIndex = this->index2DtoLinear(i,j);
+					int tmpIndex1 = this->index2DtoLinear(i,j-1);
+					int tmpIndex2 = this->index2DtoLinear(i,j+1);
+
+					switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex] += static_cast<T>(-0.5) *(input[tmpIndex2]-input[tmpIndex1]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex] -= static_cast<T>(-0.5) *(input[tmpIndex2]-input[tmpIndex1]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex] = static_cast<T>(-0.5) *(input[tmpIndex2]-input[tmpIndex1]);
+							break;
+						}
+					}
+				}
 			}
 		}
 	}

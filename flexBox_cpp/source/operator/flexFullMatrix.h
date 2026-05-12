@@ -40,6 +40,16 @@ public:
 		return A;
 	}
 
+	Tdata giveValueList()
+	{
+		return this->valueList;
+	}
+
+    void setValueList(const Tdata& data)
+    {
+        valueList = data;
+    }
+
 	void times(bool transposed, const Tdata &input, Tdata &output)
 	{
 

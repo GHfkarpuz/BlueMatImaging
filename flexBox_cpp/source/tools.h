@@ -93,7 +93,7 @@ enum linOp
 	superpixelOp,
   	concatOp,
 	opticalFlowOp,
-	opticalFlowOpSingle
+	massPreservationOp
 };
 
 //! enum representing the type of gradient

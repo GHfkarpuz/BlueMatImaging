@@ -22,6 +22,7 @@
 #include "operator/flexSuperpixelOperator.h"
 #include "operator/flexConcatOperator.h"
 #include "operator/flexOpticalFlowOperator.h"
+#include "operator/flexMassPreservationOperator.h"
 
 #include "flexBox.h"
 
@@ -61,17 +62,66 @@ namespace py = pybind11;
 
 std::unique_ptr<flexBox<double>> mainObject = nullptr;
 
-void copyNumpyToFlexMatrix(py::array_t<double> mat, flexMatrix<double>* A)
+template <typename T>
+void copyNumpyToFlexMatrix(const py::array_t<T> &mat, flexMatrix<T>* A)
 {
-    auto buf = mat.request();  // get information aboout buffer
-    floatingType* ptr = static_cast<floatingType*>(buf.ptr);
-    size_t size = 1;
-    for (auto r : buf.shape) {
-        size *= r;
+    py::buffer_info buf = mat.request();
+
+    if (buf.ndim != 2)
+        throw std::runtime_error("Matrix must be 2D");
+
+    const int rows = static_cast<int>(buf.shape[0]);
+    const int cols = static_cast<int>(buf.shape[1]);
+
+    const T* ptr = static_cast<const T*>(buf.ptr);
+
+    // wichtig: C-order flatten
+    std::vector<T> data;
+    data.reserve(rows * cols);
+
+    for (int i = 0; i < rows; ++i)
+    {
+        const T* row_ptr = ptr + i * cols;
+        for (int j = 0; j < cols; ++j)
+        {
+            data.push_back(row_ptr[j]);
+        }
     }
 
-    vectorData mat_cpp(ptr, ptr + size);
-    A->setValueList(mat_cpp);
+    A->setValueList(data);
+}
+
+template <typename T>
+void copyNumpyToFlexFullMatrix(const py::array_t<T> &mat, flexFullMatrix<T>* A)
+{
+    py::buffer_info buf = mat.request();
+
+    if (buf.ndim != 2)
+        throw std::runtime_error("Matrix must be 2D");
+
+    const int rows = static_cast<int>(buf.shape[0]);
+    const int cols = static_cast<int>(buf.shape[1]);
+
+    const T* ptr = static_cast<const T*>(buf.ptr);
+
+    // 
+    A->setNumRows(rows);
+    A->setNumCols(cols);
+
+    std::vector<T> data;
+    data.reserve(rows * cols);
+
+    // 
+    for (int i = 0; i < rows; ++i)
+    {
+        const T* row_ptr = ptr + i * cols;
+        for (int j = 0; j < cols; ++j)
+        {
+            data.push_back(row_ptr[j]);
+        }
+    }
+
+    A->setValueList(data);
 }
 
 flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict, int verbose, int operatorNumber, bool isGPU = false)
@@ -96,7 +146,7 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         if (verbose > 1) printf("Operator %d is type <gradientOperator>\n", operatorNumber);
 
         std::string gradTypeStr = operatorDict["gradType"].cast<std::string>();
-        int gradDirection = operatorDict["gradDirection"].cast<int>() - 1;
+        int gradDirection = operatorDict["gradDirection"].cast<int>();
 
         gradientType gradT = gradientType::forward;
         if (gradTypeStr == "backward") gradT = backward;
@@ -156,6 +206,15 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         copyNumpyToFlexMatrix(mat, Atmp);
         A = Atmp;
     }
+    else if (type == "fullMatrix") {
+        if (verbose > 1) printf("Operator %d is type <matrix>\n", operatorNumber);
+
+        py::array_t<double> mat = operatorDict["matrix"].cast<py::array_t<double>>();
+
+        auto Atmp = new flexFullMatrix<double>(mat.shape(0), mat.shape(1), isMinus);
+        copyNumpyToFlexFullMatrix(mat, Atmp);
+        A = Atmp;
+    }
     else if(type == "opticalFlowOp"){
         //TODO Fehler fixen
         if (verbose > 1) printf("Operator %d is type <opticalFlowOp>\n", operatorNumber);
@@ -178,6 +237,29 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         //create operator
         auto AOpticalFlow = new flexOpticalFlowOperator<double>(imageVec, inputDimension, direction, isMinus);
         A = AOpticalFlow;
+    }
+    else if(type == "massPreservationOp"){
+        //TODO Fehler fixen
+        if (verbose > 1) printf("Operator %d is type <massPreservationOp>\n", operatorNumber);
+
+        py::array_t<double> img = operatorDict["image"].cast<py::array_t<double>>();
+        int direction = operatorDict["direction"].cast<int>();
+
+        //take the image
+        auto buf = img.request();
+
+        double* ptr = static_cast<double*>(buf.ptr);
+        size_t size = 1;
+        for (auto r : buf.shape) size *= r;
+
+        std::vector<double> imageVec(ptr, ptr + size);
+
+        //dimensions
+        std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
+
+        //create operator
+        auto AMassPreservation = new flexMassPreservationOperator<double>(imageVec, inputDimension, direction, isMinus);
+        A = AMassPreservation;
     }
     else {
         throw std::runtime_error("Operator type not supported!");

@@ -132,7 +132,7 @@ public:
 		\param transposed is true if operator should be (temporarily) transposed before usage
 		\return vector of sum of absolute values per row
 	*/
-		virtual thrust::device_vector<T> getAbsRowSumCUDA(bool transposed) = 0;
+	virtual thrust::device_vector<T> getAbsRowSumCUDA(bool transposed) = 0;
 	#endif
 
 	//! returns the maximum sum of absolute values per row used for preconditioning

@@ -248,10 +248,13 @@ examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexOpticalFlowOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexLinearOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexMassPreservationOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexIdentityOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexGradientOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox/flexProxDualDataL2.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox/flexProx.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox/flexProxDualL1Iso.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox/flexProxDualDataOpticalFlowL2.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexMatrix.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexFullMatrix.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples/sampleFiles.h

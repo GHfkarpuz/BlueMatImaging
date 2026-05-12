@@ -8,11 +8,15 @@
 #include "flexBox.h"
 #include "flexLinearOperator.h"
 #include "flexOpticalFlowOperator.h"
+#include "flexMassPreservationOperator.h"
 #include "flexIdentityOperator.h"
 #include "flexGradientOperator.h"
 #include "flexProxDualDataL2.h"
 #include "flexProxDualL1Iso.h"
 #include "flexProxDualDataOpticalFlowL2.h"
+#include "flexMatrix.h"
+#include "flexFullMatrix.h"
+
 
 #include "sampleFiles.h"
 

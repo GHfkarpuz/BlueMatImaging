@@ -5,7 +5,8 @@
 #include "flexLinearOperator.h"
 #include "flexGradientOperator.h"
 
-//! represents the grad(u)/cdot operator for the optical flow condition (u_t + grad(u)*v)=0 where v is the searched motion 
+//! represents the grad(u)/cdot operator for the optical flow condition (u_t + grad(u)*v)=0 where v is the searched motion
+// in the times() methods transposed is always set to true, because the adjoint operator is self-adjoint in this case
 template <typename T>
 class flexOpticalFlowOperator : public flexLinearOperator<T>
 {
@@ -87,46 +88,34 @@ public:
 	}
 
 	//apply linear operator to vector
-	void times(bool transposed, const Tdata &input, Tdata &output) override
+	void times(bool transposed, const Tdata &input, Tdata &output)
 	{
-		this->doTimes(transposed, input, output);
+		this->doTimes(transposed, input,output,EQUALS);
 	}
 
-	void doTimes(bool transposed, const Tdata &input, Tdata &output)
-    {
-        std::fill(output.begin(), output.end(), static_cast<T>(0));
-		
-
-        for (int k = 0; k < N; ++k)
+	void timesPlus(bool transposed, const Tdata &input, Tdata &output)
+	{
+        if (this->isMinus)
         {
-            T sum = 0;
-
-            output[k] = input[k]*gradImage[k];
+            this->doTimes(transposed, input,output, MINUS);
         }
-    }
-
-    void timesPlus(bool transposed, const Tdata &input, Tdata &output) override
-    {
-        for (int k = 0; k < N; ++k)
+        else
         {
-            T sum = 0;
-
-            output[k] += input[k]*gradImage[k];
+            this->doTimes(transposed, input,output, PLUS);
         }
-    }
+	}
 
-    void timesMinus(bool transposed, const Tdata &input, Tdata &output) override
-    {
-        for (int k = 0; k < N; ++k)
+	void timesMinus(bool transposed, const Tdata &input, Tdata &output)
+	{
+        if (this->isMinus)
         {
-            T sum = 0;
-
-            output[k] -= input[k]*gradImage[k];
+            this->doTimes(transposed, input,output, PLUS);
         }
-    }
-
-
-
+        else
+        {
+            this->doTimes(transposed, input,output, MINUS);
+        }
+	}
 
 	std::vector<T> getAbsRowSum(bool transposed) override
 	{
@@ -169,40 +158,107 @@ public:
 	}
 	#endif
 
+	#ifdef __CUDACC__
+    struct flexOpticalFlowOperatorFunctor
+	{
+		mySign s;
+		bool transposed;
+
+		__host__ __device__
+		flexOpticalFlowOperatorFunctor(const mySign _s, bool _t) : s(_s), transposed(_t){}
+
+		template <typename Tuple>
+		__host__ __device__
+		void operator()(Tuple t)
+		{
+			transposed = false;
+			if(!transposed)
+			{
+				switch (this->s)
+				{
+					case PLUS:
+					{
+						thrust::get<0>(t) += thrust::get<1>(t) * thrust::get<2>(t);
+						break;
+					}
+					case MINUS:
+					{
+						thrust::get<0>(t) -= thrust::get<1>(t) * thrust::get<2>(t);
+						break;
+					}
+					case EQUALS:
+					{
+						thrust::get<0>(t) = thrust::get<1>(t) * thrust::get<2>(t);
+						break;
+					}
+				}
+			}
+			else
+			{
+				throw std::runtime_error("transposed operator not implemented yet");
+			}
+		}
+	};
+    #endif
+
 
 private:
 
-	void doTimesCPU(const Tdata &input, Tdata &output)
-	{
-		int N = static_cast<int>(output.size());
-
-		std::fill(output.begin(), output.end(), static_cast<T>(0));
-
-		#pragma omp parallel for
-		for (int k = 0; k < N; ++k)
+	void doTimesCPU(bool transposed, const Tdata &input, Tdata &output, const mySign s)
+    {
+		transposed = false;
+		if(!transposed)
 		{
-			output[k] = input[k] * gradImage[k];
+			#pragma omp parallel for
+			for (int k = 0; k < N; ++k)
+			{
+				switch (s)
+				{
+					case PLUS:
+					{
+						output[k] += input[k]*gradImage[k];
+						break;
+					}
+					case MINUS:
+					{
+						output[k] -= input[k]*gradImage[k];
+						break;
+					}
+					case EQUALS:
+					{
+						output[k] = input[k]*gradImage[k];
+						break;
+					}
+				}
+			}
 		}
-	}
-
-  	void doTimesCUDA(const Tdata &input, Tdata &output)
-	{
-	#ifdef __CUDACC__
-
-		int N = static_cast<int>(output.size());
-
-		thrust::fill(output.begin(), output.end(), static_cast<T>(0));
-
-		#pragma omp parallel for
-		for (int k = 0; k < N; ++k)
+		else
 		{
-			output[k] = input[k] * gradImage[k];
+			throw std::runtime_error("transposed operator not implemented yet");
 		}
+    }
 
-	#else
-		this->doTimesCPU(input, output);
-	#endif
-	}
+
+
+	void doTimes(bool transposed, const Tdata &input, Tdata &output,const mySign s)
+	{
+		transposed = false;
+        #ifdef __CUDACC__
+			if(!transposed)
+			{
+				thrust::for_each(
+					thrust::make_zip_iterator(thrust::make_tuple(output.begin(), input.begin(), this->gradImage.begin())),
+					thrust::make_zip_iterator(thrust::make_tuple(output.end(),   input.end(),   this->gradImage.end())),
+				flexOpticalFlowOperatorFunctor(s, transposed));
+			}
+			else
+			{
+				throw std::runtime_error("transposed operator not implemented yet");
+			}
+        #else
+            this->doTimesCPU(transposed,input,output,s);
+        #endif
+  }
 };
 
 #endif

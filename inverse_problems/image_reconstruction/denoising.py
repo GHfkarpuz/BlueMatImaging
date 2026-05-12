@@ -38,7 +38,7 @@ nPx = H * W
 solver.add_primal(np.zeros(nPx))
 
 # Data term (L2): ||x - f||²
-f_vec = noise.flatten()
+f_vec = noise.flatten(order="F")
 
 identity_op = {
     "type": "identityOperator",
@@ -80,8 +80,31 @@ solver.add_dual(
 # start the solver
 x_out, _ = solver.solve()
 
-result = x_out[0].reshape(H, W)
+result = x_out[0].reshape(H, W, order="F")
 
+"""
+plt.subplot(1,2,1)
+plt.imshow(noise)
+plt.subplot(1,2,2)
+plt.imshow(noise.reshape(H,W, order="F"))
+plt.savefig("test.png", dpi=200)
+
+vec_c = noise.flatten(order="C")
+vec_f = noise.flatten(order="F")
+
+img_c = vec_c.reshape(H, W, order="C")
+img_f = vec_c.reshape(H, W, order="F")  # bewusst falsch
+
+plt.figure()
+plt.subplot(1,2,1)
+plt.title("correct")
+plt.imshow(img_c, cmap="gray")
+
+plt.subplot(1,2,2)
+plt.title("wrong mapping")
+plt.imshow(img_f, cmap="gray")
+plt.savefig("newTest.png",dpi=200, bbox_inches="tight")
+"""
 
 # vizualize
 plt.figure(figsize=(12,4))

@@ -1,0 +1,3 @@
+# ignore data in TimonTests
+inverse_problems/TimonTests/*.npz
+inverse_problems/TimonTests/*.npy

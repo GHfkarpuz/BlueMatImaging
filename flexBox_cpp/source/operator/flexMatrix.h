@@ -58,7 +58,16 @@ public:
 
 	void times(bool transposed, const Tdata &input, Tdata &output)
 	{
-
+		std::fill(output.begin(), output.end(), static_cast<T>(0));
+		std::cout << "Applying matrix operator" << std::endl;
+		if (this->isMinus)
+		{
+			doTimesCPU(transposed, input, output, MINUS);
+		}
+		else
+		{
+			doTimesCPU(transposed, input, output, PLUS);
+		}
 	}
 
 	void timesPlus(bool transposed, const Tdata &input, Tdata &output)

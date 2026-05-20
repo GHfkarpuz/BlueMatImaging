@@ -8,6 +8,7 @@
 #include "flexBox.h"
 #include "flexLinearOperator.h"
 #include "flexOpticalFlowOperator.h"
+//#include "flexJointOpticalFlowOperator.h"
 #include "flexMassPreservationOperator.h"
 #include "flexIdentityOperator.h"
 #include "flexGradientOperator.h"

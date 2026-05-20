@@ -9,12 +9,11 @@ import matplotlib.pyplot as plt
 from wrapper import FlexBoxSolver # python wrapper
 
 
-# test file for the L2-L2 optical flow model: argmin_{v\in \mathbb{R}^{inputDimension*nPx}} \frac[weight_data}{2}*||u_t + grad(u)*v||_{2}^{2} + \frac{weight_L2}{2}*\sum_{i=1}^{inputDimension} ||grad(v_i)||_{2}^{2}
-
+# test file for the L2-TV mass preservation model
 
 # parameters
 weight_data = 1.0
-weight_L2 = 1.0
+weight_TV = 0.01
 timeStep = 1.0
 
 
@@ -26,10 +25,9 @@ img1_np = np.array(img1).astype(np.float32)
 img2_np = np.array(img2).astype(np.float32)
 
 
-print(img1_np[::10])
+img1_np = img1_np
+img2_np = img2_np
 
-img1_np = img1_np/2000.0
-img2_np = img2_np/2000.0
 
 print(img1_np[::10])
 
@@ -44,7 +42,7 @@ nPx = img1_np.size
 img1_vec = img1_np.flatten(order="F")
 
 # initialise solver
-solver = FlexBoxSolver(maxIt=10000, tol=1e-6, verbose=2)
+solver = FlexBoxSolver(maxIt=2000, tol=1e-6, verbose=2)
 
 # primal variables
 dim = len(inputDimension)
@@ -75,7 +73,7 @@ massPreservationOp2 = {
 
 # compute -u_t as the data
 if(dim == 2):
-    negUT = (-(img2_np - img1_np)/timeStep).flatten(order="F")
+    negUT = ((-(img2_np - img1_np)/timeStep)/255.0).flatten(order="F")
 
 #TODO ab hier weiter anpassen
 solver.add_dual(
@@ -86,24 +84,48 @@ solver.add_dual(
         operator_dict = [massPreservationOp1, massPreservationOp2]
     )
 
-#generate list of gradient operators with one entry for each dimension len(inputdimension)
-grad_ops = []
+#generate gradient operators 
 
-for j in range(dim):
-    grad_ops.append({
-        "type": "gradientOperator",
-        "gradType": "central",
-        "gradDirection": j,
+grad_x={"type": "gradientOperator",
+        "gradType": "forward",
+        "gradDirection": 0,
         "inputDimension": inputDimension
-    })
-for j in range(dim):
-    solver.add_dual(
-        prox_type="L1AnisoProxDual",
-        alpha=weight_L2,
-        f_list=[np.zeros(nPx)],  # no Offset
-        corresponding_primals= corresponding_primals,
-        operator_dict=grad_ops
-    )
+    }
+grad_y={"type": "gradientOperator",
+        "gradType": "forward",
+        "gradDirection": 1,
+        "inputDimension": inputDimension
+}
+
+"""
+# TV regularizer
+solver.add_dual(
+    prox_type="L1IsoProxDual",
+    alpha=weight_TV,
+    f_list=[np.zeros(nPx)],
+    corresponding_primals= corresponding_primals,
+    operator_dict=[grad_x, grad_y]
+)
+"""
+
+# TV auf v_x
+solver.add_dual(
+    prox_type="L1IsoProxDual",
+    alpha=weight_TV,
+    f_list=[np.zeros(nPx)],
+    corresponding_primals=[0],
+    operator_dict=[grad_x, grad_y]
+)
+
+# TV auf v_y
+solver.add_dual(
+    prox_type="L1IsoProxDual",
+    alpha=weight_TV,
+    f_list=[np.zeros(nPx)],
+    corresponding_primals=[1],
+    operator_dict=[grad_x, grad_y]
+)
+
 
 
 # start the solver

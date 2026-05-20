@@ -22,6 +22,8 @@ private:
 	std::vector<int> inputDimension;
 	Tdata gradU; //derivative of u
 	Tdata gradV; //derivative of v
+	Tdata tmp;
+	Tdata tmp2;
 	flexGradientOperator<T>* A;
 	int direction;
 	int dim;
@@ -40,13 +42,50 @@ public:
 		this->dim = inputDimension.size();
 		this->N = vectorProduct(inputDimension);
 		this->gradV.resize(image.size(), T(0));
+		tmp.resize(N);
+		tmp2.resize(N);
 
 		//gradients for each direction are necessary
 		A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
 
+		for (int k = 0; k < N; ++k)
+		{
+			this->image[k] *= 1.0 / 255.0;
+		}
 
 		this->gradU.resize(N);
-		A->doTimes(false, image, this->gradU, EQUALS);//setting gradU to be the derivative of u for the given direction
+		A->doTimes(false, this->image, this->gradU, EQUALS);//setting gradU to be the derivative of u for the given direction
+
+		Tdata x(N), y(N);
+
+		for(int i=0;i<N;i++){
+			x[i] = 0.1 * i;
+			y[i] = std::sin(i * 0.01);
+		}
+
+
+		Tdata Ax(N,0), ATy(N,0);
+
+		// forward
+		A->doTimes(false, x, Ax, EQUALS);
+
+		// adjoint
+		A->doTimes(true, y, ATy, EQUALS);
+
+		// inner products
+		T lhs = 0;
+		T rhs = 0;
+
+		for(int i=0;i<N;i++){
+			lhs += Ax[i] * y[i];
+			rhs += x[i] * ATy[i];
+		}
+
+		std::cout << "LHS: " << lhs << std::endl;
+		std::cout << "RHS: " << rhs << std::endl;
+		std::cout << "relative error: "
+				<< std::abs(lhs-rhs)/(std::abs(lhs)+1e-12)
+				<< std::endl;
 
 		#ifdef __CUDACC__
 			//??
@@ -73,6 +112,10 @@ public:
 			//gradients for each direction are necessary
 			A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
 
+			for (int k = 0; k < N; ++k)
+			{
+				this->image[k] *= 1.0 / 255.0;
+			}
 
 			this->gradU.resize(N);
 			A->doTimes(false, image, this->gradU, EQUALS);//setting gradU to be the derivative of u for the given direction
@@ -165,13 +208,13 @@ public:
 				switch (s)
 				{
 					case PLUS:
-						out += -img * gV;
+						out += gV + gU * in;
 						break;
 					case MINUS:
-						out -= -img * gV;
+						out -= gV + gU * in;
 						break;
 					case EQUALS:
-						out = -img * gV;
+						out = gV + gU * in;
 						break;
 				}
 			}
@@ -186,6 +229,7 @@ public:
 
 		std::vector<T> gradRowSum = A->getAbsRowSum(transposed);
 		//std::vector<T> gradRowSum = this->gradV; 
+
 		
 		if(!transposed)
 		{	
@@ -200,7 +244,7 @@ public:
 			#pragma omp parallel for
 			for (int k = 0; k < N; ++k)
 			{
-				result[k] = std::abs(image[k])*gradRowSum[k];
+				result[k] = std::abs(image[k])*gradRowSum[k]+std::abs(gradU[k]);
 			}
 		}
 
@@ -266,9 +310,10 @@ private:
 
 	void doTimesCPU(bool transposed, const Tdata &input, Tdata &output, const mySign s)
 	{
-		A->doTimes(false, input, this->gradV, EQUALS);
+		
 		if(!transposed)
 		{
+			A->doTimes(false, input, this->gradV, EQUALS);
 			#pragma omp parallel for
 			for (int k = 0; k < N; ++k)
 			{
@@ -294,27 +339,40 @@ private:
 		}
 		else
 		{
+
+			//tmp = u * y
 			#pragma omp parallel for
-			for (int k = 0; k<N; ++k)
+			for(int k=0;k<N;++k)
 			{
-				switch (s)
+				tmp[k] = image[k] * input[k];
+			}
+
+			//tmp2 = A^T (u y)
+			A->doTimes(true, tmp, tmp2, EQUALS);
+
+			#pragma omp parallel for
+			for(int k=0;k<N;++k)
+			{
+				switch(s)
+				{
+					case PLUS:
 					{
-						case PLUS:
-						{
-							output[k] += -image[k]*gradV[k];
-							break;
-						}
-						case MINUS:
-						{
-							output[k] -= -image[k]*gradV[k];
-							break;
-						}
-						case EQUALS:
-						{
-							output[k] = -image[k]*gradV[k];
-							break;
-						}
+						output[k] += tmp2[k] + gradU[k] * input[k];
+						break;
 					}
+
+					case MINUS:
+					{
+						output[k] -= tmp2[k] + gradU[k] * input[k];
+						break;
+					}
+
+					case EQUALS:
+					{
+						output[k] = tmp2[k] + gradU[k] * input[k];
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -322,7 +380,24 @@ private:
   	void doTimes(bool transposed, const Tdata &input, Tdata &output, const mySign s)
 	{
 	#ifdef __CUDACC__
-		A->doTimes(false, input, this->gradV, EQUALS);
+		if(!transposed)
+		{
+			A->doTimes(transposed, input, this->gradV, EQUALS);
+		}
+		else
+		{
+			Tdata tmp(N,0);
+
+			//tmp = u * y
+			#pragma omp parallel for
+			for(int k=0;k<N;++k)
+			{
+				tmp[k] = image[k] * input[k];
+			}
+
+			//tmp2 = A^T (u y)
+			A->doTimes(true, tmp, gradV, EQUALS);//call it gradV for convenience even though it is A^T (u y)
+		}
 
 		thrust::for_each(
 			thrust::make_zip_iterator(

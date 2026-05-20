@@ -1,3 +1,6 @@
 # ignore data in TimonTests
 inverse_problems/TimonTests/*.npz
 inverse_problems/TimonTests/*.npy
+
+# no video files
+inverse_problems/motion_estimation/*.avi

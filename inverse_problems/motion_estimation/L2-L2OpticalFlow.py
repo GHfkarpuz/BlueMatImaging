@@ -14,7 +14,7 @@ from wrapper import FlexBoxSolver # python wrapper
 
 # parameters
 weight_data = 1.0
-weight_L2 = 0.5
+weight_L2 = 0.02
 timeStep = 1.0
 
 
@@ -25,6 +25,10 @@ img2 = Image.open("frame11.bmp").convert("L")
 img1_np = np.array(img1).astype(np.float32)
 img2_np = np.array(img2).astype(np.float32)
 
+"""gets already normed in opitcalFlowOperator
+img1_np = img1_np/255.0
+img2_np = img2_np/255.0
+"""
 
 
 
@@ -38,7 +42,7 @@ nPx = img1_np.size
 img1_vec = img1_np.flatten(order="F")
 
 # initialise solver
-solver = FlexBoxSolver(maxIt=10000, tol=1e-6, verbose=1)
+solver = FlexBoxSolver(maxIt=5000, tol=1e-6, verbose=2)
 
 # primal variables
 dim = len(inputDimension)
@@ -80,24 +84,61 @@ solver.add_dual(
         operator_dict = [opticalFlowOp1, opticalFlowOp2]
     )
 
-#generate list of gradient operators with one entry for each dimension len(inputdimension)
-grad_ops = []
+#generate gradient operators 
 
-for j in range(dim):
-    grad_ops.append({
-        "type": "gradientOperator",
-        "gradType": "central",
-        "gradDirection": j,
+grad_x={"type": "gradientOperator",
+        "gradType": "forward",
+        "gradDirection": 0,
         "inputDimension": inputDimension
-    })
-for j in range(dim):
-    solver.add_dual(
-        prox_type="L2proxDual",
-        alpha=weight_L2,
-        f_list=[np.zeros(nPx)],  # no Offset
-        corresponding_primals=[j],
-        operator_dict=[grad_ops[j]]
-    )
+    }
+grad_y={"type": "gradientOperator",
+        "gradType": "forward",
+        "gradDirection": 1,
+        "inputDimension": inputDimension
+}
+"""
+solver.add_dual(
+    prox_type="L2proxDual",
+    alpha=weight_L2,
+    f_list=[np.zeros(nPx)],  # no Offset
+    corresponding_primals=corresponding_primals,
+    operator_dict=[grad_x, grad_y]
+)
+
+#generate gradient operators 
+
+grad_x={"type": "gradientOperator",
+        "gradType": "forward",
+        "gradDirection": 0,
+        "inputDimension": inputDimension
+    }
+grad_y={"type": "gradientOperator",
+        "gradType": "forward",
+        "gradDirection": 1,
+        "inputDimension": inputDimension
+}
+"""
+
+# L2 on v_x
+solver.add_dual(
+    prox_type="L2proxDual",
+    alpha=weight_L2,
+    f_list=[np.zeros(nPx)],
+    corresponding_primals=[0],
+    operator_dict=[grad_x, grad_y]
+)
+
+# L2 on v_y
+solver.add_dual(
+    prox_type="L2proxDual",
+    alpha=weight_L2,
+    f_list=[np.zeros(nPx)],
+    corresponding_primals=[1],
+    operator_dict=[grad_x, grad_y]
+)
+
+
+
 
 
 # start the solver

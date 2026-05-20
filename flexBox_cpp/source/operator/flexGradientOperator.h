@@ -679,6 +679,14 @@ public:
 
 						this->updateValue(&output[tmpIndex], s, static_cast<T>(0.5) * (input[tmpIndex + 1] - input[tmpIndex-1]));
 					}
+
+					int tmpIndex_edge1 = this->index3DtoLinear(0, j, k);
+
+					this->updateValue(&output[tmpIndex_edge1], s, static_cast<T>(0));
+
+					int tmpIndex_edge2 = this->index3DtoLinear(sizeX, j, k);
+
+					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
 		}
@@ -712,16 +720,23 @@ public:
 			#pragma omp parallel for
 			for (int k = 0; k < sizeZ; ++k)
 			{
-				for (int j = 1; j < sizeY; ++j)
+				for (int i = 0; i < sizeX; ++i)
 				{
-					for (int i = 0; i < sizeX; ++i)
+					for (int j = 1; j < sizeY; ++j)
 					{
 						const int tmpIndex = this->index3DtoLinear(i, j, k);
 						const int tmpIndex1 = this->index3DtoLinear(i, j - 1, k);
 						const int tmpIndex2 = this->index3DtoLinear(i, j + 1, k);
-
+					
 						this->updateValue(&output[tmpIndex], s, static_cast<T>(0.5) * (input[tmpIndex2] - input[tmpIndex1]));
 					}
+					int tmpIndex_edge1 = this->index3DtoLinear(i, 0, k);
+
+					this->updateValue(&output[tmpIndex_edge1], s, static_cast<T>(0));
+
+					int tmpIndex_edge2 = this->index3DtoLinear(i, sizeY, k);
+
+					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
 		}
@@ -753,11 +768,11 @@ public:
 		if(this->type == central)
 		{	
 			#pragma omp parallel for
-			for (int k = 1; k < sizeZ; ++k)
+			for (int i = 0; i < sizeX; ++i)
 			{
 				for (int j = 0; j < sizeY; ++j)
 				{
-					for (int i = 0; i < sizeX; ++i)
+					for (int k = 1; k < sizeZ; ++k)
 					{
 						const int tmpIndex = this->index3DtoLinear(i, j, k);
 						const int tmpIndex1 = this->index3DtoLinear(i, j, k - 1);
@@ -765,6 +780,13 @@ public:
 
 						this->updateValue(&output[tmpIndex], s, static_cast<T>(0.5) * (input[tmpIndex2] - input[tmpIndex1]));
 					}
+					int tmpIndex_edge1 = this->index3DtoLinear(i, j, 0);
+
+					this->updateValue(&output[tmpIndex_edge1], s, static_cast<T>(0));
+
+					int tmpIndex_edge2 = this->index3DtoLinear(i, j, sizeZ);
+
+					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
 		}
@@ -820,6 +842,14 @@ public:
 
 						this->updateValue(&output[tmpIndex],s,static_cast<T>(-0.5) *(input[tmpIndex + 1]-input[tmpIndex - 1]));
 					}
+
+					int tmpIndex_edge1 = this->index3DtoLinear(0, j, k);
+
+					this->updateValue(&output[tmpIndex_edge1], s, static_cast<T>(0));
+
+					int tmpIndex_edge2 = this->index3DtoLinear(sizeX, j, k);
+
+					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
 		}
@@ -867,9 +897,9 @@ public:
 			#pragma omp parallel for
 			for (int k = 0; k < sizeZ; ++k)
 			{
-				for (int j = 1; j < sizeY; ++j)
+				for (int i = 0; i < sizeX; ++i)
 				{
-					for (int i = 0; i < sizeX; ++i)
+					for (int j = 1; j < sizeY; ++j)
 					{
 						const int tmpIndex = this->index3DtoLinear(i, j, k);
 						const int tmpIndex1 = this->index3DtoLinear(i, j - 1, k);
@@ -877,6 +907,14 @@ public:
 
 						this->updateValue(&output[tmpIndex], s, static_cast<T>(-0.5) * (input[tmpIndex2] - input[tmpIndex1]));
 					}
+
+				int tmpIndex_edge1 = this->index3DtoLinear(i, 0, k);
+
+				this->updateValue(&output[tmpIndex_edge1], s, static_cast<T>(0));
+
+				int tmpIndex_edge2 = this->index3DtoLinear(i, sizeY, k);
+
+				this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
 		}
@@ -922,11 +960,11 @@ public:
 		if(this->type == central)
 		{	
 			#pragma omp parallel for
-			for (int k = 1; k < sizeZ; ++k)
+			for (int i = 0; i < sizeX; ++i)
 			{
 				for (int j = 0; j < sizeY; ++j)
 				{
-					for (int i = 0; i < sizeX; ++i)
+					for (int k = 1; k < sizeZ; ++k)
 					{
 						const int tmpIndex = this->index3DtoLinear(i, j, k);
 						const int tmpIndex1 = this->index3DtoLinear(i, j, k - 1);
@@ -934,6 +972,14 @@ public:
 
 						this->updateValue(&output[tmpIndex], s, static_cast<T>(-0.5) * (input[tmpIndex2] - input[tmpIndex1]));
 					}
+						
+					int tmpIndex_edge1 = this->index3DtoLinear(i, j, 0);
+
+					this->updateValue(&output[tmpIndex_edge1], s, static_cast<T>(0));
+
+					int tmpIndex_edge2 = this->index3DtoLinear(i, j, sizeZ);
+
+					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
 		}
@@ -942,11 +988,11 @@ public:
 	//2d cases
 	void dxp2d(const Tdata &input, Tdata &output, mySign s)
 	{
-		int sizeY = this->inputDimension[1];
-		int sizeX = this->inputDimension[0] - 1;
-
 		if(this->type == forward)
 		{
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0] - 1;
+			
 			#pragma omp parallel for
 			for (int j = 0; j < sizeY; ++j)
 			{
@@ -977,10 +1023,13 @@ public:
 		}
 		if(this->type == central)
 		{
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
 			#pragma omp parallel for
 			for (int j = 0; j < sizeY; ++j)
 			{
-				for (int i = 1; i < sizeX; ++i)
+				for (int i = 1; i < sizeX-1; ++i)
 				{
 					const int tmpIndex = this->index2DtoLinear(i, j);
 
@@ -1003,17 +1052,62 @@ public:
 						}
 					}
 				}
+
+				int tmpIndex_edge1 = this->index2DtoLinear(0, j);
+				int tmpIndex_edge2 = this->index2DtoLinear(1, j);
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							break;
+						}
+					}
+
+				int tmpIndex_edge3 = this->index2DtoLinear(sizeX-2, j);
+				int tmpIndex_edge4 = this->index2DtoLinear(sizeX-1, j);
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							break;
+						}
+					}
 			}
 		}
 	}
 
 	void dyp2d(const Tdata &input, Tdata &output, mySign s)
 	{
-		int sizeY = this->inputDimension[1] - 1;
-		int sizeX = this->inputDimension[0];
 
 		if (this->type == forward)
 		{
+			int sizeY = this->inputDimension[1] - 1;
+			int sizeX = this->inputDimension[0];
+
 			#pragma omp parallel for
 			for (int j = 0; j < sizeY; ++j)
 			{
@@ -1044,10 +1138,13 @@ public:
 		}
 		if(this->type == central)
 		{
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
 			#pragma omp parallel for
-			for (int j = 1; j < sizeY; ++j)
+			for (int i = 0; i < sizeX; ++i)
 			{
-				for (int i = 0; i < sizeX; ++i)
+				for (int j = 1; j < sizeY-1; ++j)
 				{
 					const int tmpIndex = this->index2DtoLinear(i, j);
 
@@ -1070,17 +1167,63 @@ public:
 						}
 					}
 				}
+
+				int tmpIndex_edge1 = this->index2DtoLinear(i, 0);
+				int tmpIndex_edge2 = this->index2DtoLinear(i, 1);
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							break;
+						}
+					}
+
+				int tmpIndex_edge3 = this->index2DtoLinear(i, sizeY-2);
+				int tmpIndex_edge4 = this->index2DtoLinear(i, sizeY-1);
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							break;
+						}
+					}
 			}
 		}
 	}
 
 	void dxp2dTransposed(const Tdata &input, Tdata &output, mySign s)
 	{
-		int sizeY = this->inputDimension[1];
-		int sizeX = this->inputDimension[0] - 1;
+		
 
 		if(this->type == forward)
 		{
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0] - 1;
+
 			#pragma omp parallel for
 			for (int j = 0; j < sizeY; ++j)
 			{
@@ -1136,10 +1279,13 @@ public:
 		}
 		else if(this->type == central)
 		{
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
 			#pragma omp parallel for
 			for (int j = 0; j < sizeY; ++j)
 			{
-				for (int i = 1; i < sizeX; ++i)
+				for (int i = 1; i < sizeX-1; ++i)
 				{
 					int tmpIndex = this->index2DtoLinear(i,j);
 					switch (s)
@@ -1161,17 +1307,63 @@ public:
 						}
 					}
 				}
+				
+				int tmpIndex_edge1 = this->index2DtoLinear(0, j);
+				int tmpIndex_edge2 = this->index2DtoLinear(1, j);
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							break;
+						}
+					}
+
+				int tmpIndex_edge3 = this->index2DtoLinear(sizeX-2, j);
+				int tmpIndex_edge4 = this->index2DtoLinear(sizeX-1, j);
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							break;
+						}
+					}
 			}
 		}
 	}
 
 	void dyp2dTransposed(const Tdata &input, Tdata &output, mySign s)
 	{
-		int sizeY = this->inputDimension[1] - 1;
-		int sizeX = this->inputDimension[0];
-
+		
 		if(this->type == forward)
 		{
+			int sizeY = this->inputDimension[1] - 1;
+			int sizeX = this->inputDimension[0];
+
+
 			#pragma omp parallel for
 			for (int j = 1; j < sizeY; ++j)
 			{
@@ -1227,10 +1419,13 @@ public:
 		}
 		else if(this->type == central)
 		{
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
 			#pragma omp parallel for
-			for (int j = 1; j < sizeY; ++j)
+			for (int i = 0; i < sizeX; ++i)
 			{
-				for (int i = 0; i < sizeX; ++i)
+				for (int j = 1; j < sizeY-1; ++j)
 				{
 					int tmpIndex = this->index2DtoLinear(i,j);
 					int tmpIndex1 = this->index2DtoLinear(i,j-1);
@@ -1255,6 +1450,50 @@ public:
 						}
 					}
 				}
+				
+				int tmpIndex_edge1 = this->index2DtoLinear(i, 0);
+				int tmpIndex_edge2 = this->index2DtoLinear(i, 1);
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							break;
+						}
+					}
+
+				int tmpIndex_edge3 = this->index2DtoLinear(i, sizeY-2);
+				int tmpIndex_edge4 = this->index2DtoLinear(i, sizeY-1);
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							break;
+						}
+					}	
 			}
 		}
 	}
@@ -1591,14 +1830,11 @@ public:
 		if (this->type == backward)
 		{
 			transposed = !transposed;
-			if (s == MINUS)
-			{
-				s = PLUS;
-			}
-			else
-			{
+
+			if (s == PLUS)
 				s = MINUS;
-			}
+			else if (s == MINUS)
+				s = PLUS;
 		}
 
 		#ifdef __CUDACC__
@@ -1625,15 +1861,28 @@ public:
 
 	T getMaxRowSumAbs(bool transposed)
 	{
-		//row sum of absolute values is at maximum 2
-		return static_cast<T>(2);
+		if(type==forward||type==backward)
+		{
+			return static_cast<T>(2);
+		}
+		else if(type==central)
+		{
+			return static_cast<T>(1);
+		}
 	}
 
 	std::vector<T> getAbsRowSum(bool transposed)
-	{
-		std::vector<T> result(this->getNumRows(),(T)2);
-
-		return result;
+	{	
+		if(type==forward||type==backward)
+		{
+			std::vector<T> result(this->getNumRows(),(T)2);
+			return result;
+		}
+		else if(type==central)
+		{
+			std::vector<T> result(this->getNumRows(),(T)1);
+			return result;
+		}
 	}
 
 	int index3DtoLinear(int i, int j, int k)
@@ -1649,7 +1898,14 @@ public:
 	#ifdef __CUDACC__
 	thrust::device_vector<T> getAbsRowSumCUDA(bool transposed)
 	{
-		thrust::device_vector<T> result(this->getNumRows(), (T)2);
+		if(type==forward||type==backward)
+		{
+			thrust::device_vector<T> result(this->getNumRows(), (T)2);
+		}
+		else if(type==central)
+		{
+			thrust::device_vector<T> result(this->getNumRows(), (T)1);
+		}
 
 		return result;
 	}

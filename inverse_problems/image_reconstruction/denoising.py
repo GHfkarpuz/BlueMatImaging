@@ -11,13 +11,12 @@ from wrapper import FlexBoxSolver # python wrapper
 
 # parameters
 weight_data = 1.0
-weight_tv = 0.1
+weight_tv = 0.3
 
 
 # open image and gray value
 img = Image.open("frame10.bmp").convert("RGB")
 img_np = np.array(img).astype(np.float32)
-print(img_np)
 
 # Luminosity Method
 gray = 0.299 * img_np[:,:,0] + 0.587 * img_np[:,:,1] + 0.114 * img_np[:,:,2]
@@ -28,7 +27,7 @@ noise = gray + 0.1 * np.random.randn(*gray.shape)
 noise = np.clip(noise, 0, 1)
 
 # initialise solver
-solver = FlexBoxSolver(maxIt=10000, tol=1e-6, verbose=1)
+solver = FlexBoxSolver(maxIt=5000, tol=1e-6, verbose=2)
 
 
 H, W = noise.shape
@@ -57,15 +56,15 @@ solver.add_dual(
 # TV Regularizer: ||∇x||₁ (isotrop)
 grad_x = {
     "type": "gradientOperator",
-    "gradType": "forward",
-    "gradDirection": 1,   # x-direction
+    "gradType": "central",
+    "gradDirection": 0,   # x-direction
     "inputDimension": [H, W]
 }
 
 grad_y = {
     "type": "gradientOperator",
-    "gradType": "forward",
-    "gradDirection": 2,   # y-direction
+    "gradType": "central",
+    "gradDirection": 1,   # y-direction
     "inputDimension": [H, W]
 }
 
@@ -123,4 +122,4 @@ plt.subplot(1,3,3)
 plt.title("Denoised (TV)")
 plt.imshow(result, cmap="gray")
 plt.axis("off")
-plt.savefig("result.png", dpi=200, bbox_inches="tight")
+plt.savefig("result23.png", dpi=200, bbox_inches="tight")

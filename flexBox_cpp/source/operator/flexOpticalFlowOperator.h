@@ -38,13 +38,18 @@ public:
 		this->dim = inputDimension.size();
 		this->N = vectorProduct(inputDimension);
 
+		for (int k = 0; k < N; ++k)
+		{
+			this->image[k] *= 1.0 / 255.0;
+		}
+
 		//gradients for each direction are necessary
 		flexGradientOperator<T> A(AInputDimension, direction, central, aIsMinus);
 
 
 		this->gradImage.resize(N);
-		A.doTimes(false, image, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
-		
+		A.doTimes(false, this->image, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
+
 		#ifdef __CUDACC__
 			//??
 
@@ -67,10 +72,17 @@ public:
 			this->dim = inputDimension.size();
 			this->N = vectorProduct(inputDimension);
 
-			flexGradientOperator<T> A(AInputDimension, direction, central, aIsMinus);
+			for (int k = 0; k < N; ++k)
+		{
+			this->image[k] *= 1.0 / 255.0;
+		}
 
-			this->gradImage.resize(N);
-			A.doTimes(false, image, this->gradImage, EQUALS);
+		//gradients for each direction are necessary
+		flexGradientOperator<T> A(AInputDimension, direction, central, aIsMinus);
+
+
+		this->gradImage.resize(N);
+		A.doTimes(false, this->image, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
 		};
 	#endif
 
@@ -171,31 +183,23 @@ public:
 		__host__ __device__
 		void operator()(Tuple t)
 		{
-			transposed = false;
-			if(!transposed)
+			switch (this->s)
 			{
-				switch (this->s)
+				case PLUS:
 				{
-					case PLUS:
-					{
-						thrust::get<0>(t) += thrust::get<1>(t) * thrust::get<2>(t);
-						break;
-					}
-					case MINUS:
-					{
-						thrust::get<0>(t) -= thrust::get<1>(t) * thrust::get<2>(t);
-						break;
-					}
-					case EQUALS:
-					{
-						thrust::get<0>(t) = thrust::get<1>(t) * thrust::get<2>(t);
-						break;
-					}
+					thrust::get<0>(t) += thrust::get<1>(t) * thrust::get<2>(t);
+					break;
 				}
-			}
-			else
-			{
-				throw std::runtime_error("transposed operator not implemented yet");
+				case MINUS:
+				{
+					thrust::get<0>(t) -= thrust::get<1>(t) * thrust::get<2>(t);
+					break;
+				}
+				case EQUALS:
+				{
+					thrust::get<0>(t) = thrust::get<1>(t) * thrust::get<2>(t);
+					break;
+				}
 			}
 		}
 	};
@@ -206,35 +210,27 @@ private:
 
 	void doTimesCPU(bool transposed, const Tdata &input, Tdata &output, const mySign s)
     {
-		transposed = false;
-		if(!transposed)
+		#pragma omp parallel for
+		for (int k = 0; k < N; ++k)
 		{
-			#pragma omp parallel for
-			for (int k = 0; k < N; ++k)
+			switch (s)
 			{
-				switch (s)
+				case PLUS:
 				{
-					case PLUS:
-					{
-						output[k] += input[k]*gradImage[k];
-						break;
-					}
-					case MINUS:
-					{
-						output[k] -= input[k]*gradImage[k];
-						break;
-					}
-					case EQUALS:
-					{
-						output[k] = input[k]*gradImage[k];
-						break;
-					}
+					output[k] += input[k]*gradImage[k];
+					break;
+				}
+				case MINUS:
+				{
+					output[k] -= input[k]*gradImage[k];
+					break;
+				}
+				case EQUALS:
+				{
+					output[k] = input[k]*gradImage[k];
+					break;
 				}
 			}
-		}
-		else
-		{
-			throw std::runtime_error("transposed operator not implemented yet");
 		}
     }
 
@@ -242,19 +238,13 @@ private:
 
 	void doTimes(bool transposed, const Tdata &input, Tdata &output,const mySign s)
 	{
-		transposed = false;
         #ifdef __CUDACC__
-			if(!transposed)
-			{
-				thrust::for_each(
-					thrust::make_zip_iterator(thrust::make_tuple(output.begin(), input.begin(), this->gradImage.begin())),
-					thrust::make_zip_iterator(thrust::make_tuple(output.end(),   input.end(),   this->gradImage.end())),
-				flexOpticalFlowOperatorFunctor(s, transposed));
-			}
-			else
-			{
-				throw std::runtime_error("transposed operator not implemented yet");
-			}
+		{
+			thrust::for_each(
+				thrust::make_zip_iterator(thrust::make_tuple(output.begin(), input.begin(), this->gradImage.begin())),
+				thrust::make_zip_iterator(thrust::make_tuple(output.end(),   input.end(),   this->gradImage.end())),
+			flexOpticalFlowOperatorFunctor(s, transposed));
+		}
         #else
             this->doTimesCPU(transposed,input,output,s);
         #endif

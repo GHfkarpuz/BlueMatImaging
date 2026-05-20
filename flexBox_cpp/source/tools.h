@@ -93,6 +93,7 @@ enum linOp
 	superpixelOp,
   	concatOp,
 	opticalFlowOp,
+	jointOpticalFlowOp,
 	massPreservationOp
 };
 

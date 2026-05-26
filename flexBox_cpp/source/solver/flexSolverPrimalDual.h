@@ -38,6 +38,21 @@ public:
 		}
 	}
 
+	std::vector<std::vector<int>> get_dcp()
+	{
+		return dcp;
+	}
+
+	std::vector<std::vector<int>> get_dcd()
+	{
+		return dcd;
+	}
+
+	std::vector<flexTerm<T>*> get_termsDual()
+	{
+		return termsDual;
+	}
+
 	void init(flexBoxData<T> *data)
 	{
 		this->calculateTauSigma(data);

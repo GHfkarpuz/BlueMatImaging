@@ -141,14 +141,14 @@ vmax_mag = np.percentile(magnitude, 99)
 
 plt.figure(figsize=(12,4))
 
-plt.subplot(1,3,1)
+plt.subplot(1,3,2)
 plt.title("v_x")
-plt.imshow(result_1, cmap="seismic", vmin=-vmax1, vmax=vmax1)
+plt.imshow(result_2, cmap="seismic", vmin=-vmax2, vmax=vmax2)
 plt.axis("off")
 
-plt.subplot(1,3,2)
+plt.subplot(1,3,1)
 plt.title("v_y")
-plt.imshow(result_2, cmap="seismic", vmin=-vmax2, vmax=vmax2)
+plt.imshow(result_1, cmap="seismic", vmin=-vmax1, vmax=vmax1)
 plt.axis("off")
 
 plt.subplot(1,3,3)

@@ -19,6 +19,8 @@
 #include "operator/flexMatrixLogical.h"
 #include "operator/flexFullMatrix.h"
 #include "operator/flexGradientOperator.h"
+#include "operator/flexWeightedGradientOperator.h"
+#include "operator/flexWeightedDivergenceOperator.h"
 #include "operator/flexSuperpixelOperator.h"
 #include "operator/flexConcatOperator.h"
 #include "operator/flexOpticalFlowOperator.h"
@@ -155,6 +157,34 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
 
         A = new flexGradientOperator<double>(inputDimension, gradDirection, gradT, isMinus);
+    }
+    else if (type == "weightedGradientOperator") {
+        if (verbose > 1) printf("Operator %d is type <weightedGradientOperator>\n", operatorNumber);
+        std::string gradTypeStr = operatorDict["gradType"].cast<std::string>();
+        int gradDirection = operatorDict["gradDirection"].cast<int>();
+        std::vector<double> weights = operatorDict["weights"].cast<std::vector<double>>();
+
+        gradientType gradT = gradientType::forward;
+        if (gradTypeStr == "backward") gradT = backward;
+        else if (gradTypeStr == "central") gradT = central;
+
+        std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
+
+        A = new flexWeightedGradientOperator<double>(weights, inputDimension, gradDirection, gradT, isMinus);
+    }
+    else if (type == "weightedDivergenceOperator") {
+        if (verbose > 1) printf("Operator %d is type <weightedDivergenceOperator>\n", operatorNumber);
+        std::string gradTypeStr = operatorDict["gradType"].cast<std::string>();
+        int gradDirection = operatorDict["gradDirection"].cast<int>();
+        std::vector<double> weights = operatorDict["weights"].cast<std::vector<double>>();
+
+        gradientType gradT = gradientType::forward;
+        if (gradTypeStr == "backward") gradT = backward;
+        else if (gradTypeStr == "central") gradT = central;
+
+        std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
+
+        A = new flexWeightedDivergenceOperator<double>(weights, inputDimension, gradDirection, gradT, isMinus);
     }
     else if (type == "identityOperator") {
         if (verbose > 1) printf("Operator %d is type <identityOperator>\n", operatorNumber);
@@ -409,13 +439,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
 
             // add a term 
             mainObject->addTerm(
-                new flexTerm<double>(
-                    myProx,
-                    alpha,
-                    (int)correspondingPrimals.size(),
-                    operatorList,
-                    fList
-                ),
+                new flexTerm<double>(myProx, alpha, (int)correspondingPrimals.size(), operatorList, fList),
                 correspondingPrimals
             );
         }

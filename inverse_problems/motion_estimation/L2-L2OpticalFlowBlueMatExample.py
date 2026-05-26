@@ -13,16 +13,16 @@ from wrapper import FlexBoxSolver # python wrapper
 # test file for the discrete L2-TV (anisotropic) optical flow model: argmin_{v\in \mathbb{R}^{inputDimension*nPx}} \frac[weight_data}{2}*||u_t + grad(u)*v||_{2}^{2} + weight_TV*\sum_{i=1}^{inputDimension} ||grad(v_i)||_{1,1}
 
 
-video_path = "media7.avi"
+video_path = "media4.avi"
 
 cap = cv2.VideoCapture(video_path)
 
 fps = cap.get(cv2.CAP_PROP_FPS)
 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-start_sec = 24
-end_sec = 25
-n_frames = 2
+start_sec = 92
+end_sec = 96
+n_frames = 10
 
 start_frame = int(start_sec * fps)
 end_frame = int(end_sec * fps)
@@ -224,14 +224,14 @@ for i in range(len(frames)-1):
 
     plt.figure(figsize=(12,4))
 
-    plt.subplot(1,3,1)
+    plt.subplot(1,3,2)
     plt.title("v_x")
-    plt.imshow(result_1, cmap="seismic", vmin=-vmax1, vmax=vmax1)
+    plt.imshow(result_2, cmap="seismic", vmin=-vmax2, vmax=vmax2)
     plt.axis("off")
 
-    plt.subplot(1,3,2)
+    plt.subplot(1,3,1)
     plt.title("v_y")
-    plt.imshow(result_2, cmap="seismic", vmin=-vmax2, vmax=vmax2)
+    plt.imshow(result_1, cmap="seismic", vmin=-vmax1, vmax=vmax1)
     plt.axis("off")
 
     plt.subplot(1,3,3)

@@ -418,10 +418,12 @@ bindings/CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o: \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexMatrixLogical.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexFullMatrix.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexWeightedGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexWeightedDivergenceOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexSuperpixelOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexConcatOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexOpticalFlowOperator.h \
- /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexGradientOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexMassPreservationOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./flexBox.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./term/flexTerm.h \

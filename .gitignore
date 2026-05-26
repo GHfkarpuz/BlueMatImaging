@@ -4,3 +4,8 @@ inverse_problems/TimonTests/*.npy
 
 # no video files
 inverse_problems/motion_estimation/*.avi
+inverse_problems/joint_image_motion_approach/*.avi
+
+# less figures
+inverse_problems/motion_estimation/*.png
+inverse_problems/joint_image_motion_approach/*.png

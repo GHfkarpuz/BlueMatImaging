@@ -24,6 +24,7 @@ private:
 	int direction;
 	int dim;
 	int N;
+	flexGradientOperator<T>* A;
 public:
 	//STILL TODO!!!!!!!!!!!!
 	//! initializes the concatenation operator for non-CUDA versions
@@ -33,7 +34,7 @@ public:
 		\param ADirection
 		\param aMinus determines if operator is negated \sa isMinus
 	*/
-	flexOpticalFlowOperator(std::vector<T> image, std::vector<int> AInputDimension, int ADirection, bool aIsMinus) : image(image), inputDimension(AInputDimension), direction(ADirection), flexLinearOperator<T>(vectorProduct(AInputDimension), vectorProduct(AInputDimension), opticalFlowOp, aIsMinus)
+	flexOpticalFlowOperator(std::vector<T>& image, std::vector<int> AInputDimension, int ADirection, bool aIsMinus) : image(image), inputDimension(AInputDimension), direction(ADirection), flexLinearOperator<T>(vectorProduct(AInputDimension), vectorProduct(AInputDimension), opticalFlowOp, aIsMinus)
 	{
 		this->dim = inputDimension.size();
 		this->N = vectorProduct(inputDimension);
@@ -44,11 +45,11 @@ public:
 		}
 
 		//gradients for each direction are necessary
-		flexGradientOperator<T> A(AInputDimension, direction, central, aIsMinus);
+		A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
 
 
 		this->gradImage.resize(N);
-		A.doTimes(false, this->image, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
+		A->doTimes(false, this->image, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
 
 		#ifdef __CUDACC__
 			//??
@@ -78,25 +79,36 @@ public:
 		}
 
 		//gradients for each direction are necessary
-		flexGradientOperator<T> A(AInputDimension, direction, central, aIsMinus);
+		A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
 
 
 		this->gradImage.resize(N);
-		A.doTimes(false, this->image, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
+		A->doTimes(false, this->image, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
 		};
 	#endif
+
+	~flexOpticalFlowOperator()
+	{
+		delete A;
+	}
 
 
 	flexOpticalFlowOperator<T>* copy()
 	{
-		flexOpticalFlowOperator<T>* A = new flexOpticalFlowOperator<T>(image, inputDimension, direction, this->isMinus);//isMinus works here instead of aIsMinus, becuase the base class expects isMinus
+		flexOpticalFlowOperator<T>* ACopy = new flexOpticalFlowOperator<T>(image, inputDimension, direction, this->isMinus);//isMinus works here instead of aIsMinus, becuase the base class expects isMinus
 
-		return A;
+		return ACopy;
 	}
 
 	Tdata give_grad()
 	{
 		return gradImage;
+	}
+
+	void updateImage(std::vector<T> &imageNew)
+	{
+		this->image = imageNew;
+		A->doTimes(false, imageNew, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
 	}
 
 	//apply linear operator to vector

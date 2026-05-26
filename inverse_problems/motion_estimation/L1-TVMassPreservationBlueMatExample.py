@@ -13,16 +13,23 @@ from wrapper import FlexBoxSolver # python wrapper
 # test file for the discrete L2-TV (anisotropic) optical flow model: argmin_{v\in \mathbb{R}^{inputDimension*nPx}} \frac[weight_data}{2}*||u_t + grad(u)*v||_{2}^{2} + weight_TV*\sum_{i=1}^{inputDimension} ||grad(v_i)||_{1,1}
 
 
-video_path = "media7.avi"
+video_path = "media4.avi"
+
+cut = True
+cut_width = [0.0 , 0.0]
+cut_height = [0.6 , 0.0]
 
 cap = cv2.VideoCapture(video_path)
+
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 fps = cap.get(cv2.CAP_PROP_FPS)
 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-start_sec = 24
-end_sec = 27
-n_frames = 10
+start_sec = 92
+end_sec = 96
+n_frames = 6
 
 start_frame = int(start_sec * fps)
 end_frame = int(end_sec * fps)
@@ -48,7 +55,16 @@ while cap.isOpened():
     if current_idx in target_set:
         # OpenCV reads BGR, convert to RGB optionally
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        scale = 0.2
+        if(cut==True):
+            x1 = int(width * cut_width[0])
+            x2 = int(width * (1 - cut_width[1]))
+
+            y1 = int(height * cut_height[0])
+            y2 = int(height * (1 - cut_height[1]))
+
+            frame_rgb = frame_rgb[y1:y2, x1:x2]
+        frame_rgb = cv2.fastNlMeansDenoisingColored(frame_rgb, None, 20, 10, 7, 15)
+        scale = 0.4
         frame_rgb = cv2.resize(
             frame_rgb,
             None,
@@ -68,9 +84,10 @@ cap.release()
 print(f"Extracted {len(frames)} frames")
 
 
+
 # parameters
 weight_data = 1.0
-weight_TV = 0.1
+weight_TV = 0.3
 timeStep = 1.0
 
 for i in range(len(frames)-1):
@@ -190,14 +207,14 @@ for i in range(len(frames)-1):
 
     plt.figure(figsize=(12,4))
 
-    plt.subplot(1,3,1)
+    plt.subplot(1,3,2)
     plt.title("v_x")
-    plt.imshow(result_1, cmap="seismic", vmin=-vmax1, vmax=vmax1)
+    plt.imshow(result_2, cmap="seismic", vmin=-vmax2, vmax=vmax2)
     plt.axis("off")
 
-    plt.subplot(1,3,2)
+    plt.subplot(1,3,1)
     plt.title("v_y")
-    plt.imshow(result_2, cmap="seismic", vmin=-vmax2, vmax=vmax2)
+    plt.imshow(result_1, cmap="seismic", vmin=-vmax1, vmax=vmax1)
     plt.axis("off")
 
     plt.subplot(1,3,3)

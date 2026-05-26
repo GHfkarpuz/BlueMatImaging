@@ -82,9 +82,9 @@ public:
 		\param aIsMinus true if operator should be negated, otherwise false.
 	*/
 	void setMinus(bool aIsMinus)
-  {
-      this->isMinus = aIsMinus;
-  }
+	{
+		this->isMinus = aIsMinus;
+	}
 
 	//! copies the linear operator
 	/*!

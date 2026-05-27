@@ -4,36 +4,97 @@
 #include <vector>
 #include "flexLinearOperator.h"
 
+//TODO: extend the CUDA methods for the central gradient case with the right handling for the edges
 #ifdef __CUDACC__
 template<typename T>
 __global__ void dxp2dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s)
 {
-	const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
-	const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
-
-	if (x >= sizeX || y >= sizeY)
-		return;
-
-	const size_t tmpIndex = x + y * sizeX;
-
-	if (x < sizeX - 1)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+
+		if (x >= sizeX || y >= sizeY)
+			return;
+
+		const size_t tmpIndex = x + y * sizeX;
+
+		if (x < sizeX - 1)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += input[tmpIndex + 1] - input[tmpIndex];
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += input[tmpIndex + 1] - input[tmpIndex];
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= input[tmpIndex + 1] - input[tmpIndex];
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = input[tmpIndex + 1] - input[tmpIndex];
+					break;
+				}
 			}
-			case MINUS:
+		}
+	}
+	else if(type == central)
+	{
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+
+		if (x >= sizeX || y >= sizeY)
+			return;
+
+		const size_t idx = x + y * sizeX;
+
+		// interior
+		if (x > 0 && x < sizeX - 1)
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= input[tmpIndex + 1] - input[tmpIndex];
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
 			}
-			case EQUALS:
+		}
+		else if (x == 0)
+		{
+			switch (s)
 			{
-				output[tmpIndex] = input[tmpIndex + 1] - input[tmpIndex];
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + 1] - input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + 1] - input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + 1] - input[idx]);
+					break;
+			}
+		}
+		else
+		{
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] - input[idx - 1]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] - input[idx - 1]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] - input[idx - 1]);
+					break;
 			}
 		}
 	}
@@ -42,75 +103,135 @@ __global__ void dxp2dCUDA(T* output, const T* input, const size_t sizeX, const s
 template<typename T>
 __global__ void dxp2dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s)
 {
-	const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
-	const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
-
-	if (x >= sizeX || y >= sizeY)
-		return;
-
-	const size_t tmpIndex = x + y * sizeX;
-
-	if (x < sizeX - 1 && x > 0)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+
+		if (x >= sizeX || y >= sizeY)
+			return;
+
+		const size_t tmpIndex = x + y * sizeX;
+
+		if (x < sizeX - 1 && x > 0)
 		{
+			switch (s)
+			{
+				case PLUS:
+				{
+					output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - 1]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - 1]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - 1]);
+					break;
+				}
+			}
+		}
+		else if (x == 0)
+		{
+			switch (s)
+			{
 			case PLUS:
 			{
-				output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - 1]);
+				output[tmpIndex] += -(input[tmpIndex]);
 				break;
 			}
 			case MINUS:
 			{
-				output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - 1]);
+				output[tmpIndex] -= -(input[tmpIndex]);
 				break;
 			}
 			case EQUALS:
 			{
-				output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - 1]);
+				output[tmpIndex] = -(input[tmpIndex]);
 				break;
+			}
+			}
+		}
+		else
+		{
+			switch (s)
+			{
+			case PLUS:
+			{
+				output[tmpIndex] += (input[tmpIndex - 1]);
+				break;
+			}
+			case MINUS:
+			{
+				output[tmpIndex] -= (input[tmpIndex - 1]);
+				break;
+			}
+			case EQUALS:
+			{
+				output[tmpIndex] = (input[tmpIndex - 1]);
+				break;
+			}
 			}
 		}
 	}
-	else if (x == 0)
+	// dxp2dTransposedCUDA
+	else if(type == central)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+
+		if (x >= sizeX || y >= sizeY)
+			return;
+
+		const size_t idx = x + y * sizeX;
+
+		if (x > 0 && x < sizeX - 1)
 		{
-		case PLUS:
-		{
-			output[tmpIndex] += -(input[tmpIndex]);
-			break;
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+			}
 		}
-		case MINUS:
+		else if (x == 0)
 		{
-			output[tmpIndex] -= -(input[tmpIndex]);
-			break;
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + 1] + input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + 1] + input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + 1] + input[idx]);
+					break;
+			}
 		}
-		case EQUALS:
+		else
 		{
-			output[tmpIndex] = -(input[tmpIndex]);
-			break;
-		}
-		}
-	}
-	else
-	{
-		switch (s)
-		{
-		case PLUS:
-		{
-			output[tmpIndex] += (input[tmpIndex - 1]);
-			break;
-		}
-		case MINUS:
-		{
-			output[tmpIndex] -= (input[tmpIndex - 1]);
-			break;
-		}
-		case EQUALS:
-		{
-			output[tmpIndex] = (input[tmpIndex - 1]);
-			break;
-		}
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] + input[idx - 1]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] + input[idx - 1]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] + input[idx - 1]);
+					break;
+			}
 		}
 	}
 }
@@ -118,33 +239,93 @@ __global__ void dxp2dTransposedCUDA(T* output, const T* input, const size_t size
 template<typename T>
 __global__ void dyp2dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s)
 {
-	const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
-	const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+	if(type == forward)
+		{
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
 
-	if (x >= sizeX || y >= sizeY)
-		return;
+		if (x >= sizeX || y >= sizeY)
+			return;
 
-	const size_t tmpIndex = x + y * sizeX;
+		const size_t tmpIndex = x + y * sizeX;
 
-	if (y < sizeY - 1)
+		if (y < sizeY - 1)
+		{
+			switch (s)
+			{
+			case PLUS:
+			{
+				output[tmpIndex] += input[tmpIndex + sizeX] - input[tmpIndex];
+				break;
+			}
+			case MINUS:
+			{
+				output[tmpIndex] -= input[tmpIndex + sizeX] - input[tmpIndex];
+				break;
+			}
+			case EQUALS:
+			{
+				output[tmpIndex] = input[tmpIndex + sizeX] - input[tmpIndex];
+				break;
+			}
+			}
+		}
+	}
+	// dyp2dCUDA
+	else if(type == central)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+
+		if (x >= sizeX || y >= sizeY)
+			return;
+
+		const size_t idx = x + y * sizeX;
+
+		if (y > 0 && y < sizeY - 1)
 		{
-		case PLUS:
-		{
-			output[tmpIndex] += input[tmpIndex + sizeX] - input[tmpIndex];
-			break;
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+			}
 		}
-		case MINUS:
+		else if (y == 0)
 		{
-			output[tmpIndex] -= input[tmpIndex + sizeX] - input[tmpIndex];
-			break;
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + sizeX] - input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + sizeX] - input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + sizeX] - input[idx]);
+					break;
+			}
 		}
-		case EQUALS:
+		else
 		{
-			output[tmpIndex] = input[tmpIndex + sizeX] - input[tmpIndex];
-			break;
-		}
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] - input[idx - sizeX]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] - input[idx - sizeX]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] - input[idx - sizeX]);
+					break;
+			}
 		}
 	}
 }
@@ -152,75 +333,135 @@ __global__ void dyp2dCUDA(T* output, const T* input, const size_t sizeX, const s
 template<typename T>
 __global__ void dyp2dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s)
 {
-	const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
-	const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
-
-	if (x >= sizeX || y >= sizeY)
-		return;
-
-	const size_t tmpIndex = x + y * sizeX;
-
-	if (y < sizeY - 1 && y > 0)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+
+		if (x >= sizeX || y >= sizeY)
+			return;
+
+		const size_t tmpIndex = x + y * sizeX;
+
+		if (y < sizeY - 1 && y > 0)
 		{
-		case PLUS:
-		{
-			output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - sizeX]);
-			break;
+			switch (s)
+			{
+			case PLUS:
+			{
+				output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - sizeX]);
+				break;
+			}
+			case MINUS:
+			{
+				output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - sizeX]);
+				break;
+			}
+			case EQUALS:
+			{
+				output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - sizeX]);
+				break;
+			}
+			}
 		}
-		case MINUS:
+		else if (y == 0)
 		{
-			output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - sizeX]);
-			break;
+			switch (s)
+			{
+			case PLUS:
+			{
+				output[tmpIndex] += -(input[tmpIndex]);
+				break;
+			}
+			case MINUS:
+			{
+				output[tmpIndex] -= -(input[tmpIndex]);
+				break;
+			}
+			case EQUALS:
+			{
+				output[tmpIndex] = -(input[tmpIndex]);
+				break;
+			}
+			}
 		}
-		case EQUALS:
+		else
 		{
-			output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - sizeX]);
-			break;
-		}
+			switch (s)
+			{
+			case PLUS:
+			{
+				output[tmpIndex] += (input[tmpIndex - sizeX]);
+				break;
+			}
+			case MINUS:
+			{
+				output[tmpIndex] -= (input[tmpIndex - sizeX]);
+				break;
+			}
+			case EQUALS:
+			{
+				output[tmpIndex] = (input[tmpIndex - sizeX]);
+				break;
+			}
+			}
 		}
 	}
-	else if (y == 0)
+	// dyp2dTransposedCUDA
+	else if(type == central)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+
+		if (x >= sizeX || y >= sizeY)
+			return;
+
+		const size_t idx = x + y * sizeX;
+
+		if (y > 0 && y < sizeY - 1)
 		{
-		case PLUS:
-		{
-			output[tmpIndex] += -(input[tmpIndex]);
-			break;
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+			}
 		}
-		case MINUS:
+		else if (y == 0)
 		{
-			output[tmpIndex] -= -(input[tmpIndex]);
-			break;
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + sizeX] + input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + sizeX] + input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + sizeX] + input[idx]);
+					break;
+			}
 		}
-		case EQUALS:
+		else
 		{
-			output[tmpIndex] = -(input[tmpIndex]);
-			break;
-		}
-		}
-	}
-	else
-	{
-		switch (s)
-		{
-		case PLUS:
-		{
-			output[tmpIndex] += (input[tmpIndex - sizeX]);
-			break;
-		}
-		case MINUS:
-		{
-			output[tmpIndex] -= (input[tmpIndex - sizeX]);
-			break;
-		}
-		case EQUALS:
-		{
-			output[tmpIndex] = (input[tmpIndex - sizeX]);
-			break;
-		}
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] + input[idx - sizeX]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] + input[idx - sizeX]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] + input[idx - sizeX]);
+					break;
+			}
 		}
 	}
 }
@@ -239,34 +480,94 @@ int getGlobalIdx_3D_3D(){
 template<typename T>
 __global__ void dxp3dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
 {
-	const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
-	const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
-	const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
-
-	const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
-
-	if (x >= sizeX || y >= sizeY || z >= sizeZ)
-		return;
-
-	if (x < sizeX - 1)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
+		const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
+		const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
+
+		const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		if (x < sizeX - 1)
 		{
-		case PLUS:
-		{
-			output[tmpIndex] += input[tmpIndex + 1] - input[tmpIndex];
-			break;
+			switch (s)
+			{
+			case PLUS:
+			{
+				output[tmpIndex] += input[tmpIndex + 1] - input[tmpIndex];
+				break;
+			}
+			case MINUS:
+			{
+				output[tmpIndex] -= input[tmpIndex + 1] - input[tmpIndex];
+				break;
+			}
+			case EQUALS:
+			{
+				output[tmpIndex] = input[tmpIndex + 1] - input[tmpIndex];
+				break;
+			}
+			}
 		}
-		case MINUS:
+	}
+	else if(type == central)
+	{
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t z = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		const size_t idx = x + y * sizeX + z * sizeX * sizeY;
+
+		if (x > 0 && x < sizeX - 1)
 		{
-			output[tmpIndex] -= input[tmpIndex + 1] - input[tmpIndex];
-			break;
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+			}
 		}
-		case EQUALS:
+		else if (x == 0)
 		{
-			output[tmpIndex] = input[tmpIndex + 1] - input[tmpIndex];
-			break;
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + 1] - input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + 1] - input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + 1] - input[idx]);
+					break;
+			}
 		}
+		else
+		{
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] - input[idx - 1]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] - input[idx - 1]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] - input[idx - 1]);
+					break;
+			}
 		}
 	}
 }
@@ -274,75 +575,135 @@ __global__ void dxp3dCUDA(T* output, const T* input, const size_t sizeX, const s
 template<typename T>
 __global__ void dxp3dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
 {
-	const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
-	const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
-	const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
-
-	const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
-
-	if (x >= sizeX || y >= sizeY || z >= sizeZ)
-		return;
-
-	if (x < sizeX - 1 && x > 0)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
+		const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
+		const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
+
+		const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		if (x < sizeX - 1 && x > 0)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - 1]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - 1]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - 1]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - 1]);
+					break;
+				}
 			}
-			case MINUS:
+		}
+		else if (x == 0)
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - 1]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += -(input[tmpIndex]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= -(input[tmpIndex]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = -(input[tmpIndex]);
+					break;
+				}
 			}
-			case EQUALS:
+		}
+		else
+		{
+			switch (s)
 			{
-				output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - 1]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += (input[tmpIndex - 1]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= (input[tmpIndex - 1]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = (input[tmpIndex - 1]);
+					break;
+				}
 			}
 		}
 	}
-	else if (x == 0)
+	else if(type == central)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t z = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		const size_t idx = x + y * sizeX + z * sizeX * sizeY;
+
+		if (x > 0 && x < sizeX - 1)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += -(input[tmpIndex]);
-				break;
-			}
-			case MINUS:
-			{
-				output[tmpIndex] -= -(input[tmpIndex]);
-				break;
-			}
-			case EQUALS:
-			{
-				output[tmpIndex] = -(input[tmpIndex]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + 1] - input[idx - 1]);
+					break;
 			}
 		}
-	}
-	else
-	{
-		switch (s)
+		else if (x == 0)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += (input[tmpIndex - 1]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + 1] + input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + 1] + input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + 1] + input[idx]);
+					break;
 			}
-			case MINUS:
+		}
+		else
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= (input[tmpIndex - 1]);
-				break;
-			}
-			case EQUALS:
-			{
-				output[tmpIndex] = (input[tmpIndex - 1]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] + input[idx - 1]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] + input[idx - 1]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] + input[idx - 1]);
+					break;
 			}
 		}
 	}
@@ -351,33 +712,93 @@ __global__ void dxp3dTransposedCUDA(T* output, const T* input, const size_t size
 template<typename T>
 __global__ void dyp3dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
 {
-	const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
-	const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
-	const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
-
-	const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
-
-	if (x >= sizeX || y >= sizeY || z >= sizeZ)
-		return;
-
-	if (y < sizeY - 1)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
+		const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
+		const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
+
+		const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		if (y < sizeY - 1)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += input[tmpIndex + sizeX] - input[tmpIndex];
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += input[tmpIndex + sizeX] - input[tmpIndex];
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= input[tmpIndex + sizeX] - input[tmpIndex];
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = input[tmpIndex + sizeX] - input[tmpIndex];
+					break;
+				}
 			}
-			case MINUS:
+		}
+	}
+	else if(type == central)
+	{
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t z = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		const size_t idx = x + y * sizeX + z * sizeX * sizeY;
+
+		if (y > 0 && y < sizeY - 1)
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= input[tmpIndex + sizeX] - input[tmpIndex];
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
 			}
-			case EQUALS:
+		}
+		else if (y == 0)
+		{
+			switch (s)
 			{
-				output[tmpIndex] = input[tmpIndex + sizeX] - input[tmpIndex];
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + sizeX] - input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + sizeX] - input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + sizeX] - input[idx]);
+					break;
+			}
+		}
+		else
+		{
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] - input[idx - sizeX]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] - input[idx - sizeX]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] - input[idx - sizeX]);
+					break;
 			}
 		}
 	}
@@ -386,75 +807,135 @@ __global__ void dyp3dCUDA(T* output, const T* input, const size_t sizeX, const s
 template<typename T>
 __global__ void dyp3dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
 {
-	const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
-	const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
-	const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
-
-	const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
-
-	if (x >= sizeX || y >= sizeY || z >= sizeZ)
-		return;
-
-	if (y < sizeY - 1 && y > 0)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
+		const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
+		const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
+
+		const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		if (y < sizeY - 1 && y > 0)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - sizeX]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - sizeX]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - sizeX]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - sizeX]);
+					break;
+				}
 			}
-			case MINUS:
+		}
+		else if (y == 0)
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - sizeX]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += -(input[tmpIndex]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= -(input[tmpIndex]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = -(input[tmpIndex]);
+					break;
+				}
 			}
-			case EQUALS:
+		}
+		else
+		{
+			switch (s)
 			{
-				output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - sizeX]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += (input[tmpIndex - sizeX]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= (input[tmpIndex - sizeX]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = (input[tmpIndex - sizeX]);
+					break;
+				}
 			}
 		}
 	}
-	else if (y == 0)
+	else if(type == central)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t z = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		const size_t idx = x + y * sizeX + z * sizeX * sizeY;
+
+		if (y > 0 && y < sizeY - 1)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += -(input[tmpIndex]);
-				break;
-			}
-			case MINUS:
-			{
-				output[tmpIndex] -= -(input[tmpIndex]);
-				break;
-			}
-			case EQUALS:
-			{
-				output[tmpIndex] = -(input[tmpIndex]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + sizeX] - input[idx - sizeX]);
+					break;
 			}
 		}
-	}
-	else
-	{
-		switch (s)
+		else if (y == 0)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += (input[tmpIndex - sizeX]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + sizeX] + input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + sizeX] + input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + sizeX] + input[idx]);
+					break;
 			}
-			case MINUS:
+		}
+		else
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= (input[tmpIndex - sizeX]);
-				break;
-			}
-			case EQUALS:
-			{
-				output[tmpIndex] = (input[tmpIndex - sizeX]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] + input[idx - sizeX]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] + input[idx - sizeX]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] + input[idx - sizeX]);
+					break;
 			}
 		}
 	}
@@ -463,33 +944,93 @@ __global__ void dyp3dTransposedCUDA(T* output, const T* input, const size_t size
 template<typename T>
 __global__ void dzp3dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
 {
-	const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
-	const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
-	const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
-
-	const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
-
-	if (x >= sizeX || y >= sizeY || z >= sizeZ)
-		return;
-
-	if (z < sizeZ - 1)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
+		const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
+		const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
+
+		const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		if (z < sizeZ - 1)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += input[tmpIndex + sizeX * sizeY] - input[tmpIndex];
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += input[tmpIndex + sizeX * sizeY] - input[tmpIndex];
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= input[tmpIndex + sizeX * sizeY] - input[tmpIndex];
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = input[tmpIndex + sizeX * sizeY] - input[tmpIndex];
+					break;
+				}
 			}
-			case MINUS:
+		}
+	}
+	else if(type == central)
+	{
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t z = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		const size_t idx = x + y * sizeX + z * sizeX * sizeY;
+
+		if (z > 0 && z < sizeZ - 1)
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= input[tmpIndex + sizeX * sizeY] - input[tmpIndex];
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + sizeX * sizeY] - input[idx - sizeX * sizeY]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + sizeX * sizeY] - input[idx - sizeX * sizeY]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + sizeX * sizeY] - input[idx - sizeX * sizeY]);
+					break;
 			}
-			case EQUALS:
+		}
+		else if (z == 0)
+		{
+			switch (s)
 			{
-				output[tmpIndex] = input[tmpIndex + sizeX * sizeY] - input[tmpIndex];
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx + sizeX * sizeY] - input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx + sizeX * sizeY] - input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx + sizeX * sizeY] - input[idx]);
+					break;
+			}
+		}
+		else
+		{
+			switch (s)
+			{
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] - input[idx - sizeX * sizeY]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] - input[idx - sizeX * sizeY]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] - input[idx - sizeX * sizeY]);
+					break;
 			}
 		}
 	}
@@ -498,75 +1039,135 @@ __global__ void dzp3dCUDA(T* output, const T* input, const size_t sizeX, const s
 template<typename T>
 __global__ void dzp3dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
 {
-	const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
-	const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
-	const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
-
-	const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
-
-	if (x >= sizeX || y >= sizeY || z >= sizeZ)
-		return;
-
-	if (z < sizeZ - 1 && z > 0)
+	if(type == forward)
 	{
-		switch (s)
+		const size_t x = blockDim.x * blockIdx.x + threadIdx.x;
+		const size_t y = blockDim.y * blockIdx.y + threadIdx.y;
+		const size_t z = blockDim.z * blockIdx.z + threadIdx.z;
+
+		const size_t tmpIndex = x + sizeX * y + sizeX * sizeY * z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		if (z < sizeZ - 1 && z > 0)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - sizeX * sizeY]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += -(input[tmpIndex] - input[tmpIndex - sizeX * sizeY]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - sizeX * sizeY]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - sizeX * sizeY]);
+					break;
+				}
 			}
-			case MINUS:
+		}
+		else if (z == 0)
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= -(input[tmpIndex] - input[tmpIndex - sizeX * sizeY]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += -(input[tmpIndex]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= -(input[tmpIndex]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = -(input[tmpIndex]);
+					break;
+				}
 			}
-			case EQUALS:
+		}
+		else
+		{
+			switch (s)
 			{
-				output[tmpIndex] = -(input[tmpIndex] - input[tmpIndex - sizeX * sizeY]);
-				break;
+				case PLUS:
+				{
+					output[tmpIndex] += (input[tmpIndex - sizeX * sizeY]);
+					break;
+				}
+				case MINUS:
+				{
+					output[tmpIndex] -= (input[tmpIndex - sizeX * sizeY]);
+					break;
+				}
+				case EQUALS:
+				{
+					output[tmpIndex] = (input[tmpIndex - sizeX * sizeY]);
+					break;
+				}
 			}
 		}
 	}
-	else if (z == 0)
+	else if(type == central)
 	{
-		switch (s)
+		const size_t x = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t y = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t z = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (x >= sizeX || y >= sizeY || z >= sizeZ)
+			return;
+
+		const size_t idx = x + y * sizeX + z * sizeX * sizeY;
+
+		if (z > 0 && z < sizeZ - 1)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += -(input[tmpIndex]);
-				break;
-			}
-			case MINUS:
-			{
-				output[tmpIndex] -= -(input[tmpIndex]);
-				break;
-			}
-			case EQUALS:
-			{
-				output[tmpIndex] = -(input[tmpIndex]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + sizeX * sizeY] - input[idx - sizeX * sizeY]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + sizeX * sizeY] - input[idx - sizeX * sizeY]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + sizeX * sizeY] - input[idx - sizeX * sizeY]);
+					break;
 			}
 		}
-	}
-	else
-	{
-		switch (s)
+		else if (z == 0)
 		{
-			case PLUS:
+			switch (s)
 			{
-				output[tmpIndex] += (input[tmpIndex - sizeX * sizeY]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(-0.5) * (input[idx + sizeX * sizeY] + input[idx]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(-0.5) * (input[idx + sizeX * sizeY] + input[idx]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(-0.5) * (input[idx + sizeX * sizeY] + input[idx]);
+					break;
 			}
-			case MINUS:
+		}
+		else
+		{
+			switch (s)
 			{
-				output[tmpIndex] -= (input[tmpIndex - sizeX * sizeY]);
-				break;
-			}
-			case EQUALS:
-			{
-				output[tmpIndex] = (input[tmpIndex - sizeX * sizeY]);
-				break;
+				case PLUS:
+					output[idx] += static_cast<T>(0.5) * (input[idx] + input[idx - sizeX * sizeY]);
+					break;
+				case MINUS:
+					output[idx] -= static_cast<T>(0.5) * (input[idx] + input[idx - sizeX * sizeY]);
+					break;
+				case EQUALS:
+					output[idx]  = static_cast<T>(0.5) * (input[idx] + input[idx - sizeX * sizeY]);
+					break;
 			}
 		}
 	}
@@ -668,6 +1269,87 @@ public:
 		}
 		else if(this->type == central)
 		{
+			int sizeZ = this->inputDimension[2];
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
+			{
+				for (int j = 0; j < sizeY; ++j)
+				{
+					for (int i = 1; i < sizeX-1; ++i)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
+
+						switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex] += 0.5*(input[tmpIndex + 1] - input[tmpIndex - 1]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex] -= 0.5*(input[tmpIndex + 1] - input[tmpIndex - 1]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex] = 0.5*(input[tmpIndex + 1] - input[tmpIndex - 1]);
+								break;
+							}
+						}
+					}
+
+					int tmpIndex_edge1 = this->index3DtoLinear(0, j, k);
+					int tmpIndex_edge2 = this->index3DtoLinear(1, j, k);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+						}
+
+					int tmpIndex_edge3 = this->index3DtoLinear(sizeX-2, j, k);
+					int tmpIndex_edge4 = this->index3DtoLinear(sizeX-1, j, k);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+						}
+					
+				}
+			}
+
+			/*
 			#pragma omp parallel for
 			for (int k = 0; k < sizeZ; ++k)
 			{
@@ -689,6 +1371,7 @@ public:
 					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
+			*/
 		}
 	}
 
@@ -715,8 +1398,91 @@ public:
 				}
 			}
 		}
-		if(this->type == central)
+		else if(this->type == central)
 		{
+			int sizeZ = this->inputDimension[2];
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
+			{
+				for (int i = 0; i < sizeX; ++i)
+				{
+					for (int j = 1; j < sizeY-1; ++j)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
+						int tmpIndex1 = this->index3DtoLinear(i, j+1, k);
+						int tmpIndex2 = this->index3DtoLinear(i, j-1, k);
+
+						switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex] += 0.5*(input[tmpIndex1] - input[tmpIndex2]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex] -= 0.5*(input[tmpIndex1] - input[tmpIndex2]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex] = 0.5*(input[tmpIndex1] - input[tmpIndex2]);
+								break;
+							}
+						}
+					}
+
+					int tmpIndex_edge1 = this->index3DtoLinear(i, 0, k);
+					int tmpIndex_edge2 = this->index3DtoLinear(i, 1, k);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+						}
+
+					int tmpIndex_edge3 = this->index3DtoLinear(i, sizeY-2, k);
+					int tmpIndex_edge4 = this->index3DtoLinear(i, sizeY-1, k);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+						}
+					
+				}
+			}
+
+			/*
 			#pragma omp parallel for
 			for (int k = 0; k < sizeZ; ++k)
 			{
@@ -739,6 +1505,7 @@ public:
 					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
+			*/
 		}
 	}
 
@@ -765,8 +1532,91 @@ public:
 				}
 			}
 		}
-		if(this->type == central)
+		else if(this->type == central)
 		{	
+			int sizeZ = this->inputDimension[2];
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
+			#pragma omp parallel for
+			for (int i = 0; i < sizeX; ++i)
+			{
+				for (int j = 0; j < sizeY; ++j)
+				{
+					for (int k = 1; k < sizeZ-1; ++k)
+					{
+						const int tmpIndex = this->index3DtoLinear(i, j, k);
+						int tmpIndex1 = this->index3DtoLinear(i, j, k+1);
+						int tmpIndex2 = this->index3DtoLinear(i, j, k-1);
+
+						switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex] += 0.5*(input[tmpIndex1] - input[tmpIndex2]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex] -= 0.5*(input[tmpIndex1] - input[tmpIndex2]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex] = 0.5*(input[tmpIndex1] - input[tmpIndex2]);
+								break;
+							}
+						}
+					}
+
+					int tmpIndex_edge1 = this->index3DtoLinear(i, j, 0);
+					int tmpIndex_edge2 = this->index3DtoLinear(i, j, 1);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								break;
+							}
+						}
+
+					int tmpIndex_edge3 = this->index3DtoLinear(i, j, sizeZ-2);
+					int tmpIndex_edge4 = this->index3DtoLinear(i, j, sizeZ-1);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								break;
+							}
+						}
+					
+				}
+			}
+
+			/*
 			#pragma omp parallel for
 			for (int i = 0; i < sizeX; ++i)
 			{
@@ -789,6 +1639,7 @@ public:
 					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
+			*/
 		}
 	}
 
@@ -831,6 +1682,84 @@ public:
 		
 		else if(this->type == central)
 		{
+			int sizeZ = this->inputDimension[2];
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
+			{
+				for (int j = 0; j < sizeY; ++j)
+				{
+					for (int i = 1; i < sizeX-1; ++i)
+					{
+						int tmpIndex = this->index3DtoLinear(i,j,k);
+						switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex] += static_cast<T>(-0.5) *(input[tmpIndex + 1]-input[tmpIndex - 1]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex] -= static_cast<T>(-0.5) *(input[tmpIndex + 1]-input[tmpIndex - 1]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex] = static_cast<T>(-0.5) *(input[tmpIndex + 1]-input[tmpIndex - 1]);
+								break;
+							}
+						}
+					}
+					
+					int tmpIndex_edge1 = this->index3DtoLinear(0, j, k);
+					int tmpIndex_edge2 = this->index3DtoLinear(1, j, k);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+						}
+
+					int tmpIndex_edge3 = this->index3DtoLinear(sizeX-2, j, k);
+					int tmpIndex_edge4 = this->index3DtoLinear(sizeX-1, j, k);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+						}
+				}
+			}
+			/*
 			#pragma omp parallel for
 			for (int k = 0; k < sizeZ; ++k)
 			{
@@ -852,6 +1781,7 @@ public:
 					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
+			*/
 		}
 	}
 
@@ -892,8 +1822,91 @@ public:
 				}
 			}
 		}
-		if(this->type == central)
+		else if(this->type == central)
 		{
+			int sizeZ = this->inputDimension[2];
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
+			#pragma omp parallel for
+			for (int k = 0; k < sizeZ; ++k)
+			{
+				for (int i = 0; i < sizeX; ++i)
+				{
+					for (int j = 1; j < sizeY-1; ++j)
+					{
+						int tmpIndex = this->index3DtoLinear(i,j,k);
+						int tmpIndex1 = this->index3DtoLinear(i,j+1,k);
+						int tmpIndex2 = this->index3DtoLinear(i,j-1,k);
+						switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex] += static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex] -= static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex] = static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
+								break;
+							}
+						}
+					}
+					
+					int tmpIndex_edge1 = this->index3DtoLinear(i, 0, k);
+					int tmpIndex_edge2 = this->index3DtoLinear(i, 1, k);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+						}
+
+					int tmpIndex_edge3 = this->index3DtoLinear(i, sizeY-2, k);
+					int tmpIndex_edge4 = this->index3DtoLinear(i, sizeY-1, k);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+						}
+				}
+			}
+
+
+
+			/*
 			#pragma omp parallel for
 			for (int k = 0; k < sizeZ; ++k)
 			{
@@ -917,6 +1930,7 @@ public:
 				this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
 			}
+			*/
 		}
 	}
 
@@ -957,8 +1971,89 @@ public:
 				}
 			}
 		}
-		if(this->type == central)
+		else if(this->type == central)
 		{	
+			int sizeZ = this->inputDimension[2];
+			int sizeY = this->inputDimension[1];
+			int sizeX = this->inputDimension[0];
+
+			#pragma omp parallel for
+			for (int i = 0; i < sizeX; ++i)
+			{
+				for (int j = 0; j < sizeY; ++j)
+				{
+					for (int k = 1; k < sizeZ-1; ++k)
+					{
+						int tmpIndex = this->index3DtoLinear(i,j,k);
+						int tmpIndex1 = this->index3DtoLinear(i,j,k+1);
+						int tmpIndex2 = this->index3DtoLinear(i,j,k-1);
+						switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex] += static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex] -= static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex] = static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
+								break;
+							}
+						}
+					}
+					
+					int tmpIndex_edge1 = this->index3DtoLinear(i, j, 0);
+					int tmpIndex_edge2 = this->index3DtoLinear(i, j, 1);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								break;
+							}
+						}
+
+					int tmpIndex_edge3 = this->index3DtoLinear(i, j, sizeZ-2);
+					int tmpIndex_edge4 = this->index3DtoLinear(i, j, sizeZ-1);
+
+					switch (s)
+						{
+							case PLUS:
+							{
+								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+							case MINUS:
+							{
+								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+							case EQUALS:
+							{
+								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								break;
+							}
+						}
+				}
+
+
+			/*
 			#pragma omp parallel for
 			for (int i = 0; i < sizeX; ++i)
 			{
@@ -981,6 +2076,8 @@ public:
 
 					this->updateValue(&output[tmpIndex_edge2], s, static_cast<T>(0));
 				}
+			}
+				*/
 			}
 		}
 	}
@@ -1498,7 +2595,7 @@ public:
 		}
 	}
 
-
+	//have not checked if the upwind methods do sensible things on the edges
 	float dxUpwind(const float *data,const float *v,  const size_t *sizeMat, int i, int j, int k)
 	{
 	if (k < sizeMat[2] - 1)

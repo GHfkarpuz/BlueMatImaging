@@ -28,8 +28,8 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = cap.get(cv2.CAP_PROP_FPS)
 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-start_sec = 92
-end_sec = 96
+start_sec = 93
+end_sec = 95
 n_frames = 5
 
 start_frame = int(start_sec * fps)
@@ -76,7 +76,9 @@ while True:
 
         #frame_gray = cv2.fastNlMeansDenoising(frame_gray, None, 20, 7, 15)
 
-        frame_gray = cv2.resize(frame_gray, None, fx=0.45, fy=0.45)
+        frame_gray = cv2.resize(frame_gray, None, fx=0.25, fy=0.25)
+
+        frame_gray = frame_gray.astype(np.float32) / 255.0
 
         frames.append(frame_gray)
 
@@ -93,9 +95,9 @@ print("extracted:", len(frames))
 
 # parameters
 weight_1 = 0.5
-weight_2 = 1.0
-weight_3 = 0.8
-weight_4 = 2.0
+weight_2 = 30.0
+weight_3 = 1.0
+weight_4 = 2.5
 timeStep = 1.0
 timeIntervall = len(frames)
 
@@ -113,7 +115,7 @@ for i in range(num_iterations):
     inputDimension = [frames[0].shape[0],frames[0].shape[1]]
 
     # initialise solver
-    solver = FlexBoxSolver(maxIt=50, tol=1e-6, verbose=1)
+    solver = FlexBoxSolver(maxIt=500, tol=1e-6, verbose=1)
 
     # primal variables
     dim = len(inputDimension)
@@ -157,7 +159,7 @@ for i in range(num_iterations):
 
     for j in range(len(frames)):
         solver.add_dual(
-            prox_type="L1IsoProxDual",
+            prox_type="L1AnisoProxDual",
             alpha=weight_2/timeIntervall,
             f_list=[np.zeros(nPx)],
             corresponding_primals=[corresponding_primals[j]],
@@ -232,7 +234,7 @@ for i in range(num_iterations):
     del solver
 
     # initialise solver
-    solver = FlexBoxSolver(maxIt=50, tol=1e-6, verbose=1)
+    solver = FlexBoxSolver(maxIt=300, tol=1e-6, verbose=1)
 
     for j in range(len(frames)-1):
         solver.add_primal(motionField_0[j])#motion field for first direction for time t_j 
@@ -248,7 +250,7 @@ for i in range(num_iterations):
 
         negUT[j] = -(diff / timeStep / scale).flatten(order="F")
 
-        negUT[j] = -(((reconstructed_image[j+1] - reconstructed_image[j])/timeStep)/max(np.abs(np.max(reconstructed_image[j+1] - reconstructed_image[j])), 1e-6)).flatten(order="F")
+        #negUT[j] = -(((reconstructed_image[j+1] - reconstructed_image[j])/timeStep)/max(np.abs(np.max(reconstructed_image[j+1] - reconstructed_image[j])), 1e-6)).flatten(order="F")
 
     for j in range(len(frames)-1):
 
@@ -291,7 +293,7 @@ for i in range(num_iterations):
     for j in range(len(frames)-1):
         # TV on v_i
         solver.add_dual(
-            prox_type="L1IsoProxDual",
+            prox_type="L1AnisoProxDual",
             alpha=weight_4/timeIntervall,
             f_list=[np.zeros(nPx)],
             corresponding_primals=[corresponding_primals[2*j],corresponding_primals[2*j + 1]],

@@ -5,6 +5,630 @@
 #include "flexLinearOperator.h"
 
 //TODO: extend the CUDA methods for the central gradient case with the right handling for the edges
+
+
+#ifdef __CUDACC__
+template<typename T>
+__global__ void dxp2dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s, int type)
+{
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (i >= sizeX || j >= sizeY)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX;
+
+    
+    if (type == forward)
+    {
+        if (i < sizeX - 1)
+        {
+            T val = input[tmpIndex + 1] - input[tmpIndex];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+    }
+    
+    else if (type == central)
+    {
+        if (i > 0 && i < sizeX - 1)
+        {
+            T val = static_cast<T>(0.5) * (input[tmpIndex + 1] - input[tmpIndex - 1]);
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (i == 0)
+        {
+            T val = input[tmpIndex + 1] - input[tmpIndex];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (i == sizeX - 1)
+        {
+            T val = input[tmpIndex] - input[tmpIndex - 1];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+    }
+}
+
+template<typename T>
+__global__ void dxp2dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+
+    if (i >= sizeX || j >= sizeY)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX;
+
+    if (type == forward)
+    {
+        if (i > 0 && i < sizeX - 1)
+        {
+            T val = -(input[tmpIndex] - input[tmpIndex - 1]);
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (i == 0)
+        {
+            T val = -input[tmpIndex];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (i == sizeX - 1)
+        {
+            T val = input[tmpIndex - 1];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+    }
+    
+    else if (type == central)
+    {
+        if (i >= 2 && i < sizeX - 2)
+        {
+            T val = static_cast<T>(-0.5) * (input[tmpIndex + 1] - input[tmpIndex - 1]);
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (i == 0)
+        {
+            T val = static_cast<T>(-0.5) * input[tmpIndex + 1] - input[tmpIndex];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (i == 1)
+        {
+            T val = static_cast<T>(-0.5) * input[tmpIndex + 1] + input[tmpIndex - 1];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (i == sizeX - 2)
+        {
+            T val = static_cast<T>(0.5) * input[tmpIndex - 1] - input[tmpIndex + 1];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (i == sizeX - 1)
+        {
+            T val = static_cast<T>(0.5) * input[tmpIndex - 1] + input[tmpIndex];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+    }
+}
+
+
+template<typename T>
+__global__ void dyp2dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+
+    if (i >= sizeX || j >= sizeY)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX;
+
+    
+    if (type == forward)
+    {
+        if (j < sizeY - 1)
+        {
+            T val = input[tmpIndex + sizeX] - input[tmpIndex];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+    }
+    
+    else if (type == central)
+    {
+        if (j > 0 && j < sizeY - 1)
+        {
+            T val = static_cast<T>(0.5) * (input[tmpIndex + sizeX] - input[tmpIndex - sizeX]);
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (j == 0)
+        {
+            T val = input[tmpIndex + sizeX] - input[tmpIndex]; 
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (j == sizeY - 1)
+        {
+            T val = input[tmpIndex] - input[tmpIndex - sizeX];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+    }
+}
+
+template<typename T>
+__global__ void dyp2dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+
+    if (i >= sizeX || j >= sizeY)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX;
+
+
+    if (type == forward)
+    {
+        if (j > 0 && j < sizeY - 1)
+        {
+            T val = -(input[tmpIndex] - input[tmpIndex - sizeX]);
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (j == 0)
+        {
+            T val = -input[tmpIndex]; 
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (j == sizeY - 1)
+        {
+            T val = input[tmpIndex - sizeX]; 
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+    }
+    
+    else if (type == central)
+    {
+        if (j >= 2 && j < sizeY - 2)
+        {
+            T val = static_cast<T>(-0.5) * (input[tmpIndex + sizeX] - input[tmpIndex - sizeX]);
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (j == 0)
+        {
+            T val = static_cast<T>(-0.5) * input[tmpIndex + sizeX] - input[tmpIndex];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (j == 1)
+        {
+            T val = static_cast<T>(-0.5) * input[tmpIndex + sizeX] + input[tmpIndex - sizeX];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (j == sizeY - 2)
+        {
+            T val = static_cast<T>(0.5) * input[tmpIndex - sizeX] - input[tmpIndex + sizeX];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+        else if (j == sizeY - 1)
+        {
+            T val = static_cast<T>(0.5) * input[tmpIndex - sizeX] + input[tmpIndex];
+            switch (s)
+            {
+                case PLUS:   output[tmpIndex] += val; break;
+                case MINUS:  output[tmpIndex] -= val; break;
+                case EQUALS: output[tmpIndex]  = val; break;
+            }
+        }
+    }
+}
+
+template<typename T>
+__device__ inline void updateValueCUDA(T* ptr, mySign s, T value)
+{
+    switch (s)
+    {
+        case PLUS:   *ptr += value; break;
+        case MINUS:  *ptr -= value; break;
+        case EQUALS: *ptr  = value; break;
+    }
+}
+
+template<typename T>
+__global__ void dxp3dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+    const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+    if (i >= sizeX || j >= sizeY || k >= sizeZ)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX + k * sizeX * sizeY;
+
+    
+    if (type == forward)
+    {
+        if (i < sizeX - 1)
+        {
+            updateValueCUDA(&output[tmpIndex], s, input[tmpIndex + 1] - input[tmpIndex]);
+        }
+    }
+    
+    else if (type == central) 
+    {
+        if (i > 0 && i < sizeX - 1)
+        {
+            T val = static_cast<T>(0.5) * (input[tmpIndex + 1] - input[tmpIndex - 1]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (i == 0)
+        {
+            T val = input[tmpIndex + 1] - input[tmpIndex];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (i == sizeX - 1)
+        {
+            T val = input[tmpIndex] - input[tmpIndex - 1]; 
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+}
+
+template<typename T>
+__global__ void dxp3dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+    const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+    if (i >= sizeX || j >= sizeY || k >= sizeZ)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX + k * sizeX * sizeY;
+
+    if (type == forward)
+    {
+        if (i > 0 && i < sizeX - 1)
+        {
+            T val = -(input[tmpIndex] - input[tmpIndex - 1]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (i == 0)
+        {
+            T val = -input[tmpIndex];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (i == sizeX - 1)
+        {
+            T val = input[tmpIndex - 1];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+    else if (type == central)
+    {
+        if (i > 0 && i < sizeX - 1)
+        {
+            T val = static_cast<T>(-0.5) * (input[tmpIndex + 1] - input[tmpIndex - 1]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (i == 0)
+        {
+            T val = -(input[tmpIndex + 1] + input[tmpIndex]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (i == sizeX - 1)
+        {
+            T val = input[tmpIndex] + input[tmpIndex - 1]; 
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+}
+
+
+template<typename T>
+__global__ void dyp3dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+    const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+    if (i >= sizeX || j >= sizeY || k >= sizeZ)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX + k * sizeX * sizeY;
+    const size_t strideY = sizeX;
+
+    
+    if (type == forward)
+    {
+        if (j < sizeY - 1)
+        {
+            updateValueCUDA(&output[tmpIndex], s, input[tmpIndex + strideY] - input[tmpIndex]);
+        }
+    }
+    
+    else if (type == central)
+    {
+        if (j > 0 && j < sizeY - 1)
+        {
+            T val = static_cast<T>(0.5) * (input[tmpIndex + strideY] - input[tmpIndex - strideY]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (j == 0)
+        {
+            T val = input[tmpIndex + strideY] - input[tmpIndex];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (j == sizeY - 1) 
+        {
+            T val = input[tmpIndex] - input[tmpIndex - strideY];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+}
+
+template<typename T>
+__global__ void dyp3dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+    const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+    if (i >= sizeX || j >= sizeY || k >= sizeZ)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX + k * sizeX * sizeY;
+    const size_t strideY = sizeX;
+
+    
+    if (type == forward)
+    {
+        if (j > 0 && j < sizeY - 1)
+        {
+            T val = -(input[tmpIndex] - input[tmpIndex - strideY]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (j == 0)
+        {
+            T val = -input[tmpIndex];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (j == sizeY - 1)
+        {
+            T val = input[tmpIndex - strideY];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+    
+    else if (type == central)
+    {
+        if (j > 0 && j < sizeY - 1)
+        {
+            T val = static_cast<T>(-0.5) * (input[tmpIndex + strideY] - input[tmpIndex - strideY]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (j == 0)
+        {
+            T val = -(input[tmpIndex + strideY] + input[tmpIndex]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (j == sizeY - 1)
+        {
+            T val = input[tmpIndex] + input[tmpIndex - strideY];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+}
+
+template<typename T>
+__global__ void dzp3dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+    const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+    if (i >= sizeX || j >= sizeY || k >= sizeZ)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX + k * sizeX * sizeY;
+    const size_t strideZ = sizeX * sizeY;
+
+    
+    if (type == forward) // forward
+    {
+        if (k < sizeZ - 1)
+        {
+            updateValueCUDA(&output[tmpIndex], s, input[tmpIndex + strideZ] - input[tmpIndex]);
+        }
+    }
+    
+    else if (type == central) // central
+    {
+        if (k > 0 && k < sizeZ - 1)
+        {
+            T val = static_cast<T>(0.5) * (input[tmpIndex + strideZ] - input[tmpIndex - strideZ]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (k == 0)
+        {
+            T val = input[tmpIndex + strideZ] - input[tmpIndex];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (k == sizeZ - 1) 
+        {
+            T val = input[tmpIndex] - input[tmpIndex - strideZ];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+}
+
+template<typename T>
+__global__ void dzp3dTransposedCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s, int type)
+{
+    const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+    const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+    const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+    if (i >= sizeX || j >= sizeY || k >= sizeZ)
+        return;
+
+    const size_t tmpIndex = i + j * sizeX + k * sizeX * sizeY;
+    const size_t strideZ = sizeX * sizeY;
+
+    
+    if (type == forward) // forward
+    {
+        if (k > 0 && k < sizeZ - 1)
+        {
+            T val = -(input[tmpIndex] - input[tmpIndex - strideZ]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (k == 0)
+        {
+            T val = -input[tmpIndex];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (k == sizeZ - 1)
+        {
+            T val = input[tmpIndex - strideZ];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+    
+    else if (type == central) // central
+    {
+        if (k > 0 && k < sizeZ - 1)
+        {
+            T val = static_cast<T>(-0.5) * (input[tmpIndex + strideZ] - input[tmpIndex - strideZ]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (k == 0)
+        {
+            T val = -(input[tmpIndex + strideZ] + input[tmpIndex]);
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+        else if (k == sizeZ - 1)
+        {
+            T val = input[tmpIndex] + input[tmpIndex - strideZ];
+            updateValueCUDA(&output[tmpIndex], s, val);
+        }
+    }
+}
+
+
+
+/*
+
 #ifdef __CUDACC__
 template<typename T>
 __global__ void dxp2dCUDA(T* output, const T* input, const size_t sizeX, const size_t sizeY, mySign s)
@@ -1172,7 +1796,7 @@ __global__ void dzp3dTransposedCUDA(T* output, const T* input, const size_t size
 		}
 	}
 }
-
+*/
 #endif
 
 //! represents a gradient operator
@@ -1309,17 +1933,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] += (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] -= (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] = (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 						}
@@ -1331,17 +1955,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] += (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] -= (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] = (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 						}
@@ -1442,17 +2066,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] += (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] -= (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] = (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 						}
@@ -1464,17 +2088,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] += (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] -= (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] = (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 						}
@@ -1576,17 +2200,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] += (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] -= (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] = (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 								break;
 							}
 						}
@@ -1598,17 +2222,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] += (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] -= (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] = (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 								break;
 							}
 						}
@@ -1721,17 +2345,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] += -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] -= -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] = -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 						}
@@ -1743,17 +2367,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] += (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] -= (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] = (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 						}
@@ -1865,17 +2489,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] += -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] -= -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] = -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 						}
@@ -1887,17 +2511,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] += (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] -= (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] = (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 						}
@@ -2014,17 +2638,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] += -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] -= -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+								output[tmpIndex_edge1] = -(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
 								break;
 							}
 						}
@@ -2036,17 +2660,17 @@ public:
 						{
 							case PLUS:
 							{
-								output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] += (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 							case MINUS:
 							{
-								output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] -= (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 							case EQUALS:
 							{
-								output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+								output[tmpIndex_edge4] = (input[tmpIndex_edge4]+input[tmpIndex_edge3]);
 								break;
 							}
 						}
@@ -2157,17 +2781,17 @@ public:
 					{
 						case PLUS:
 						{
-							output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] += (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] -= (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] = (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 							break;
 						}
 					}
@@ -2179,17 +2803,17 @@ public:
 					{
 						case PLUS:
 						{
-							output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							output[tmpIndex_edge4] += (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							output[tmpIndex_edge4] -= (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							output[tmpIndex_edge4] = (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 							break;
 						}
 					}
@@ -2263,7 +2887,6 @@ public:
 							break;
 						}
 					}
-				}
 
 				int tmpIndex_edge1 = this->index2DtoLinear(i, 0);
 				int tmpIndex_edge2 = this->index2DtoLinear(i, 1);
@@ -2272,17 +2895,17 @@ public:
 					{
 						case PLUS:
 						{
-							output[tmpIndex_edge1] += 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] += (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex_edge1] -= 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] -= (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex_edge1] = 0.5*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] = (input[tmpIndex_edge2]-input[tmpIndex_edge1]);
 							break;
 						}
 					}
@@ -2294,20 +2917,21 @@ public:
 					{
 						case PLUS:
 						{
-							output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							output[tmpIndex_edge4] += (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							output[tmpIndex_edge4] -= (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]-input[tmpIndex_edge3]);
+							output[tmpIndex_edge4] = (input[tmpIndex_edge4]-input[tmpIndex_edge3]);
 							break;
 						}
 					}
+				}
 			}
 		}
 	}
@@ -2382,7 +3006,7 @@ public:
 			#pragma omp parallel for
 			for (int j = 0; j < sizeY; ++j)
 			{
-				for (int i = 1; i < sizeX-1; ++i)
+				for (int i = 2; i < sizeX-2; ++i)
 				{
 					int tmpIndex = this->index2DtoLinear(i,j);
 					switch (s)
@@ -2407,44 +3031,84 @@ public:
 				
 				int tmpIndex_edge1 = this->index2DtoLinear(0, j);
 				int tmpIndex_edge2 = this->index2DtoLinear(1, j);
+				int tmpIndex_edge3 = this->index2DtoLinear(2, j);
 
 				switch (s)
 					{
 						case PLUS:
 						{
-							output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] += -0.5*input[tmpIndex_edge2]-input[tmpIndex_edge1];
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] -= -0.5*input[tmpIndex_edge2]-input[tmpIndex_edge1];
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] = -0.5*input[tmpIndex_edge2]-input[tmpIndex_edge1];
 							break;
 						}
 					}
 
-				int tmpIndex_edge3 = this->index2DtoLinear(sizeX-2, j);
-				int tmpIndex_edge4 = this->index2DtoLinear(sizeX-1, j);
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge2] += -0.5*input[tmpIndex_edge3]+input[tmpIndex_edge1];
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge2] -= -0.5*input[tmpIndex_edge3]+input[tmpIndex_edge1];
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge2] = -0.5*input[tmpIndex_edge3]+input[tmpIndex_edge1];
+							break;
+						}
+					}
+				
+				int tmpIndex_edge4 = this->index2DtoLinear(sizeX-3, j);
+				int tmpIndex_edge5 = this->index2DtoLinear(sizeX-2, j);
+				int tmpIndex_edge6 = this->index2DtoLinear(sizeX-1, j);
 
 				switch (s)
 					{
 						case PLUS:
 						{
-							output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							output[tmpIndex_edge5] += 0.5*input[tmpIndex_edge4]-input[tmpIndex_edge6];
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							output[tmpIndex_edge5] -= 0.5*input[tmpIndex_edge4]-input[tmpIndex_edge6];
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							output[tmpIndex_edge5] = 0.5*input[tmpIndex_edge4]-input[tmpIndex_edge6];
+							break;
+						}
+					}
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge6] += 0.5*input[tmpIndex_edge5]+input[tmpIndex_edge6];
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge6] -= 0.5*input[tmpIndex_edge5]+input[tmpIndex_edge6];
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge6] = 0.5*input[tmpIndex_edge5]+input[tmpIndex_edge6];
 							break;
 						}
 					}
@@ -2522,27 +3186,26 @@ public:
 			#pragma omp parallel for
 			for (int i = 0; i < sizeX; ++i)
 			{
-				for (int j = 1; j < sizeY-1; ++j)
+				for (int j = 2; j < sizeY-2; ++j)
 				{
 					int tmpIndex = this->index2DtoLinear(i,j);
-					int tmpIndex1 = this->index2DtoLinear(i,j-1);
-					int tmpIndex2 = this->index2DtoLinear(i,j+1);
-
+					int tmpIndex1 = this->index2DtoLinear(i,j+1);
+					int tmpIndex2 = this->index2DtoLinear(i,j-1);
 					switch (s)
 					{
 						case PLUS:
 						{
-							output[tmpIndex] += static_cast<T>(-0.5) *(input[tmpIndex2]-input[tmpIndex1]);
+							output[tmpIndex] += static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex] -= static_cast<T>(-0.5) *(input[tmpIndex2]-input[tmpIndex1]);
+							output[tmpIndex] -= static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex] = static_cast<T>(-0.5) *(input[tmpIndex2]-input[tmpIndex1]);
+							output[tmpIndex] = static_cast<T>(-0.5) *(input[tmpIndex1]-input[tmpIndex2]);
 							break;
 						}
 					}
@@ -2550,47 +3213,87 @@ public:
 				
 				int tmpIndex_edge1 = this->index2DtoLinear(i, 0);
 				int tmpIndex_edge2 = this->index2DtoLinear(i, 1);
+				int tmpIndex_edge3 = this->index2DtoLinear(i, 2);
 
 				switch (s)
 					{
 						case PLUS:
 						{
-							output[tmpIndex_edge1] += -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] += -0.5*input[tmpIndex_edge2]-input[tmpIndex_edge1];
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex_edge1] -= -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] -= -0.5*input[tmpIndex_edge2]-input[tmpIndex_edge1];
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex_edge1] = -0.5*(input[tmpIndex_edge2]+input[tmpIndex_edge1]);
+							output[tmpIndex_edge1] = -0.5*input[tmpIndex_edge2]-input[tmpIndex_edge1];
 							break;
 						}
 					}
 
-				int tmpIndex_edge3 = this->index2DtoLinear(i, sizeY-2);
-				int tmpIndex_edge4 = this->index2DtoLinear(i, sizeY-1);
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge2] += -0.5*input[tmpIndex_edge3]+input[tmpIndex_edge1];
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge2] -= -0.5*input[tmpIndex_edge3]+input[tmpIndex_edge1];
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge2] = -0.5*input[tmpIndex_edge3]+input[tmpIndex_edge1];
+							break;
+						}
+					}
+				
+				int tmpIndex_edge4 = this->index2DtoLinear(i, sizeY-3);
+				int tmpIndex_edge5 = this->index2DtoLinear(i, sizeY-2);
+				int tmpIndex_edge6 = this->index2DtoLinear(i, sizeY-1);
 
 				switch (s)
 					{
 						case PLUS:
 						{
-							output[tmpIndex_edge4] += 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							output[tmpIndex_edge5] += 0.5*input[tmpIndex_edge4]-input[tmpIndex_edge6];
 							break;
 						}
 						case MINUS:
 						{
-							output[tmpIndex_edge4] -= 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							output[tmpIndex_edge5] -= 0.5*input[tmpIndex_edge4]-input[tmpIndex_edge6];
 							break;
 						}
 						case EQUALS:
 						{
-							output[tmpIndex_edge4] = 0.5*(input[tmpIndex_edge4]+input[tmpIndex_edge3]);
+							output[tmpIndex_edge5] = 0.5*input[tmpIndex_edge4]-input[tmpIndex_edge6];
 							break;
 						}
-					}	
+					}
+
+				switch (s)
+					{
+						case PLUS:
+						{
+							output[tmpIndex_edge6] += 0.5*input[tmpIndex_edge5]+input[tmpIndex_edge6];
+							break;
+						}
+						case MINUS:
+						{
+							output[tmpIndex_edge6] -= 0.5*input[tmpIndex_edge5]+input[tmpIndex_edge6];
+							break;
+						}
+						case EQUALS:
+						{
+							output[tmpIndex_edge6] = 0.5*input[tmpIndex_edge5]+input[tmpIndex_edge6];
+							break;
+						}
+					}
 			}
 		}
 	}
@@ -2964,12 +3667,14 @@ public:
 		}
 		else if(type==central)
 		{
-			return static_cast<T>(1);
+			return static_cast<T>(2);//because of forward and backward differences at the edges
 		}
+		throw std::runtime_error("Unknown gradient type");
 	}
 
 	std::vector<T> getAbsRowSum(bool transposed)
 	{	
+
 		if(type==forward||type==backward)
 		{
 			std::vector<T> result(this->getNumRows(),(T)2);
@@ -2978,8 +3683,203 @@ public:
 		else if(type==central)
 		{
 			std::vector<T> result(this->getNumRows(),(T)1);
+			if(!transposed)
+			{
+				if(numberDimensions==2)
+				{
+					if(gradDirection == 0)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+
+						for(int j = 0; j<sizeY; ++j)
+						{
+							int tmpIndex1 = index2DtoLinear(0,j);
+							int tmpIndex2 = index2DtoLinear(sizeX-1,j);
+
+							result[tmpIndex1] = (T)2;
+							result[tmpIndex2] = (T)2;
+						}
+					}
+					if(gradDirection == 1)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+
+						for(int i = 0; i<sizeX; ++i)
+						{
+							int tmpIndex1 = index2DtoLinear(i,0);
+							int tmpIndex2 = index2DtoLinear(i,sizeY-1);
+
+							result[tmpIndex1] = (T)2;
+							result[tmpIndex2] = (T)2;
+						}
+					}
+				}
+				if(numberDimensions==3)
+				{
+					if(gradDirection == 0)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+						int sizeZ = inputDimension[2];
+
+						for(int k = 0; k<sizeZ; ++k)
+						{
+							for(int j = 0; j<sizeY; ++j)
+							{
+								int tmpIndex1 = index3DtoLinear(0,j,k);
+								int tmpIndex2 = index3DtoLinear(sizeX-1,j,k);
+
+								result[tmpIndex1] = (T)2;
+								result[tmpIndex2] = (T)2;
+							}
+						}
+						
+					}
+					if(gradDirection == 1)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+						int sizeZ = inputDimension[2];
+
+						for(int k = 0; k<sizeZ; ++k)
+						{
+							for(int i = 0; i<sizeX; ++i)
+							{
+								int tmpIndex1 = index3DtoLinear(i,0,k);
+								int tmpIndex2 = index3DtoLinear(i,sizeY-1,k);
+
+								result[tmpIndex1] = (T)2;
+								result[tmpIndex2] = (T)2;
+							}
+						}
+					}
+					if(gradDirection == 2)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+						int sizeZ = inputDimension[2];
+
+						for(int i = 0; i<sizeX; ++i)
+						{
+							for(int j = 0; j<sizeY; ++j)
+							{
+								int tmpIndex1 = index3DtoLinear(i,j,0);
+								int tmpIndex2 = index3DtoLinear(i,j,sizeZ-1);
+
+								result[tmpIndex1] = (T)2;
+								result[tmpIndex2] = (T)2;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				if(numberDimensions==2)
+				{
+					if(gradDirection == 0)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+
+						for(int j = 0; j<sizeY; ++j)
+						{
+							int tmpIndex1 = index2DtoLinear(0,j);
+							int tmpIndex2 = index2DtoLinear(1,j);
+							int tmpIndex3 = index2DtoLinear(sizeX-1,j);
+
+							result[tmpIndex1] = (T)1.5;
+							result[tmpIndex2] = (T)1.5;
+							result[tmpIndex3] = (T)1.5;
+						}
+					}
+					if(gradDirection == 1)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+
+						for(int i = 0; i<sizeX; ++i)
+						{
+							int tmpIndex1 = index2DtoLinear(i,0);
+							int tmpIndex2 = index2DtoLinear(i,1);
+							int tmpIndex3 = index2DtoLinear(i,sizeY-1);
+
+							result[tmpIndex1] = (T)1.5;
+							result[tmpIndex2] = (T)1.5;
+							result[tmpIndex3] = (T)1.5;
+						}
+					}
+				}
+				if(numberDimensions==3)
+				{
+					if(gradDirection == 0)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+						int sizeZ = inputDimension[2];
+
+						for(int k = 0; k<sizeZ; ++k)
+						{
+							for(int j = 0; j<sizeY; ++j)
+							{
+								int tmpIndex1 = index3DtoLinear(0,j,k);
+								int tmpIndex2 = index3DtoLinear(1,j,k);
+								int tmpIndex3 = index3DtoLinear(sizeX-1,j,k);
+
+								result[tmpIndex1] = (T)1.5;
+								result[tmpIndex2] = (T)1.5;
+								result[tmpIndex3] = (T)1.5;
+							}
+						}
+						
+					}
+					if(gradDirection == 1)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+						int sizeZ = inputDimension[2];
+
+						for(int k = 0; k<sizeZ; ++k)
+						{
+							for(int i = 0; i<sizeX; ++i)
+							{
+								int tmpIndex1 = index3DtoLinear(i,0,k);
+								int tmpIndex2 = index3DtoLinear(i,1,k);
+								int tmpIndex3 = index3DtoLinear(i,sizeY-1,k);
+
+								result[tmpIndex1] = (T)1.5;
+								result[tmpIndex2] = (T)1.5;
+								result[tmpIndex3] = (T)1.5;
+							}
+						}
+					}
+					if(gradDirection == 2)
+					{
+						int sizeX = inputDimension[0];
+						int sizeY = inputDimension[1];
+						int sizeZ = inputDimension[2];
+
+						for(int i = 0; i<sizeX; ++i)
+						{
+							for(int j = 0; j<sizeY; ++j)
+							{
+								int tmpIndex1 = index3DtoLinear(i,j,0);
+								int tmpIndex2 = index3DtoLinear(i,j,1);
+								int tmpIndex3 = index3DtoLinear(i,j,sizeZ-1);
+
+								result[tmpIndex1] = (T)1.5;
+								result[tmpIndex2] = (T)1.5;
+								result[tmpIndex3] = (T)1.5;
+							}
+						}
+					}
+				}
+			}
 			return result;
 		}
+		throw std::runtime_error("Unknown gradient type");
 	}
 
 	int index3DtoLinear(int i, int j, int k)
@@ -2992,6 +3892,7 @@ public:
 		return (i + j*this->inputDimension[0]);
 	}
 
+	/*
 	#ifdef __CUDACC__
 	thrust::device_vector<T> getAbsRowSumCUDA(bool transposed)
 	{
@@ -3003,6 +3904,71 @@ public:
 		{
 			thrust::device_vector<T> result(this->getNumRows(), (T)1);
 		}
+
+		return result;
+	}
+	#endif
+	*/
+	
+	#ifdef __CUDACC__
+	thrust::device_vector<T> MyClass<T>::getAbsRowSumCUDA(bool transposed)
+	{
+		const int sizeX = this->inputDimension[0];
+		const int sizeY = this->inputDimension[1];
+		const int sizeZ = (this->numberDimensions == 3) ? this->inputDimension[2] : 1;
+		const int numDims = this->numberDimensions;
+		const int t = this->type;
+		const int gradDir = this->gradDirection;
+
+		thrust::device_vector<T> result(this->getNumRows());
+
+		struct RowSumOp {
+			int sizeX, sizeY, sizeZ, numDims, type, gradDir;
+			bool transposed;
+
+			__device__ T operator()(const size_t idx) const {
+				int k = idx / (sizeX * sizeY);
+				int rem = idx % (sizeX * sizeY);
+				int j = rem / sizeX;
+				int i = rem % sizeX;
+
+				if (type == forward || type == backward) { 
+					return static_cast<T>(2);
+				}
+
+				T val = static_cast<T>(1); 
+
+				if (!transposed) {
+					if (numDims == 2) {
+						if (gradDir == 0 && (i == 0 || i == sizeX - 1)) val = static_cast<T>(2);
+						else if (gradDir == 1 && (j == 0 || j == sizeY - 1)) val = static_cast<T>(2);
+					} else {
+						if (gradDir == 0 && (i == 0 || i == sizeX - 1)) val = static_cast<T>(2);
+						else if (gradDir == 1 && (j == 0 || j == sizeY - 1)) val = static_cast<T>(2);
+						else if (gradDir == 2 && (k == 0 || k == sizeZ - 1)) val = static_cast<T>(2);
+					}
+				} else {
+					if (numDims == 2) {
+						if (gradDir == 0 && (i == 0 || i == 1 || i == sizeX - 1)) val = static_cast<T>(1.5);
+						else if (gradDir == 1 && (j == 0 || j == 1 || j == sizeY - 1)) val = static_cast<T>(1.5);
+					} else {
+						if (gradDir == 0 && (i == 0 || i == 1 || i == sizeX - 1)) val = static_cast<T>(1.5);
+						else if (gradDir == 1 && (j == 0 || j == 1 || j == sizeY - 1)) val = static_cast<T>(1.5);
+						else if (gradDir == 2 && (k == 0 || k == 1 || k == sizeZ - 1)) val = static_cast<T>(1.5);
+					}
+				}
+				return val;
+			}
+		};
+
+		RowSumOp op{sizeX, sizeY, sizeZ, numDims, t, gradDir, transposed};
+
+		thrust::transform(
+			thrust::make_counting_iterator<size_t>(0),
+			thrust::make_counting_iterator<size_t>(result.size()),
+			result.begin(),
+			op
+		);
 
 		return result;
 	}

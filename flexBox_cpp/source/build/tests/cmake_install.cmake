@@ -98,6 +98,34 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
   include("/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests/CMakeFiles/testOperators.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
 endif()
 
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/testAdjoint" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/testAdjoint")
+    file(RPATH_CHECK
+         FILE "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/testAdjoint"
+         RPATH "")
+  endif()
+  list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
+   "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/testAdjoint")
+  if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
+    message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
+  endif()
+  if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
+    message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
+  endif()
+  file(INSTALL DESTINATION "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin" TYPE EXECUTABLE FILES "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests/testAdjoint")
+  if(EXISTS "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/testAdjoint" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/testAdjoint")
+    if(CMAKE_INSTALL_DO_STRIP)
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bin/testAdjoint")
+    endif()
+  endif()
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  include("/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/tests/CMakeFiles/testAdjoint.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
+endif()
+
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)

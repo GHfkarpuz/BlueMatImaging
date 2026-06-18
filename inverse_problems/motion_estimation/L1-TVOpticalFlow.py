@@ -87,12 +87,12 @@ solver.add_dual(
 #generate gradient operators 
 
 grad_x={"type": "gradientOperator",
-        "gradType": "forward",
+        "gradType": "central",
         "gradDirection": 0,
         "inputDimension": inputDimension
     }
 grad_y={"type": "gradientOperator",
-        "gradType": "forward",
+        "gradType": "central",
         "gradDirection": 1,
         "inputDimension": inputDimension
 }

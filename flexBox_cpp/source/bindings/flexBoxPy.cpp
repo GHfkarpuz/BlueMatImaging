@@ -19,12 +19,16 @@
 #include "operator/flexMatrixLogical.h"
 #include "operator/flexFullMatrix.h"
 #include "operator/flexGradientOperator.h"
+#include "operator/flexUpwindGradientOperator.h"
+#include "operator/flexUpwindDivergenceOperator.h"
 #include "operator/flexWeightedGradientOperator.h"
 #include "operator/flexWeightedDivergenceOperator.h"
 #include "operator/flexSuperpixelOperator.h"
 #include "operator/flexConcatOperator.h"
 #include "operator/flexOpticalFlowOperator.h"
 #include "operator/flexMassPreservationOperator.h"
+#include "operator/flexProjectionOperator.h"
+#include "operator/flexProjectionOutputOperator.h"
 
 #include "flexBox.h"
 
@@ -32,6 +36,7 @@
 
 //prox
 #include "prox/flexProxDualDataL1.h"
+#include "prox/flexProxDualDataL1Iso.h"
 #include "prox/flexProxDualDataL2.h"
 #include "prox/flexProxDualDataKL.h"
 #include "prox/flexProxDualDataHuber.h"
@@ -158,6 +163,33 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
 
         A = new flexGradientOperator<double>(inputDimension, gradDirection, gradT, isMinus);
     }
+    else if (type == "upwindGradientOperator") {
+        if (verbose > 1) printf("Operator %d is type <upwindGradientOperator>\n", operatorNumber);
+
+        int gradDirection = operatorDict["gradDirection"].cast<int>();
+
+        std::vector<double> motionField = operatorDict["motionField"].cast<std::vector<double>>();
+
+        std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
+
+        A = new flexUpwindGradientOperator<double>(inputDimension, gradDirection, motionField, isMinus);
+    }
+    else if (type == "upwindDivergenceOperator") {
+        if (verbose > 1) printf("Operator %d is type <upwindDivergenceOperator>\n", operatorNumber);
+        std::string gradTypeStr = operatorDict["gradType"].cast<std::string>();
+        
+        int gradDirection = operatorDict["gradDirection"].cast<int>();
+
+        std::vector<double> weights = operatorDict["weights"].cast<std::vector<double>>();
+
+        gradientType gradT = gradientType::forward;
+        if (gradTypeStr == "backward") gradT = backward;
+        else if (gradTypeStr == "central") gradT = central;
+
+        std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
+
+        A = new flexUpwindDivergenceOperator<double>(weights, inputDimension, gradDirection, gradT, isMinus);
+    }
     else if (type == "weightedGradientOperator") {
         if (verbose > 1) printf("Operator %d is type <weightedGradientOperator>\n", operatorNumber);
         std::string gradTypeStr = operatorDict["gradType"].cast<std::string>();
@@ -246,7 +278,6 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         A = Atmp;
     }
     else if(type == "opticalFlowOp"){
-        //TODO Fehler fixen
         if (verbose > 1) printf("Operator %d is type <opticalFlowOp>\n", operatorNumber);
 
         py::array_t<double> img = operatorDict["image"].cast<py::array_t<double>>();
@@ -269,7 +300,6 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         A = AOpticalFlow;
     }
     else if(type == "massPreservationOp"){
-        //TODO Fehler fixen
         if (verbose > 1) printf("Operator %d is type <massPreservationOp>\n", operatorNumber);
 
         py::array_t<double> img = operatorDict["image"].cast<py::array_t<double>>();
@@ -291,6 +321,32 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         auto AMassPreservation = new flexMassPreservationOperator<double>(imageVec, inputDimension, direction, isMinus);
         A = AMassPreservation;
     }
+    else if(type == "projectionOp"){
+        if (verbose > 1) printf("Operator %d is type <projectionOp>\n", operatorNumber);
+
+        int index = operatorDict["index"].cast<int>();
+
+        py::dict op = operatorDict["operator"].cast<py::dict>();
+
+        auto ProjOp = transformPythonToFlexOperator(op, verbose, operatorNumber, isGPU);
+
+        //dimensions
+        std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
+
+        //create operator
+        A = new flexProjectionOperator<double>(ProjOp, index, inputDimension, isMinus);
+    }
+    else if(type == "projectionOutputOp"){
+        if (verbose > 1) printf("Operator %d is type <projectionOutputOp>\n", operatorNumber);
+
+        int index = operatorDict["index"].cast<int>();
+
+        //dimensions
+        std::vector<int> inputDimension = operatorDict["inputDimension"].cast<std::vector<int>>();
+
+        //create operator
+        A = new flexProjectionOutputOperator<double>(index, inputDimension, isMinus);
+    }
     else {
         throw std::runtime_error("Operator type not supported!");
     }
@@ -300,7 +356,6 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
 
 py::tuple flexBoxWrapper(py::dict problem) {
     bool firstRun = problem["firstRun"].cast<bool>();
-
     if (firstRun) {
         mainObject.reset(new flexBox<double>());
         mainObject->isMATLAB = false;
@@ -329,7 +384,6 @@ py::tuple flexBoxWrapper(py::dict problem) {
     // primal variables
     py::list x = problem["x"];
     int numPrimalVars = x.size();
-
     for (size_t i = 0; i < x.size(); ++i) {
         py::array_t<double> arr = x[i].cast<py::array_t<double>>();
 
@@ -346,7 +400,6 @@ py::tuple flexBoxWrapper(py::dict problem) {
 
         for (size_t i = 0; i < duals.size(); ++i) {
             py::dict dualTerm = duals[i].cast<py::dict>();
-
             double alpha = dualTerm["factor"].cast<double>();
 
             // Prox

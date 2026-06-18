@@ -234,6 +234,19 @@ testOperators/fast:
 .PHONY : testOperators/fast
 
 #=============================================================================
+# Target rules for targets named testAdjoint
+
+# Build rule for target.
+testAdjoint: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testAdjoint
+.PHONY : testAdjoint
+
+# fast build rule for target.
+testAdjoint/fast:
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testAdjoint.dir/build.make tests/CMakeFiles/testAdjoint.dir/build
+.PHONY : testAdjoint/fast
+
+#=============================================================================
 # Target rules for targets named flexBoxPy
 
 # Build rule for target.
@@ -263,6 +276,7 @@ help:
 	@echo "... exampleROF"
 	@echo "... exampleSegmentation"
 	@echo "... flexBoxPy"
+	@echo "... testAdjoint"
 	@echo "... testOperators"
 	@echo "... testProx"
 .PHONY : help

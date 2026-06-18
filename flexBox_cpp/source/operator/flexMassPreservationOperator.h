@@ -4,7 +4,7 @@
 #include <vector>
 #include "flexLinearOperator.h"
 #include "flexGradientOperator.h"
-//TODO fix a possibly big mathemtical mistake in the transposed operator
+
 //! represents the linear operator for the mass preservation condition (u_t + div(uv)=0 where v is the searched motion
 // We will implement it as u'*v_i + u*v_i' for each direction i seperately and using the product rule for derivation
 template <typename T>
@@ -48,44 +48,8 @@ public:
 		//gradients for each direction are necessary
 		A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
 
-		for (int k = 0; k < N; ++k)
-		{
-			this->image[k] *= 1.0 / 255.0;
-		}
-
 		this->gradU.resize(N);
 		A->doTimes(false, this->image, this->gradU, EQUALS);//setting gradU to be the derivative of u for the given direction
-
-		Tdata x(N), y(N);
-
-		for(int i=0;i<N;i++){
-			x[i] = 0.1 * i;
-			y[i] = std::sin(i * 0.01);
-		}
-
-
-		Tdata Ax(N,0), ATy(N,0);
-
-		// forward
-		A->doTimes(false, x, Ax, EQUALS);
-
-		// adjoint
-		A->doTimes(true, y, ATy, EQUALS);
-
-		// inner products
-		T lhs = 0;
-		T rhs = 0;
-
-		for(int i=0;i<N;i++){
-			lhs += Ax[i] * y[i];
-			rhs += x[i] * ATy[i];
-		}
-
-		std::cout << "LHS: " << lhs << std::endl;
-		std::cout << "RHS: " << rhs << std::endl;
-		std::cout << "relative error: "
-				<< std::abs(lhs-rhs)/(std::abs(lhs)+1e-12)
-				<< std::endl;
 
 		#ifdef __CUDACC__
 			//??
@@ -111,11 +75,6 @@ public:
 			this->gradV.resize(image.size(), T(0));
 			//gradients for each direction are necessary
 			A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
-
-			for (int k = 0; k < N; ++k)
-			{
-				this->image[k] *= 1.0 / 255.0;
-			}
 
 			this->gradU.resize(N);
 			A->doTimes(false, image, this->gradU, EQUALS);//setting gradU to be the derivative of u for the given direction
@@ -270,44 +229,43 @@ public:
 	}
 	
 	#ifdef __CUDACC__
-	thrust::device_vector<T> getAbsRowSumCUDA(bool transposed) override
-	{
-		//Just for the moment to test the CPU Version
-		getAbsRowSum(transposed);
-
-		if(1==2){
-		Tdata result = gradU;
-		vectorAbs(result);
-
-		Tdata gradRowSum = A->getAbsRowSumCUDA(transposed);
-
-		Tdata absImage = image;
-		vectorAbs(absImage);
-
-		thrust::transform(
-			absImage.begin(),
-			absImage.end(),
-			gradRowSum.begin(),
-			gradRowSum.begin(),
-			thrust::multiplies<T>()
-		);
-
-		thrust::transform(
-			result.begin(),
-			result.end(),
-			gradRowSum.begin(),
-			result.begin(),
-			thrust::plus<T>()
-		);
-
-		return result;
+	struct AbsRowSumOp {
+		template <typename Tuple>
+		__host__ __device__
+		void operator()(Tuple t) {
+			// tuple: (result, image, gradRowSum)
+			thrust::get<0>(t) = std::abs(thrust::get<1>(t)) * thrust::get<2>(t);
 		}
+	};
+
+	std::vector<T> getAbsRowSumCUDA(bool transposed) // entfernt das 'thrust::device_vector<T>' Missmatch
+	{
+		// 1. Hole Zeilensumme von A direkt auf der GPU
+		// Da A->getAbsRowSumCUDA laut Basisklasse std::vector zurückgibt, 
+		// laden wir sie für die Berechnung auf die GPU
+		std::vector<T> hostGradRowSum = A->getAbsRowSumCUDA(transposed);
+		thrust::device_vector<T> gradRowSum = hostGradRowSum; 
+
+		thrust::device_vector<T> devResult(N);
+
+		// 2. Berechne |image| * gradRowSum direkt auf der GPU via Zip-Iterator
+		thrust::for_each(
+			thrust::make_zip_iterator(thrust::make_tuple(devResult.begin(), image.begin(), gradRowSum.begin())),
+			thrust::make_zip_iterator(thrust::make_tuple(devResult.end(), image.end(), gradRowSum.end())),
+			AbsRowSumOp()
+		);
+
+		// 3. Kopiere das Ergebnis zurück in einen Standard-Vektor für den CPU-Host
+		std::vector<T> hostResult(N);
+		thrust::copy(devResult.begin(), devResult.end(), hostResult.begin());
+
+		return hostResult;
 	}
 	#endif
 
 
 private:
-
+/*
 	void doTimesCPU(bool transposed, const Tdata &input, Tdata &output, const mySign s)
 	{
 		
@@ -375,56 +333,130 @@ private:
 				}
 			}
 		}
+	}*/
+
+	void doTimesCPU(bool transposed, const Tdata &input, Tdata &output, const mySign s)
+	{
+		
+		if(!transposed)
+		{
+			#pragma omp parallel for
+			for (int k = 0; k < N; ++k)
+			{
+				tmp[k]=input[k]*image[k];
+			}
+			A->doTimes(false, tmp, tmp2, EQUALS);
+			#pragma omp parallel for
+			for (int k = 0; k < N; ++k)
+			{
+				switch (s)
+				{
+					case PLUS:
+					{
+						output[k] += tmp2[k];
+						break;
+					}
+					case MINUS:
+					{
+						output[k] -= tmp2[k];
+						break;
+					}
+					case EQUALS:
+					{
+						output[k] = tmp2[k];
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			//tmp2 = A^T (u y)
+			A->doTimes(true, input, tmp, EQUALS);
+
+			#pragma omp parallel for
+			for (int k = 0; k < N; ++k)
+			{
+				tmp[k]*=image[k];
+			}
+
+			#pragma omp parallel for
+			for(int k=0;k<N;++k)
+			{
+				switch(s)
+				{
+					case PLUS:
+					{
+						output[k] += tmp[k];
+						break;
+					}
+
+					case MINUS:
+					{
+						output[k] -= tmp[k];
+						break;
+					}
+
+					case EQUALS:
+					{
+						output[k] = tmp[k];
+						break;
+					}
+				}
+			}
+		}
 	}
+
 
   	void doTimes(bool transposed, const Tdata &input, Tdata &output, const mySign s)
 	{
 	#ifdef __CUDACC__
-		if(!transposed)
+		if (!transposed)
 		{
-			A->doTimes(transposed, input, this->gradV, EQUALS);
+			// tmp = input * image
+			thrust::transform(
+				input.begin(), input.end(),
+				image.begin(),
+				tmp.begin(),
+				thrust::multiplies<T>()
+			);
+
+			// tmp2 = A(tmp)
+			A->doTimes(false, tmp, tmp2, EQUALS);
+
+			// output +=/-/= tmp2
+			if (s == PLUS) {
+				thrust::transform(output.begin(), output.end(), tmp2.begin(), output.begin(), thrust::plus<T>());
+			} else if (s == MINUS) {
+				thrust::transform(output.begin(), output.end(), tmp2.begin(), output.begin(), thrust::minus<T>());
+			} else if (s == EQUALS) {
+				thrust::copy(tmp2.begin(), tmp2.end(), output.begin());
+			}
 		}
 		else
 		{
-			Tdata tmp(N,0);
+			// tmp = A^T(input)
+			A->doTimes(true, input, tmp, EQUALS);
 
-			//tmp = u * y
-			#pragma omp parallel for
-			for(int k=0;k<N;++k)
-			{
-				tmp[k] = image[k] * input[k];
+			// tmp2 = tmp * image
+			thrust::transform(
+				tmp.begin(), tmp.end(),
+				image.begin(),
+				tmp2.begin(),
+				thrust::multiplies<T>()
+			);
+
+			// output +=/-/= tmp2
+			if (s == PLUS) {
+				thrust::transform(output.begin(), output.end(), tmp2.begin(), output.begin(), thrust::plus<T>());
+			} else if (s == MINUS) {
+				thrust::transform(output.begin(), output.end(), tmp2.begin(), output.begin(), thrust::minus<T>());
+			} else if (s == EQUALS) {
+				thrust::copy(tmp2.begin(), tmp2.end(), output.begin());
 			}
-
-			//tmp2 = A^T (u y)
-			A->doTimes(true, tmp, gradV, EQUALS);//call it gradV for convenience even though it is A^T (u y)
 		}
-
-		thrust::for_each(
-			thrust::make_zip_iterator(
-				thrust::make_tuple(
-					output.begin(),
-					input.begin(),
-					gradU.begin(),
-					gradV.begin(),
-					image.begin()
-				)
-			),
-			thrust::make_zip_iterator(
-				thrust::make_tuple(
-					output.end(),
-					input.end(),
-					gradU.end(),
-					gradV.end(),
-					image.end()
-				)
-			),
-			flexMassPreservationFunctor(s, transposed)
-		);
-
 	#else
-
 		doTimesCPU(transposed, input, output, s);
-
 	#endif
 	}
 };

@@ -179,5 +179,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "examples/CMakeFiles/exampleSegmentation.dir/DependInfo.cmake"
   "tests/CMakeFiles/testProx.dir/DependInfo.cmake"
   "tests/CMakeFiles/testOperators.dir/DependInfo.cmake"
+  "tests/CMakeFiles/testAdjoint.dir/DependInfo.cmake"
   "bindings/CMakeFiles/flexBoxPy.dir/DependInfo.cmake"
   )

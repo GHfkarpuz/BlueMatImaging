@@ -418,13 +418,17 @@ bindings/CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o: \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexMatrixLogical.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexFullMatrix.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexGradientOperator.h \
- /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexWeightedGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexUpwindGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexUpwindDivergenceOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexWeightedGradientOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexWeightedDivergenceOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexSuperpixelOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexConcatOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexOpticalFlowOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexMassPreservationOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexProjectionOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./operator/flexProjectionOutputOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./flexBox.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./term/flexTerm.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProx.h \
@@ -436,6 +440,7 @@ bindings/CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o: \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./term/flexTerm.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProxDualDataL1.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProx.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProxDualDataL1Iso.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProxDualDataL2.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProxDualDataKL.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/./prox/flexProxDualDataHuber.h \

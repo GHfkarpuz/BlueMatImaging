@@ -104,7 +104,7 @@ public:
         #pragma omp parallel for
         for(int k=0; k<N; ++k)
         {
-            result[k] = std::abs(weights[k]) * gradRowSum[k] + std::abs(gradWeights[k]);
+            result[k] = std::abs(weights[k]) * gradRowSum[k];
         }
 
         return result;
@@ -128,18 +128,48 @@ public:
         return maxVal;
     }
 
-private:
+    #ifdef __CUDACC__
+    struct AbsProductOp {
+        template <typename Tuple>
+        __host__ __device__ void operator()(Tuple t) {
+            thrust::get<0>(t) = std::abs(thrust::get<1>(t)) * thrust::get<2>(t);
+        }
+    };
 
+    std::vector<T> getAbsRowSumCUDA(bool transposed) override
+    {
+        std::vector<T> hostGradRowSum = gradOp->getAbsRowSumCUDA(transposed);
+        thrust::device_vector<T> devGradRowSum = hostGradRowSum;
+        thrust::device_vector<T> devResult(N);
+
+        thrust::for_each(
+            thrust::make_zip_iterator(thrust::make_tuple(devResult.begin(), weights.begin(), devGradRowSum.begin())),
+            thrust::make_zip_iterator(thrust::make_tuple(devResult.end(), weights.end(), devGradRowSum.end())),
+            AbsProductOp()
+        );
+
+        std::vector<T> hostResult(N);
+        thrust::copy(devResult.begin(), devResult.end(), hostResult.begin());
+
+        return hostResult;
+    }
+    #endif
+
+private:
+    /*
     void doTimes(bool transposed,const Tdata& input,Tdata& output,const mySign s)
     {
-        assert(input.size() == N);
-        assert(output.size() == N);
-        assert(tmp.size() == N);
-        assert(weights.size() == N);
         if(!transposed)
         {
-            gradOp->doTimes(false,input,tmp,EQUALS);
+            Tdata product(N, (T)0.0);
 
+            #pragma omp parallel for
+            for(int k=0; k<N; ++k)
+            {
+                product[k] = weights[k] * input[k];
+            }
+
+            gradOp->doTimes(false,product,tmp,EQUALS);
 
             #pragma omp parallel for
             for(int k=0; k<N; ++k)
@@ -147,65 +177,148 @@ private:
                 switch(s)
                 {
                     case PLUS:
-                        output[k] += weights[k] * tmp[k];;
+                        output[k] += tmp[k];;
                         break;
 
                     case MINUS:
-                        output[k] -= weights[k] * tmp[k];;
+                        output[k] -= tmp[k];;
                         break;
 
                     case EQUALS:
-                        output[k] = weights[k] * tmp[k];;
-                        break;
-                }
-            }
-
-            for(int k = 0; k<N; ++k)
-            {
-                switch(s)
-                {
-                    case PLUS:
-                        output[k] += gradWeights[k] * input[k];
-                        break;
-
-                    case MINUS:
-                        output[k] -= gradWeights[k] * input[k];
-                        break;
-
-                    case EQUALS:
-                        output[k] += gradWeights[k] * input[k];
+                        output[k] = tmp[k];;
                         break;
                 }
             }
         }
         else
         {
+            gradOp->doTimes(true, input, tmp, s);
+
             #pragma omp parallel for
             for(int k=0; k<N; ++k)
             {
-                tmp[k] = weights[k] * input[k];
+                tmp[k] *= weights[k];
             }
-
-            gradOp->doTimes(true, tmp, output, s);
 
             for(int k = 0; k<N; ++k)
             {
                 switch(s)
                 {
                     case PLUS:
-                        output[k] += gradWeights[k] * input[k];
+                        output[k] += tmp[k];
                         break;
 
                     case MINUS:
-                        output[k] -= gradWeights[k] * input[k];
+                        output[k] -= tmp[k];
                         break;
 
                     case EQUALS:
-                        output[k] += gradWeights[k] * input[k];
+                        output[k] = tmp[k];
                         break;
                 }
             }
         }
+    }*/
+
+    void doTimes(bool transposed, const Tdata& input, Tdata& output, const mySign s)
+    {
+    #ifdef __CUDACC__
+        if (!transposed)
+        {
+            Tdata product(N);
+            thrust::transform(
+                weights.begin(), weights.end(),
+                input.begin(),
+                product.begin(),
+                thrust::multiplies<T>()
+            );
+
+            gradOp->doTimes(false, product, tmp, EQUALS);
+
+            if (s == PLUS) {
+                thrust::transform(output.begin(), output.end(), tmp.begin(), output.begin(), thrust::plus<T>());
+            } else if (s == MINUS) {
+                thrust::transform(output.begin(), output.end(), tmp.begin(), output.begin(), thrust::minus<T>());
+            } else if (s == EQUALS) {
+                thrust::copy(tmp.begin(), tmp.end(), output.begin());
+            }
+        }
+        else
+        {
+            gradOp->doTimes(true, input, tmp, EQUALS);
+
+            thrust::transform(
+                tmp.begin(), tmp.end(),
+                weights.begin(),
+                tmp.begin(),
+                thrust::multiplies<T>()
+            );
+
+            if (s == PLUS) {
+                thrust::transform(output.begin(), output.end(), tmp.begin(), output.begin(), thrust::plus<T>());
+            } else if (s == MINUS) {
+                thrust::transform(output.begin(), output.end(), tmp.begin(), output.begin(), thrust::minus<T>());
+            } else if (s == EQUALS) {
+                thrust::copy(tmp.begin(), tmp.end(), output.begin());
+            }
+        }
+    #else
+        if(!transposed)
+        {
+            Tdata product(N, (T)0.0);
+
+            #pragma omp parallel for
+            for(int k=0; k<N; ++k)
+            {
+                product[k] = weights[k] * input[k];
+            }
+
+            gradOp->doTimes(false,product,tmp,EQUALS);
+
+            #pragma omp parallel for
+            for(int k=0; k<N; ++k)
+            {
+                switch(s)
+                {
+                    case PLUS:
+                        output[k] += tmp[k];
+                        break;
+                    case MINUS:
+                        output[k] -= tmp[k];
+                        break;
+                    case EQUALS:
+                        output[k] = tmp[k];
+                        break;
+                }
+            }
+        }
+        else
+        {
+            gradOp->doTimes(true, input, tmp, s);
+
+            #pragma omp parallel for
+            for(int k=0; k<N; ++k)
+            {
+                tmp[k] *= weights[k];
+            }
+
+            for(int k = 0; k<N; ++k)
+            {
+                switch(s)
+                {
+                    case PLUS:
+                        output[k] += tmp[k];
+                        break;
+                    case MINUS:
+                        output[k] -= tmp[k];
+                        break;
+                    case EQUALS:
+                        output[k] = tmp[k];
+                        break;
+                }
+            }
+        }
+    #endif
     }
 };
 

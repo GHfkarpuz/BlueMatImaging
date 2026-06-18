@@ -15,6 +15,7 @@ else()
     set(TEST_FILES
        testProx.cpp
        testOperators.cpp
+       testAdjoint.cpp
     )
     foreach(TEST_FILE ${TEST_FILES})
         get_filename_component(FILE_NAME ${TEST_FILE} NAME_WE)

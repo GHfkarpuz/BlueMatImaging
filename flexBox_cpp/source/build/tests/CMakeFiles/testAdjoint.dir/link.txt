@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG  -Wl,--dependency-file=CMakeFiles/testAdjoint.dir/link.d CMakeFiles/testAdjoint.dir/testMain.cpp.o CMakeFiles/testAdjoint.dir/testAdjoint.cpp.o -o testAdjoint

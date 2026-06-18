@@ -4,3 +4,6 @@ cmake .. -Dpybind11_DIR=/home/karpuzfa/venv/lib/python3.12/site-packages/pybind1
 
 source ~/venv/bin/activate
 
+cd .. && rm -rf build && mkdir build && cd build && cmake .. -Dpybind11_DIR=/home/karpuzfa/venv/lib/python3.12/site-packages/pybind11/share/cmake/pybind11 && make -j
+
+rm -f /tmp/gB3lgZ /tmp/vELRXJ /tmp/u0wgDO /tmp/4wO6ll /tmp/ZNONvc /tmp/PamY5C

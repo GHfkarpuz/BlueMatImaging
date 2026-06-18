@@ -2,6 +2,8 @@
 inverse_problems/TimonTests/*.npz
 inverse_problems/TimonTests/*.npy
 
+inverse_problems/TimonTests
+
 # no video files
 inverse_problems/motion_estimation/*.avi
 inverse_problems/joint_image_motion_approach/*.avi
@@ -9,3 +11,9 @@ inverse_problems/joint_image_motion_approach/*.avi
 # less figures
 inverse_problems/motion_estimation/*.png
 inverse_problems/joint_image_motion_approach/*.png
+
+# only push the main_test_file since the rest can be derived by it
+inverse_problems/motion_estimation
+inverse_problems/joint_image_motion_approach
+inverse_problems/image_reconstruction
+inverse_problems/image_tools

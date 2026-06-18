@@ -251,6 +251,8 @@ examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexMassPreservationOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexIdentityOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexUpwindGradientOperator.h \
+ /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexUpwindDivergenceOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexWeightedGradientOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/operator/flexWeightedDivergenceOperator.h \
  /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/prox/flexProxDualDataL2.h \

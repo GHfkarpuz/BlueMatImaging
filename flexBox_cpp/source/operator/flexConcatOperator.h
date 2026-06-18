@@ -32,7 +32,7 @@ public:
 		\param aS type of concatenation. Possible values are PLUS, SUBTRACT and COMPOSE.
 		\param aMinus determines if operator is negated \sa isMinus
 	*/
-	flexConcatOperator(flexLinearOperator<T>* aA, flexLinearOperator<T>* aB, mySign aS, bool aMinus) : A(aA), B(aB), s(aS), tmpVec(aA->getNumCols()), flexLinearOperator<T>(aA->getNumRows(), aB->getNumCols(), concatOp, aMinus)
+	flexConcatOperator(flexLinearOperator<T>* aA, flexLinearOperator<T>* aB, mySign aS, bool aMinus) : A(aA), B(aB), s(aS), tmpVec(aA->getNumRows()), flexLinearOperator<T>(aA->getNumRows(), aB->getNumCols(), concatOp, aMinus)
 	{
 
 	}
@@ -205,43 +205,39 @@ public:
         }
 	}
 
-	//TODO
+	
 	T getMaxRowSumAbs(bool transposed)
-	{
-		return static_cast<T>(1);
-	}
+    {
+        #ifdef __CUDACC__
+            thrust::device_vector<T> dev_res = getAbsRowSumCUDA(transposed);
+            if (dev_res.empty()) return T(0);
+            return *thrust::max_element(dev_res.begin(), dev_res.end());
+        #else
+            std::vector<T> host_res = getAbsRowSum(transposed);
+            if (host_res.empty()) return T(0);
+            return *std::max_element(host_res.begin(), host_res.end()); 
+        #endif
+    }
 
-	std::vector<T> getAbsRowSum(bool transposed)
-	{
-		std::vector<T> result;
-
+    std::vector<T> getAbsRowSum(bool transposed)
+    {
+        std::vector<T> result;
         auto rowSumA = A->getAbsRowSum(transposed);
         auto rowSumB = B->getAbsRowSum(transposed);
 
         switch (this->s)
         {
             case PLUS:
-				result.resize(rowSumA.size());
-
-				#pragma omp parallel for
-				for (int k = 0; k < result.size(); ++k)
-				{
-					result[k] = rowSumA[k] + rowSumB[k];
-				}
-				break;
-            case MINUS:
-            {
+            case MINUS: //right?
                 result.resize(rowSumA.size());
-
                 #pragma omp parallel for
-                for (int k = 0; k < result.size(); ++k)
+                for (size_t k = 0; k < result.size(); ++k)
                 {
-                    result[k] = rowSumA[k] + rowSumB[k];
+                    result[k] = rowSumA[k] + rowSumB[k]; 
                 }
                 break;
-            }
+
             case COMPOSE:
-            {
                 T maxA = *std::max_element(rowSumA.begin(), rowSumA.end());
                 T maxB = *std::max_element(rowSumB.begin(), rowSumB.end());
                 T maxProd = maxA * maxB;
@@ -250,48 +246,28 @@ public:
                     result.resize(this->B->getNumCols(), maxProd);
                 else
                     result.resize(this->A->getNumRows(), maxProd);
-
                 break;
-            }
         }
+        return result;
+    }
 
-		return result;
-	}
+    #ifdef __CUDACC__
+    thrust::device_vector<T> getAbsRowSumCUDA(bool transposed)
+    {
+        thrust::device_vector<T> result;
 
-	#ifdef __CUDACC__
-	thrust::device_vector<T> getAbsRowSumCUDA(bool transposed)
-	{
-        Tdata result;
-
-		auto rowSumA = A->getAbsRowSumCUDA(transposed);
-		auto rowSumB = B->getAbsRowSumCUDA(transposed);
+        auto rowSumA = A->getAbsRowSumCUDA(transposed);
+        auto rowSumB = B->getAbsRowSumCUDA(transposed);
 
         switch (this->s)
         {
             case PLUS:
-			{
-				result.resize(rowSumA.size());
-
-				#pragma omp parallel for
-				for (int k = 0; k < result.size(); ++k)
-				{
-					result[k] = rowSumA[k] + rowSumB[k];
-				}
-				break;
-			}
             case MINUS:
-            {
                 result.resize(rowSumA.size());
-
-                #pragma omp parallel for
-                for (int k = 0; k < result.size(); ++k)
-                {
-                    result[k] = rowSumA[k] + rowSumB[k];
-                }
+                thrust::transform(rowSumA.begin(), rowSumA.end(), rowSumB.begin(), result.begin(), thrust::plus<T>());
                 break;
-            }
+
             case COMPOSE:
-            {
                 T maxA = *thrust::max_element(rowSumA.begin(), rowSumA.end());
                 T maxB = *thrust::max_element(rowSumB.begin(), rowSumB.end());
                 T maxProd = maxA * maxB;
@@ -300,14 +276,11 @@ public:
                     result.resize(this->B->getNumCols(), maxProd);
                 else
                     result.resize(this->A->getNumRows(), maxProd);
-
                 break;
-            }
         }
-
-		return result;
-	}
-	#endif
+        return result;
+    }
+    #endif
 };
 
 #endif

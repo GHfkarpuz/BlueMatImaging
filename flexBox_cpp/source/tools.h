@@ -94,9 +94,13 @@ enum linOp
   	concatOp,
 	opticalFlowOp,
 	jointOpticalFlowOp,
+	projectionOp,
+	projectionOutputOp,
 	massPreservationOp,
 	weightedGradientOp,
-	weightedDivergenceOp
+	weightedDivergenceOp,
+	upwindGradientOp,
+	upwindDivergenceOp
 };
 
 //! enum representing the type of gradient

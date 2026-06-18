@@ -79,9 +79,19 @@ public:
 				for (int j = 0; j < numPrimals; ++j)
 				{
 					const int primalNum = dcp[k][j];
-					auto op = termsDual[k]->operatorList[numPrimals * i + j];
 
+					//for debugging
+					int idx = numPrimals*i+j;
+
+					if(idx >= termsDual[k]->operatorList.size())
+					{
+						std::cout << "OUT OF BOUNDS" << std::endl;
+						abort();
+					}
+					auto op = termsDual[k]->operatorList[numPrimals * i + j];
+					
 					//local bounds
+					
 					std::vector<T> rowF = op->getAbsRowSum(false);
 					std::vector<T> rowT = op->getAbsRowSum(true);
 

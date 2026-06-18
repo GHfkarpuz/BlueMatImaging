@@ -11,6 +11,8 @@
 #include "flexMassPreservationOperator.h"
 #include "flexIdentityOperator.h"
 #include "flexGradientOperator.h"
+#include "flexUpwindGradientOperator.h"
+#include "flexUpwindDivergenceOperator.h"
 #include "flexWeightedGradientOperator.h"
 #include "flexWeightedDivergenceOperator.h"
 #include "flexProxDualDataL2.h"

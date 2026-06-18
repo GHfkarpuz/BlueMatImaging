@@ -38,11 +38,12 @@ public:
 	{
 		this->dim = inputDimension.size();
 		this->N = vectorProduct(inputDimension);
-
+		/*
 		for (int k = 0; k < N; ++k)
 		{
 			this->image[k] *= 1.0 / 255.0;
 		}
+		*/
 
 		//gradients for each direction are necessary
 		A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
@@ -61,29 +62,16 @@ public:
 	}
 
 	#ifdef __CUDACC__
-		//! initializes the concatenation operator for CUDA versions
-		/*!
-			\param image the image to build the gradient of
-			\param AInputDimension vector of dimensions
-			\param ADirection
-			\param aIsMinus determines if operator is negated \sa isMinus
-		*/
-		flexOpticalFlowOperator(std::vector<T> image, std::vector<int> AInputDimension,  int ADirection, bool aIsMinus) : image(image), inputDimension(AInputDimension), direction(ADirection), flexLinearOperator<T>(vectorProduct(AInputDimension), vectorProduct(AInputDimension), opticalFlowOp, aIsMinus)
+		flexOpticalFlowOperator(std::vector<T> image, std::vector<int> AInputDimension, int ADirection, bool aIsMinus) 
+			: inputDimension(AInputDimension), direction(ADirection), flexLinearOperator<T>(vectorProduct(AInputDimension), vectorProduct(AInputDimension), opticalFlowOp, aIsMinus)
 		{
 			this->dim = inputDimension.size();
 			this->N = vectorProduct(inputDimension);
-
-			for (int k = 0; k < N; ++k)
-		{
-			this->image[k] *= 1.0 / 255.0;
-		}
-
-		//gradients for each direction are necessary
-		A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
-
-
-		this->gradImage.resize(N);
-		A->doTimes(false, this->image, this->gradImage, EQUALS);//setting gradImage to be the gradient of u for the given direction
+			this->image = image; // Expliziter Host->Device-Kopierschritt
+			
+			A = new flexGradientOperator<T>(AInputDimension, direction, central, aIsMinus);
+			this->gradImage.resize(N);
+			A->doTimes(false, this->image, this->gradImage, EQUALS);
 		};
 	#endif
 
@@ -174,11 +162,27 @@ public:
 	}
 
 	#ifdef __CUDACC__
-	thrust::device_vector<T> getAbsRowSumCUDA(bool transposed) override
+	struct AbsOp {
+		__host__ __device__ T operator()(const T& x) const {
+			return std::abs(x);
+		}
+	};
+
+	std::vector<T> getAbsRowSumCUDA(bool transposed) override
 	{
-		Tdata tmp = gradImage;
-		vectorAbs(tmp);
-		return tmp;
+		thrust::device_vector<T> devResult(N);
+		
+		thrust::transform(
+			gradImage.begin(), 
+			gradImage.end(), 
+			devResult.begin(), 
+			AbsOp()
+		);
+
+		std::vector<T> hostResult(N);
+		thrust::copy(devResult.begin(), devResult.end(), hostResult.begin());
+		
+		return hostResult;
 	}
 	#endif
 
@@ -246,21 +250,48 @@ private:
 		}
     }
 
-
-
-	void doTimes(bool transposed, const Tdata &input, Tdata &output,const mySign s)
+	#ifdef __CUDACC__
+	struct flexOpticalFlowOperatorFunctor
 	{
-        #ifdef __CUDACC__
+		mySign s;
+
+		__host__ __device__
+		flexOpticalFlowOperatorFunctor(const mySign _s) : s(_s) {}
+
+		template <typename Tuple>
+		__host__ __device__
+		void operator()(Tuple t)
+		{
+			switch (this->s)
+			{
+				case PLUS:
+					thrust::get<0>(t) += thrust::get<1>(t) * thrust::get<2>(t);
+					break;
+				case MINUS:
+					thrust::get<0>(t) -= thrust::get<1>(t) * thrust::get<2>(t);
+					break;
+				case EQUALS:
+					thrust::get<0>(t) = thrust::get<1>(t) * thrust::get<2>(t);
+					break;
+			}
+		}
+	};
+	#endif
+
+	void doTimes(bool transposed, const Tdata &input, Tdata &output, const mySign s)
+	{
+		#ifdef __CUDACC__
 		{
 			thrust::for_each(
 				thrust::make_zip_iterator(thrust::make_tuple(output.begin(), input.begin(), this->gradImage.begin())),
 				thrust::make_zip_iterator(thrust::make_tuple(output.end(),   input.end(),   this->gradImage.end())),
-			flexOpticalFlowOperatorFunctor(s, transposed));
+				flexOpticalFlowOperatorFunctor(s)
+			);
 		}
-        #else
-            this->doTimesCPU(transposed,input,output,s);
-        #endif
-  }
+		#else
+			this->doTimesCPU(transposed, input, output, s);
+		#endif
+	}
 };
 
 #endif

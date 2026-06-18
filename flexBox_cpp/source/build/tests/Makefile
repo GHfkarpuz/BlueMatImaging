@@ -196,6 +196,44 @@ testOperators/fast:
 	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testOperators.dir/build.make tests/CMakeFiles/testOperators.dir/build
 .PHONY : testOperators/fast
 
+# Convenience name for target.
+tests/CMakeFiles/testAdjoint.dir/rule:
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/testAdjoint.dir/rule
+.PHONY : tests/CMakeFiles/testAdjoint.dir/rule
+
+# Convenience name for target.
+testAdjoint: tests/CMakeFiles/testAdjoint.dir/rule
+.PHONY : testAdjoint
+
+# fast build rule for target.
+testAdjoint/fast:
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testAdjoint.dir/build.make tests/CMakeFiles/testAdjoint.dir/build
+.PHONY : testAdjoint/fast
+
+testAdjoint.o: testAdjoint.cpp.o
+.PHONY : testAdjoint.o
+
+# target to build an object file
+testAdjoint.cpp.o:
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testAdjoint.dir/build.make tests/CMakeFiles/testAdjoint.dir/testAdjoint.cpp.o
+.PHONY : testAdjoint.cpp.o
+
+testAdjoint.i: testAdjoint.cpp.i
+.PHONY : testAdjoint.i
+
+# target to preprocess a source file
+testAdjoint.cpp.i:
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testAdjoint.dir/build.make tests/CMakeFiles/testAdjoint.dir/testAdjoint.cpp.i
+.PHONY : testAdjoint.cpp.i
+
+testAdjoint.s: testAdjoint.cpp.s
+.PHONY : testAdjoint.s
+
+# target to generate assembly for a file
+testAdjoint.cpp.s:
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testAdjoint.dir/build.make tests/CMakeFiles/testAdjoint.dir/testAdjoint.cpp.s
+.PHONY : testAdjoint.cpp.s
+
 testMain.o: testMain.cpp.o
 .PHONY : testMain.o
 
@@ -203,6 +241,7 @@ testMain.o: testMain.cpp.o
 testMain.cpp.o:
 	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testProx.dir/build.make tests/CMakeFiles/testProx.dir/testMain.cpp.o
 	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testOperators.dir/build.make tests/CMakeFiles/testOperators.dir/testMain.cpp.o
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testAdjoint.dir/build.make tests/CMakeFiles/testAdjoint.dir/testMain.cpp.o
 .PHONY : testMain.cpp.o
 
 testMain.i: testMain.cpp.i
@@ -212,6 +251,7 @@ testMain.i: testMain.cpp.i
 testMain.cpp.i:
 	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testProx.dir/build.make tests/CMakeFiles/testProx.dir/testMain.cpp.i
 	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testOperators.dir/build.make tests/CMakeFiles/testOperators.dir/testMain.cpp.i
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testAdjoint.dir/build.make tests/CMakeFiles/testAdjoint.dir/testMain.cpp.i
 .PHONY : testMain.cpp.i
 
 testMain.s: testMain.cpp.s
@@ -221,6 +261,7 @@ testMain.s: testMain.cpp.s
 testMain.cpp.s:
 	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testProx.dir/build.make tests/CMakeFiles/testProx.dir/testMain.cpp.s
 	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testOperators.dir/build.make tests/CMakeFiles/testOperators.dir/testMain.cpp.s
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/testAdjoint.dir/build.make tests/CMakeFiles/testAdjoint.dir/testMain.cpp.s
 .PHONY : testMain.cpp.s
 
 testOperators.o: testOperators.cpp.o
@@ -284,8 +325,12 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... testAdjoint"
 	@echo "... testOperators"
 	@echo "... testProx"
+	@echo "... testAdjoint.o"
+	@echo "... testAdjoint.i"
+	@echo "... testAdjoint.s"
 	@echo "... testMain.o"
 	@echo "... testMain.i"
 	@echo "... testMain.s"

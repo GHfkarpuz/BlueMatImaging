@@ -10,11 +10,15 @@ inverse_problems/motion_estimation/*.mp4
 inverse_problems/joint_image_motion_approach/*.avi
 inverse_problems/joint_image_motion_approach/*.mp4
 inverse_problems/main_test_file/*.mp4
+inverse_problems/main_test_file/*.avi
 
+.avi
+.mp4
 
 # less figures
 inverse_problems/motion_estimation/*.png
 inverse_problems/joint_image_motion_approach/*.png
+inverse_problems/main_test_file/result*/
 
 # only push the main_test_file since the rest can be derived by it
 inverse_problems/motion_estimation

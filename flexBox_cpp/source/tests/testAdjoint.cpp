@@ -173,9 +173,83 @@ bool testGradientYcentral(std::vector<floatingType>& x, std::vector<floatingType
 }
 
 
-bool testUpwindGradientX(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny)
+bool testUpwindGradientX2d(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny)
 {
     flexUpwindGradientOperator<floatingType> A = flexUpwindGradientOperator<floatingType>(std::vector<int>{Nx,Ny}, 0, motionField, false);
+
+    std::vector<floatingType> op(Nx * Ny, 0.0);
+    std::vector<floatingType> opT(Nx * Ny, 0.0);
+	
+    A.doTimes(false, x, op, EQUALS);
+    A.doTimes(true, y, opT, EQUALS);
+
+
+    // scalar products
+    floatingType lhs = 0.0;
+    floatingType rhs = 0.0;
+
+    for (int i = 0; i < Nx*Ny; ++i)
+    {
+        lhs += op[i] * y[i];
+        rhs += x[i] * opT[i];
+    }
+
+    if(std::abs(lhs-rhs)<1e-12)
+    {
+        std::cout << "adjoint test for upwind gradient operator in 2d in the direction of x passed."<<std::endl;
+        return true;
+    }
+    else
+    {
+        std::cout << "adjoint test for upwind gradient operator in 2d in the direction of x did not pass."<<std::endl;
+        std::cout << "lhs: " << lhs << std::endl;
+        std::cout << "rhs: " << rhs << std::endl;
+        std::cout << "diff: " << std::abs(lhs - rhs) << std::endl;
+
+        return false;
+    }
+}
+
+bool testUpwindGradientY2d(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny)
+{
+    flexUpwindGradientOperator<floatingType> A = flexUpwindGradientOperator<floatingType>(std::vector<int>{Nx,Ny}, 1, motionField, false);
+
+    std::vector<floatingType> op(Nx * Ny, 0.0);
+    std::vector<floatingType> opT(Nx * Ny, 0.0);
+	
+    A.doTimes(false, x, op, EQUALS);
+    A.doTimes(true, y, opT, EQUALS);
+
+
+    // scalar products
+    floatingType lhs = 0.0;
+    floatingType rhs = 0.0;
+
+    for (int i = 0; i < Nx*Ny; ++i)
+    {
+        lhs += op[i] * y[i];
+        rhs += x[i] * opT[i];
+    }
+
+    if(std::abs(lhs-rhs)<1e-12)
+    {
+        std::cout << "adjoint test for upwind gradient operator in 2d in the direction of y passed."<<std::endl;
+        return true;
+    }
+    else
+    {
+        std::cout << "adjoint test for upwind gradient operator in 2d in the direction of y did not pass."<<std::endl;
+        std::cout << "lhs: " << lhs << std::endl;
+        std::cout << "rhs: " << rhs << std::endl;
+        std::cout << "diff: " << std::abs(lhs - rhs) << std::endl;
+
+        return false;
+    }
+}
+/*
+bool testUpwindGradientX3d(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny, int Nz)
+{
+    flexUpwindGradientOperator<floatingType> A = flexUpwindGradientOperator<floatingType>(std::vector<int>{Nx,Ny,Nz}, 0, motionField, false);
 
     std::vector<floatingType> op(Nx * Ny, 0.0);
     std::vector<floatingType> opT(Nx * Ny, 0.0);
@@ -210,7 +284,7 @@ bool testUpwindGradientX(std::vector<floatingType>& x, std::vector<floatingType>
     }
 }
 
-bool testUpwindGradientY(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny)
+bool testUpwindGradientY3d(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny)
 {
     flexUpwindGradientOperator<floatingType> A = flexUpwindGradientOperator<floatingType>(std::vector<int>{Nx,Ny}, 1, motionField, false);
 
@@ -245,7 +319,7 @@ bool testUpwindGradientY(std::vector<floatingType>& x, std::vector<floatingType>
 
         return false;
     }
-}
+}*/
 
 bool testUpwindDivergenceXforward(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny)
 {
@@ -1208,14 +1282,14 @@ TEST_CASE("Adjoint operator tests")
         REQUIRE(testGradientYcentral(x, y, Nx, Ny));
     }
 
-    SECTION("Upwind gradient x")
+    SECTION("Upwind gradient x in 2d")
     {
-        REQUIRE(testUpwindGradientX(x, y, motionField, Nx, Ny));
+        REQUIRE(testUpwindGradientX2d(x, y, motionField, Nx, Ny));
     }
 
-    SECTION("Upwind gradient y")
+    SECTION("Upwind gradient y in 2d")
     {
-        REQUIRE(testUpwindGradientY(x, y, motionField, Nx, Ny));
+        REQUIRE(testUpwindGradientY2d(x, y, motionField, Nx, Ny));
     }
 
     SECTION("Upwind divergence x (forward gradient for weights)")

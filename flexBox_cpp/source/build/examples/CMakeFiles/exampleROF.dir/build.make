@@ -76,15 +76,15 @@ examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: examples/CMakeFiles/example
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o: examples/CMakeFiles/exampleROF.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o"
-	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o -MF CMakeFiles/exampleROF.dir/exampleROF.cpp.o.d -o CMakeFiles/exampleROF.dir/exampleROF.cpp.o -c /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/lib64/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o -MF CMakeFiles/exampleROF.dir/exampleROF.cpp.o.d -o CMakeFiles/exampleROF.dir/exampleROF.cpp.o -c /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp
 
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/exampleROF.dir/exampleROF.cpp.i"
-	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp > CMakeFiles/exampleROF.dir/exampleROF.cpp.i
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/lib64/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp > CMakeFiles/exampleROF.dir/exampleROF.cpp.i
 
 examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/exampleROF.dir/exampleROF.cpp.s"
-	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp -o CMakeFiles/exampleROF.dir/exampleROF.cpp.s
+	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && /usr/lib64/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/examples/exampleROF.cpp -o CMakeFiles/exampleROF.dir/exampleROF.cpp.s
 
 # Object files for target exampleROF
 exampleROF_OBJECTS = \
@@ -95,8 +95,10 @@ exampleROF_EXTERNAL_OBJECTS =
 
 examples/exampleROF: examples/CMakeFiles/exampleROF.dir/exampleROF.cpp.o
 examples/exampleROF: examples/CMakeFiles/exampleROF.dir/build.make
-examples/exampleROF: examples/CMakeFiles/exampleROF.dir/compiler_depend.ts
-examples/exampleROF: /usr/lib/x86_64-linux-gnu/libX11.so
+examples/exampleROF: /usr/lib64/libSM.so
+examples/exampleROF: /usr/lib64/libICE.so
+examples/exampleROF: /usr/lib64/libX11.so
+examples/exampleROF: /usr/lib64/libXext.so
 examples/exampleROF: examples/CMakeFiles/exampleROF.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable exampleROF"
 	cd /home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/examples && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/exampleROF.dir/link.txt --verbose=$(VERBOSE)

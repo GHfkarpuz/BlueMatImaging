@@ -228,6 +228,13 @@ public:
         switch (this->s)
         {
             case PLUS:
+                result.resize(rowSumA.size());
+                #pragma omp parallel for
+                for (size_t k = 0; k < result.size(); ++k)
+                {
+                    result[k] = rowSumA[k] + rowSumB[k]; 
+                }
+                break;
             case MINUS: //right?
                 result.resize(rowSumA.size());
                 #pragma omp parallel for

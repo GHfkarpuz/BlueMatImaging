@@ -36,7 +36,6 @@
 
 //prox
 #include "prox/flexProxDualDataL1.h"
-#include "prox/flexProxDualDataL1Iso.h"
 #include "prox/flexProxDualDataL2.h"
 #include "prox/flexProxDualDataKL.h"
 #include "prox/flexProxDualDataHuber.h"
@@ -281,12 +280,13 @@ flexLinearOperator<double>* transformPythonToFlexOperator(py::dict operatorDict,
         if (verbose > 1) printf("Operator %d is type <opticalFlowOp>\n", operatorNumber);
 
         py::array_t<double> img = operatorDict["image"].cast<py::array_t<double>>();
+        //py::array_t<double, py::array::f_style> img = operatorDict["image"].cast<py::array_t<double, py::array::f_style>>();
         int direction = operatorDict["direction"].cast<int>();
 
         //take the image
         auto buf = img.request();
-
         double* ptr = static_cast<double*>(buf.ptr);
+        
         size_t size = 1;
         for (auto r : buf.shape) size *= r;
 
@@ -386,6 +386,7 @@ py::tuple flexBoxWrapper(py::dict problem) {
     int numPrimalVars = x.size();
     for (size_t i = 0; i < x.size(); ++i) {
         py::array_t<double> arr = x[i].cast<py::array_t<double>>();
+        //py::array_t<double, py::array::f_style> arr = x[i].cast<py::array_t<double, py::array::f_style>>();
 
         std::vector<int> dims(arr.shape(), arr.shape() + arr.ndim());
         mainObject->addPrimalVar(dims);
@@ -505,10 +506,38 @@ py::tuple flexBoxWrapper(py::dict problem) {
     // return results
     py::list x_out, y_out;
 
+    
     for (int i = 0; i < numPrimalVars; ++i) {
         auto vec = mainObject->getPrimal(i);
         x_out.append(py::array(vec.size(), vec.data()));
     }
+
+    /*
+    for (int i = 0; i < numPrimalVars; ++i) {
+        auto vec = mainObject->getPrimal(i);
+
+        py::array arr_in = x[i].cast<py::array>();
+        std::vector<size_t> shape(arr_in.shape(), arr_in.shape() + arr_in.ndim());
+
+        std::vector<size_t> strides;
+        
+        // Strides für Fortran-Layout berechnen (Spalten wandern zuerst)
+        size_t acc = sizeof(double);
+        for (size_t d : shape) {
+            strides.push_back(acc);
+            acc *= d;
+        }
+
+        x_out.append(py::array(py::buffer_info(
+            vec.data(),
+            sizeof(double),
+            py::format_descriptor<double>::format(),
+            shape.size(),
+            shape,
+            strides
+        )));
+    }
+    */
 
     int numDualVars = mainObject->getNumDualVars();
 

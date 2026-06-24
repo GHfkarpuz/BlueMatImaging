@@ -1,1 +1,1 @@
-/usr/bin/c++ -O3 -DNDEBUG  -Wl,--dependency-file=CMakeFiles/exampleSegmentation.dir/link.d CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o -o exampleSegmentation  /usr/lib/x86_64-linux-gnu/libX11.so
+/usr/lib64/ccache/c++ -O3 -DNDEBUG  CMakeFiles/exampleSegmentation.dir/exampleSegmentation.cpp.o -o exampleSegmentation  /usr/lib64/libSM.so /usr/lib64/libICE.so /usr/lib64/libX11.so /usr/lib64/libXext.so

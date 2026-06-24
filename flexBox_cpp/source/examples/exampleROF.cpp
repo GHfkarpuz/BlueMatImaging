@@ -17,7 +17,6 @@
 #include "flexWeightedDivergenceOperator.h"
 #include "flexProxDualDataL2.h"
 #include "flexProxDualL1Iso.h"
-#include "flexProxDualDataOpticalFlowL2.h"
 #include "flexMatrix.h"
 #include "flexFullMatrix.h"
 

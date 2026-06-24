@@ -4,7 +4,7 @@
 #include <vector>
 #include "flexLinearOperator.h"
 
-//! represents a gradient operator
+//! represents an upwind gradient operator
 template<typename T>
 class flexUpwindGradientOperator : public flexLinearOperator<T>
 {
@@ -23,7 +23,7 @@ private:
 
 public:
 
-	//! initializes the gradient operator
+	//! initializes the upwind gradient operator
 	/*!
 		\param AInputDimension vector of dimensions
 		\param aGradDirection direction of gradient. 0 for first dimension and so on.
@@ -92,6 +92,711 @@ public:
 
 		return new flexUpwindGradientOperator<T>(dimsCopy, this->gradDirection, this->motionField, this->isMinus);
 	}
+
+	//2D Cases CUDA
+	#ifdef __CUDACC__
+	template<typename T>
+	__global__ void dxUpwind2dCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, mySign s)
+	{
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+
+		if (i >= sizeX || j >= sizeY)
+			return;
+
+		const size_t tmpIndex = i + j * sizeX;
+		T val = static_cast<T>(0);
+
+		
+		if (i == 0)
+		{
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val = motionField[tmpIndex] * (input[tmpIndex + 1] - input[tmpIndex]);
+			}
+		}
+		
+		else if (i == sizeX - 1)
+		{
+			if (motionField[tmpIndex] > static_cast<T>(0))
+			{
+				val = motionField[tmpIndex] * (input[tmpIndex] - input[tmpIndex - 1]);
+			}
+		}
+		
+		else
+		{
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val = motionField[tmpIndex] * (input[tmpIndex + 1] - input[tmpIndex]);
+			}
+			else
+			{
+				val = motionField[tmpIndex] * (input[tmpIndex] - input[tmpIndex - 1]);
+			}
+		}
+
+		
+		switch (s)
+		{
+			case PLUS:   output[tmpIndex] += val; break;
+			case MINUS:  output[tmpIndex] -= val; break;
+			case EQUALS: output[tmpIndex]  = val; break;
+		}
+	}
+
+	template<typename T>
+	__global__ void dyUpwind2dCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, mySign s)
+	{
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+
+		if (i >= sizeX || j >= sizeY)
+			return;
+
+		const size_t tmpIndex = i + j * sizeX;
+		
+		const size_t strideY = sizeX; 
+		T val = static_cast<T>(0);
+
+		
+		if (j == 0)
+		{
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val = motionField[tmpIndex] * (input[tmpIndex + strideY] - input[tmpIndex]);
+			}
+		}
+		
+		else if (j == sizeY - 1)
+		{
+			if (motionField[tmpIndex] > static_cast<T>(0))
+			{
+				val = motionField[tmpIndex] * (input[tmpIndex] - input[tmpIndex - strideY]);
+			}
+		}
+		
+		else
+		{
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val = motionField[tmpIndex] * (input[tmpIndex + strideY] - input[tmpIndex]);
+			}
+			else
+			{
+				val = motionField[tmpIndex] * (input[tmpIndex] - input[tmpIndex - strideY]);
+			}
+		}
+
+		
+		switch (s)
+		{
+			case PLUS:   output[tmpIndex] += val; break;
+			case MINUS:  output[tmpIndex] -= val; break;
+			case EQUALS: output[tmpIndex]  = val; break;
+		}
+	}
+
+	template<typename T>
+	__global__ void dxUpwind2dTCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, mySign s)
+	{
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+
+		if (i >= sizeX || j >= sizeY)
+			return;
+
+		const size_t tmpIndex = i + j * sizeX;
+		T val = static_cast<T>(0);
+
+		 (i von 2 bis sizeX-3)
+		if (i >= 2 && i < sizeX - 2)
+		{
+			const size_t tmpIndex1 = tmpIndex + 1;
+			const size_t tmpIndex2 = tmpIndex - 1;
+
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex] * input[tmpIndex];
+			}
+			else
+			{
+				val += motionField[tmpIndex] * input[tmpIndex];
+			}
+
+			if (motionField[tmpIndex1] > static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex1] * input[tmpIndex1];
+			}
+
+			if (motionField[tmpIndex2] < static_cast<T>(0))
+			{
+				val += motionField[tmpIndex2] * input[tmpIndex2];
+			}
+		}
+		 (i = 0, 1)
+		else if (i == 0)
+		{
+			const size_t tmpIndex_edge2 = 1 + j * sizeX;
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex] * input[tmpIndex];
+			}
+			if (motionField[tmpIndex_edge2] > static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+			}
+		}
+		else if (i == 1)
+		{
+			const size_t tmpIndex_edge1 = 0 + j * sizeX;
+			const size_t tmpIndex_edge3 = 2 + j * sizeX;
+
+			if (motionField[tmpIndex_edge1] < static_cast<T>(0))
+			{
+				val += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+			}
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex] * input[tmpIndex];
+			}
+			else
+			{
+				val += motionField[tmpIndex] * input[tmpIndex];
+			}
+			if (motionField[tmpIndex_edge3] > static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+			}
+		}
+		 (i = sizeX-2, sizeX-1)
+		else if (i == sizeX - 2)
+		{
+			const size_t tmpIndex_edge4 = (sizeX - 1) + j * sizeX;
+			const size_t tmpIndex_edge6 = (sizeX - 3) + j * sizeX;
+
+			if (motionField[tmpIndex_edge6] < static_cast<T>(0))
+			{
+				val += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+			}
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex] * input[tmpIndex];
+			}
+			else
+			{
+				val += motionField[tmpIndex] * input[tmpIndex];
+			}
+			if (motionField[tmpIndex_edge4] > static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+			}
+		}
+		else if (i == sizeX - 1)
+		{
+			const size_t tmpIndex_edge5 = (sizeX - 2) + j * sizeX;
+
+			if (motionField[tmpIndex_edge5] < static_cast<T>(0))
+			{
+				val += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+			}
+			if (motionField[tmpIndex] > static_cast<T>(0))
+			{
+				val += motionField[tmpIndex] * input[tmpIndex];
+			}
+		}
+
+		
+		switch (s)
+		{
+			case PLUS:   output[tmpIndex] += val; break;
+			case MINUS:  output[tmpIndex] -= val; break;
+			case EQUALS: output[tmpIndex]  = val; break;
+		}
+	}
+
+	template<typename T>
+	__global__ void dyUpwind2dTCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, mySign s)
+	{
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+
+		if (i >= sizeX || j >= sizeY)
+			return;
+
+		const size_t tmpIndex = i + j * sizeX;
+		const size_t strideY = sizeX;
+		T val = static_cast<T>(0);
+
+		 (j von 2 bis sizeY-3)
+		if (j >= 2 && j < sizeY - 2)
+		{
+			const size_t tmpIndex1 = tmpIndex + strideY;
+			const size_t tmpIndex2 = tmpIndex - strideY;
+
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex] * input[tmpIndex];
+			}
+			else
+			{
+				val += motionField[tmpIndex] * input[tmpIndex];
+			}
+
+			if (motionField[tmpIndex1] > static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex1] * input[tmpIndex1];
+			}
+
+			if (motionField[tmpIndex2] < static_cast<T>(0))
+			{
+				val += motionField[tmpIndex2] * input[tmpIndex2];
+			}
+		}
+		 (j = 0, 1)
+		else if (j == 0)
+		{
+			const size_t tmpIndex_edge2 = i + 1 * strideY;
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex] * input[tmpIndex];
+			}
+			if (motionField[tmpIndex_edge2] > static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+			}
+		}
+		else if (j == 1)
+		{
+			const size_t tmpIndex_edge1 = i + 0 * strideY;
+			const size_t tmpIndex_edge3 = i + 2 * strideY;
+
+			if (motionField[tmpIndex_edge1] < static_cast<T>(0))
+			{
+				val += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+			}
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex] * input[tmpIndex];
+			}
+			else
+			{
+				val += motionField[tmpIndex] * input[tmpIndex];
+			}
+			if (motionField[tmpIndex_edge3] > static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+			}
+		}
+		 (j = sizeY-2, sizeY-1)
+		else if (j == sizeY - 2)
+		{
+			const size_t tmpIndex_edge4 = i + (sizeY - 1) * strideY;
+			const size_t tmpIndex_edge6 = i + (sizeY - 3) * strideY;
+
+			if (motionField[tmpIndex_edge6] < static_cast<T>(0))
+			{
+				val += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+			}
+			if (motionField[tmpIndex] < static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex] * input[tmpIndex];
+			}
+			else
+			{
+				val += motionField[tmpIndex] * input[tmpIndex];
+			}
+			if (motionField[tmpIndex_edge4] > static_cast<T>(0))
+			{
+				val -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+			}
+		}
+		else if (j == sizeY - 1)
+		{
+			const size_t tmpIndex_edge5 = i + (sizeY - 2) * strideY;
+
+			if (motionField[tmpIndex_edge5] < static_cast<T>(0))
+			{
+				val += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+			}
+			if (motionField[tmpIndex] > static_cast<T>(0))
+			{
+				val += motionField[tmpIndex] * input[tmpIndex];
+			}
+		}
+
+		
+		switch (s)
+		{
+			case PLUS:   output[tmpIndex] += val; break;
+			case MINUS:  output[tmpIndex] -= val; break;
+			case EQUALS: output[tmpIndex]  = val; break;
+		}
+	}
+	
+	//3D cases CUDA
+	template<typename T>
+	__global__ void dxUpwind3dCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
+	{
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (i >= sizeX || j >= sizeY || k >= sizeZ)
+			return;
+
+		const size_t idx = i + j * sizeX + k * sizeX * sizeY;
+		T val = static_cast<T>(0);
+
+		
+		if (i == 0)
+		{
+			if (motionField[idx] < static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx + 1] - input[idx]);
+			}
+		}
+		
+		else if (i == sizeX - 1)
+		{
+			if (motionField[idx] > static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx] - input[idx - 1]);
+			}
+		}
+		
+		else
+		{
+			if (motionField[idx] < static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx + 1] - input[idx]);
+			}
+			else
+			{
+				val = motionField[idx] * (input[idx] - input[idx - 1]);
+			}
+		}
+
+		switch (s)
+		{
+			case PLUS:   output[idx] += val; break;
+			case MINUS:  output[idx] -= val; break;
+			case EQUALS: output[idx]  = val; break;
+		}
+	}
+
+	template<typename T>
+	__global__ void dyUpwind3dCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
+	{
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (i >= sizeX || j >= sizeY || k >= sizeZ)
+			return;
+
+		const size_t idx = i + j * sizeX + k * sizeX * sizeY;
+		const size_t strideY = sizeX;
+		T val = static_cast<T>(0);
+
+		
+		if (j == 0)
+		{
+			if (motionField[idx] < static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx + strideY] - input[idx]);
+			}
+		}
+		
+		else if (j == sizeY - 1)
+		{
+			if (motionField[idx] > static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx] - input[idx - strideY]);
+			}
+		}
+		
+		else
+		{
+			if (motionField[idx] < static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx + strideY] - input[idx]);
+			}
+			else
+			{
+				val = motionField[idx] * (input[idx] - input[idx - strideY]);
+			}
+		}
+
+		switch (s)
+		{
+			case PLUS:   output[idx] += val; break;
+			case MINUS:  output[idx] -= val; break;
+			case EQUALS: output[idx]  = val; break;
+		}
+	}
+
+	template<typename T>
+	__global__ void dzUpwind3dCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
+	{
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (i >= sizeX || j >= sizeY || k >= sizeZ)
+			return;
+
+		const size_t idx = i + j * sizeX + k * sizeX * sizeY;
+		const size_t strideZ = sizeX * sizeY;
+		T val = static_cast<T>(0);
+
+		
+		if (k == 0)
+		{
+			if (motionField[idx] < static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx + strideZ] - input[idx]);
+			}
+		}
+		
+		else if (k == sizeZ - 1)
+		{
+			if (motionField[idx] > static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx] - input[idx - strideZ]);
+			}
+		}
+		
+		else
+		{
+			if (motionField[idx] < static_cast<T>(0))
+			{
+				val = motionField[idx] * (input[idx + strideZ] - input[idx]);
+			}
+			else
+			{
+				val = motionField[idx] * (input[idx] - input[idx - strideZ]);
+			}
+		}
+
+		switch (s)
+		{
+			case PLUS:   output[idx] += val; break;
+			case MINUS:  output[idx] -= val; break;
+			case EQUALS: output[idx]  = val; break;
+		}
+	}
+
+	template<typename T>
+	__global__ void dxUpwind3dTCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
+	{
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (i >= sizeX || j >= sizeY || k >= sizeZ)
+			return;
+
+		const size_t idx = i + j * sizeX + k * sizeX * sizeY;
+		const size_t sliceStride = j * sizeX + k * sizeX * sizeY;
+		T val = static_cast<T>(0);
+
+		
+		if (i >= 2 && i < sizeX - 2)
+		{
+			const size_t tmpIndex1 = idx + 1;
+			const size_t tmpIndex2 = idx - 1;
+
+			if (motionField[idx] < static_cast<T>(0))  val -= motionField[idx] * input[idx];
+			else                                       val += motionField[idx] * input[idx];
+
+			if (motionField[tmpIndex1] > static_cast<T>(0)) val -= motionField[tmpIndex1] * input[tmpIndex1];
+			if (motionField[tmpIndex2] < static_cast<T>(0)) val += motionField[tmpIndex2] * input[tmpIndex2];
+		}
+		
+		else if (i == 0)
+		{
+			const size_t tmpIndex_edge2 = 1 + sliceStride;
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge2] > static_cast<T>(0)) val -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+		}
+		else if (i == 1)
+		{
+			const size_t tmpIndex_edge1 = 0 + sliceStride;
+			const size_t tmpIndex_edge3 = 2 + sliceStride;
+
+			if (motionField[tmpIndex_edge1] < static_cast<T>(0)) val += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			else                                              val += motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge3] > static_cast<T>(0)) val -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+		}
+		
+		else if (i == sizeX - 2)
+		{
+			const size_t tmpIndex_edge4 = (sizeX - 1) + sliceStride;
+			const size_t tmpIndex_edge6 = (sizeX - 3) + sliceStride;
+
+			if (motionField[tmpIndex_edge6] < static_cast<T>(0)) val += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			else                                              val += motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge4] > static_cast<T>(0)) val -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+		}
+		else if (i == sizeX - 1)
+		{
+			const size_t tmpIndex_edge5 = (sizeX - 2) + sliceStride;
+			if (motionField[tmpIndex_edge5] < static_cast<T>(0)) val += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+			if (motionField[idx] > static_cast<T>(0))         val += motionField[idx] * input[idx];
+		}
+
+		switch (s)
+		{
+			case PLUS:   output[idx] += val; break;
+			case MINUS:  output[idx] -= val; break;
+			case EQUALS: output[idx]  = val; break;
+		}
+	}
+
+	template<typename T>
+	__global__ void dyUpwind3dTCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
+	{
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (i >= sizeX || j >= sizeY || k >= sizeZ)
+			return;
+
+		const size_t idx = i + j * sizeX + k * sizeX * sizeY;
+		const size_t strideY = sizeX;
+		const size_t sliceStride = i + k * sizeX * sizeY;
+		T val = static_cast<T>(0);
+
+		
+		if (j >= 2 && j < sizeY - 2)
+		{
+			const size_t tmpIndex1 = idx + strideY;
+			const size_t tmpIndex2 = idx - strideY;
+
+			if (motionField[idx] < static_cast<T>(0))  val -= motionField[idx] * input[idx];
+			else                                       val += motionField[idx] * input[idx];
+
+			if (motionField[tmpIndex1] > static_cast<T>(0)) val -= motionField[tmpIndex1] * input[tmpIndex1];
+			if (motionField[tmpIndex2] < static_cast<T>(0)) val += motionField[tmpIndex2] * input[tmpIndex2];
+		}
+		
+		else if (j == 0)
+		{
+			const size_t tmpIndex_edge2 = sliceStride + 1 * strideY;
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge2] > static_cast<T>(0)) val -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+		}
+		else if (j == 1)
+		{
+			const size_t tmpIndex_edge1 = sliceStride + 0 * strideY;
+			const size_t tmpIndex_edge3 = sliceStride + 2 * strideY;
+
+			if (motionField[tmpIndex_edge1] < static_cast<T>(0)) val += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			else                                              val += motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge3] > static_cast<T>(0)) val -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+		}
+		
+		else if (j == sizeY - 2)
+		{
+			const size_t tmpIndex_edge4 = sliceStride + (sizeY - 1) * strideY;
+			const size_t tmpIndex_edge6 = sliceStride + (sizeY - 3) * strideY;
+
+			if (motionField[tmpIndex_edge6] < static_cast<T>(0)) val += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			else                                              val += motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge4] > static_cast<T>(0)) val -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+		}
+		else if (j == sizeY - 1)
+		{
+			const size_t tmpIndex_edge5 = sliceStride + (sizeY - 2) * strideY;
+			if (motionField[tmpIndex_edge5] < static_cast<T>(0)) val += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+			if (motionField[idx] > static_cast<T>(0))         val += motionField[idx] * input[idx];
+		}
+
+		switch (s)
+		{
+			case PLUS:   output[idx] += val; break;
+			case MINUS:  output[idx] -= val; break;
+			case EQUALS: output[idx]  = val; break;
+		}
+	}
+
+	template<typename T>
+	__global__ void dzUpwind3dTCUDA(T* output, const T* input, const T* motionField, const size_t sizeX, const size_t sizeY, const size_t sizeZ, mySign s)
+	{
+		const size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+		const size_t j = threadIdx.y + blockIdx.y * blockDim.y;
+		const size_t k = threadIdx.z + blockIdx.z * blockDim.z;
+
+		if (i >= sizeX || j >= sizeY || k >= sizeZ)
+			return;
+
+		const size_t idx = i + j * sizeX + k * sizeX * sizeY;
+		const size_t strideZ = sizeX * sizeY;
+		const size_t sliceStride = i + j * sizeX;
+		T val = static_cast<T>(0);
+
+		
+		if (k >= 2 && k < sizeZ - 2)
+		{
+			const size_t tmpIndex1 = idx + strideZ;
+			const size_t tmpIndex2 = idx - strideZ;
+
+			if (motionField[idx] < static_cast<T>(0))  val -= motionField[idx] * input[idx];
+			else                                       val += motionField[idx] * input[idx];
+
+			if (motionField[tmpIndex1] > static_cast<T>(0)) val -= motionField[tmpIndex1] * input[tmpIndex1];
+			if (motionField[tmpIndex2] < static_cast<T>(0)) val += motionField[tmpIndex2] * input[tmpIndex2];
+		}
+		
+		else if (k == 0)
+		{
+			const size_t tmpIndex_edge2 = sliceStride + 1 * strideZ;
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge2] > static_cast<T>(0)) val -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+		}
+		else if (k == 1)
+		{
+			const size_t tmpIndex_edge1 = sliceStride + 0 * strideZ;
+			const size_t tmpIndex_edge3 = sliceStride + 2 * strideZ;
+
+			if (motionField[tmpIndex_edge1] < static_cast<T>(0)) val += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			else                                              val += motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge3] > static_cast<T>(0)) val -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+		}
+		
+		else if (k == sizeZ - 2)
+		{
+			const size_t tmpIndex_edge4 = sliceStride + (sizeZ - 1) * strideZ;
+			const size_t tmpIndex_edge6 = sliceStride + (sizeZ - 3) * strideZ;
+
+			if (motionField[tmpIndex_edge6] < static_cast<T>(0)) val += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+			if (motionField[idx] < static_cast<T>(0))         val -= motionField[idx] * input[idx];
+			else                                              val += motionField[idx] * input[idx];
+			if (motionField[tmpIndex_edge4] > static_cast<T>(0)) val -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+		}
+		else if (k == sizeZ - 1)
+		{
+			const size_t tmpIndex_edge5 = sliceStride + (sizeZ - 2) * strideZ;
+			if (motionField[tmpIndex_edge5] < static_cast<T>(0)) val += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+			if (motionField[idx] > static_cast<T>(0))         val += motionField[idx] * input[idx];
+		}
+
+		switch (s)
+		{
+			case PLUS:   output[idx] += val; break;
+			case MINUS:  output[idx] -= val; break;
+			case EQUALS: output[idx]  = val; break;
+		}
+	}
+	#endif
+
 
 	// 2D cases
 	void dxUpwind2d(const Tdata &input, Tdata &output, mySign s)
@@ -412,6 +1117,7 @@ public:
 		}
 	}
 
+
 	// 3D cases, TODO: extend an correct them using the 2D cases as a template
 	void dxUpwind3d(const Tdata &input, Tdata &output, mySign s)
 	{
@@ -596,6 +1302,7 @@ public:
 
 	void dxUpwind3dT(const Tdata &input, Tdata &output, mySign s)
 	{
+		/*
 		int sizeX = this->inputDimension[0];
 		int sizeY = this->inputDimension[1];
 		int sizeZ = this->inputDimension[2];
@@ -634,12 +1341,121 @@ public:
 				}
 			}
 		}
+		*/
+
+		int sizeX = this->inputDimension[0];
+		int sizeY = this->inputDimension[1];
+		int sizeZ = this->inputDimension[2];
+
+		std::fill(output.begin(), output.end(), 0.0);
+		for (int k = 0; k < sizeZ; ++k)
+		{
+			for (int j = 0; j < sizeY; ++j)
+			{
+				for (int i = 2; i < sizeX-2; ++i)
+				{
+					int tmpIndex = index3DtoLinear(i, j, k);
+					int tmpIndex1 = index3DtoLinear(i+1, j, k);
+					int tmpIndex2 = index3DtoLinear(i-1, j, k);
+
+					/*
+					int motionFieldIsNegative = std::max(motionFieldField[tmpIndex], 0);
+					int motionFieldIsNegative1 = std::max(motionFieldField[tmpIndex1], 0);
+					int motionFieldIsNegative2 = std::max(motionFieldField[tmpIndex2], 0);
+
+					output[tmpIndex] = -motionFieldIsNegative * motionField[tmpIndex]*input[tmpIndex]*/
+					if (motionField[tmpIndex] < 0)
+					{
+						output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
+					}
+					else
+					{
+						output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
+					}
+
+
+					if (motionField[tmpIndex1] > 0)
+					{
+						output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
+					}
+
+
+					if (motionField[tmpIndex2] < 0)
+					{
+						output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
+					}
+				}
+
+				int tmpIndex_edge1 = index3DtoLinear(0,j,k);
+				int tmpIndex_edge2 = index3DtoLinear(1,j,k);
+				int tmpIndex_edge3 = index3DtoLinear(2,j,k);
+
+				if (motionField[tmpIndex_edge1] < 0)
+				{
+					output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+				}
+				if (motionField[tmpIndex_edge2] > 0)
+				{
+					output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+
+
+				if (motionField[tmpIndex_edge1] < 0)
+				{
+					output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+				}
+				if (motionField[tmpIndex_edge2] < 0)
+				{
+					output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+				else
+				{
+					output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+				if (motionField[tmpIndex_edge3] > 0)
+				{
+					output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+				}
+
+				int tmpIndex_edge4 = index3DtoLinear(sizeX-1, j, k);
+				int tmpIndex_edge5 = index3DtoLinear(sizeX-2, j, k);
+				int tmpIndex_edge6 = index3DtoLinear(sizeX-3, j, k);
+
+				if (motionField[tmpIndex_edge6] < 0)
+				{
+					output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+				}
+				if (motionField[tmpIndex_edge5] < 0)
+				{
+					output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				else
+				{
+					output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				if (motionField[tmpIndex_edge4] > 0)
+				{
+					output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+				}
+
+
+				if (motionField[tmpIndex_edge5] < 0)
+				{
+					output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				if (motionField[tmpIndex_edge4] > 0)
+				{
+					output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+				}
+			}
+		}
 	}
 
 
 
 	void dyUpwind3dT(const Tdata &input, Tdata &output, mySign s)
 	{
+		/*
 		int sizeX = this->inputDimension[0];
 		int sizeY = this->inputDimension[1];
 		int sizeZ = this->inputDimension[2];
@@ -677,11 +1493,120 @@ public:
 				}
 			}
 		}
+		*/
+
+		int sizeX = this->inputDimension[0];
+		int sizeY = this->inputDimension[1];
+		int sizeZ = this->inputDimension[2];
+
+		std::fill(output.begin(), output.end(), 0.0);
+		for (int k = 0; k < sizeZ; ++k)
+		{
+			for (int i = 0; i < sizeX; ++i)
+			{
+				for (int j = 2; j < sizeY-2; ++j)
+				{
+					int tmpIndex = index3DtoLinear(i, j, k);
+					int tmpIndex1 = index3DtoLinear(i, j+1, k);
+					int tmpIndex2 = index3DtoLinear(i, j-1, k);
+
+					/*
+					int motionFieldIsNegative = std::max(motionFieldField[tmpIndex], 0);
+					int motionFieldIsNegative1 = std::max(motionFieldField[tmpIndex1], 0);
+					int motionFieldIsNegative2 = std::max(motionFieldField[tmpIndex2], 0);
+
+					output[tmpIndex] = -motionFieldIsNegative * motionField[tmpIndex]*input[tmpIndex]*/
+					if (motionField[tmpIndex] < 0)
+					{
+						output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
+					}
+					else
+					{
+						output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
+					}
+
+
+					if (motionField[tmpIndex1] > 0)
+					{
+						output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
+					}
+
+
+					if (motionField[tmpIndex2] < 0)
+					{
+						output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
+					}
+				}
+
+				int tmpIndex_edge1 = index3DtoLinear(i,0,k);
+				int tmpIndex_edge2 = index3DtoLinear(i,1,k);
+				int tmpIndex_edge3 = index3DtoLinear(i,2,k);
+
+				if (motionField[tmpIndex_edge1] < 0)
+				{
+					output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+				}
+				if (motionField[tmpIndex_edge2] > 0)
+				{
+					output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+
+
+				if (motionField[tmpIndex_edge1] < 0)
+				{
+					output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+				}
+				if (motionField[tmpIndex_edge2] < 0)
+				{
+					output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+				else
+				{
+					output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+				if (motionField[tmpIndex_edge3] > 0)
+				{
+					output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+				}
+
+				int tmpIndex_edge4 = index3DtoLinear(i,sizeY-1, k);
+				int tmpIndex_edge5 = index3DtoLinear(i,sizeY-2, k);
+				int tmpIndex_edge6 = index3DtoLinear(i,sizeY-3, k);
+
+				if (motionField[tmpIndex_edge6] < 0)
+				{
+					output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+				}
+				if (motionField[tmpIndex_edge5] < 0)
+				{
+					output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				else
+				{
+					output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				if (motionField[tmpIndex_edge4] > 0)
+				{
+					output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+				}
+
+
+				if (motionField[tmpIndex_edge5] < 0)
+				{
+					output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				if (motionField[tmpIndex_edge4] > 0)
+				{
+					output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+				}
+			}
+		}
 	}
 
 
 	void dzUpwind3dT(const Tdata &input, Tdata &output, mySign s)
 	{
+		/*
 		int sizeX = this->inputDimension[0];
 		int sizeY = this->inputDimension[1];
 		int sizeZ = this->inputDimension[2];
@@ -716,6 +1641,114 @@ public:
 							output[idxP] += -v * input[idx];
 						}
 					}
+				}
+			}
+		}
+		*/
+
+		int sizeX = this->inputDimension[0];
+		int sizeY = this->inputDimension[1];
+		int sizeZ = this->inputDimension[2];
+
+		std::fill(output.begin(), output.end(), 0.0);
+		for (int i = 0; i < sizeX; ++i)
+		{
+			for (int j = 0; j < sizeY; ++j)
+			{
+				for (int k = 2; k < sizeZ-2; ++k)
+				{
+					int tmpIndex = index3DtoLinear(i, j, k);
+					int tmpIndex1 = index3DtoLinear(i, j, k+1);
+					int tmpIndex2 = index3DtoLinear(i, j, k-1);
+
+					/*
+					int motionFieldIsNegative = std::max(motionFieldField[tmpIndex], 0);
+					int motionFieldIsNegative1 = std::max(motionFieldField[tmpIndex1], 0);
+					int motionFieldIsNegative2 = std::max(motionFieldField[tmpIndex2], 0);
+
+					output[tmpIndex] = -motionFieldIsNegative * motionField[tmpIndex]*input[tmpIndex]*/
+					if (motionField[tmpIndex] < 0)
+					{
+						output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
+					}
+					else
+					{
+						output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
+					}
+
+
+					if (motionField[tmpIndex1] > 0)
+					{
+						output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
+					}
+
+
+					if (motionField[tmpIndex2] < 0)
+					{
+						output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
+					}
+				}
+
+				int tmpIndex_edge1 = index3DtoLinear(i,j,0);
+				int tmpIndex_edge2 = index3DtoLinear(i,j,1);
+				int tmpIndex_edge3 = index3DtoLinear(i,j,2);
+
+				if (motionField[tmpIndex_edge1] < 0)
+				{
+					output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+				}
+				if (motionField[tmpIndex_edge2] > 0)
+				{
+					output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+
+
+				if (motionField[tmpIndex_edge1] < 0)
+				{
+					output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+				}
+				if (motionField[tmpIndex_edge2] < 0)
+				{
+					output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+				else
+				{
+					output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+				}
+				if (motionField[tmpIndex_edge3] > 0)
+				{
+					output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+				}
+
+				int tmpIndex_edge4 = index3DtoLinear(i,j,sizeZ-1);
+				int tmpIndex_edge5 = index3DtoLinear(i,j,sizeZ-2);
+				int tmpIndex_edge6 = index3DtoLinear(i,j,sizeZ-3);
+
+				if (motionField[tmpIndex_edge6] < 0)
+				{
+					output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+				}
+				if (motionField[tmpIndex_edge5] < 0)
+				{
+					output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				else
+				{
+					output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				if (motionField[tmpIndex_edge4] > 0)
+				{
+					output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+				}
+
+
+				if (motionField[tmpIndex_edge5] < 0)
+				{
+					output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+				}
+				if (motionField[tmpIndex_edge4] > 0)
+				{
+					output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
 				}
 			}
 		}
@@ -999,6 +2032,101 @@ public:
 	}
 
 	#ifdef __CUDACC__
+	thrust::device_vector<T> getAbsRowSumCUDA3D(bool transposed)
+	{
+		thrust::device_vector<T> result(this->getNumRows());
+		if(inputDimension.size()==2)
+		{
+			int sizeX = this->inputDimension[0];
+			int sizeY = this->inputDimension[1];
+			int numElements = sizeX * sizeY;
+
+			const T* d_motionField = thrust::raw_pointer_cast(motionField.data());
+
+			thrust::transform(
+				thrust::make_counting_iterator(0),
+				thrust::make_counting_iterator(numElements),
+				result.begin(),
+				[=] __host__ __device__ (int tmpIndex) -> T
+				{
+					int i = tmpIndex % sizeX;
+					int j = tmpIndex / sizeX;
+
+					auto gpu_abs = [] (T val) { return val < T(0) ? -val : val; };
+
+					if (i == 0)
+					{
+						int tmpIndex1 = j * sizeX + 1;
+						return gpu_abs(d_motionField[tmpIndex]) + gpu_abs(d_motionField[tmpIndex1]);
+					}
+					else if (i == sizeX - 1)
+					{
+						int tmpIndex2 = j * sizeX + (sizeX - 2);
+						return gpu_abs(d_motionField[tmpIndex]) + gpu_abs(d_motionField[tmpIndex2]);
+					}
+					else
+					{
+						int tmpIndex1 = j * sizeX + (i + 1);
+						int tmpIndex2 = j * sizeX + (i - 1);
+
+						return gpu_abs(d_motionField[tmpIndex]) + 
+							gpu_abs(d_motionField[tmpIndex1]) + 
+							gpu_abs(d_motionField[tmpIndex2]);
+					}
+				}
+			)
+		}
+		else if(inputDimension.size()==3)
+		{
+			int sizeX = this->inputDimension[0];
+			int sizeY = this->inputDimension[1];
+			int sizeZ = this->inputDimension[2];
+			
+			int numElements = sizeX * sizeY * sizeZ;
+
+			thrust::device_vector<T> result(numElements);
+
+			const T* d_motionField = thrust::raw_pointer_cast(motionField.data());
+
+			thrust::transform(
+				thrust::make_counting_iterator(0),
+				thrust::make_counting_iterator(numElements),
+				result.begin(),
+				[=] __host__ __device__ (int tmpIndex) -> T
+				{
+					int i = tmpIndex % sizeX;
+
+					auto gpu_abs = [] (T val) { return val < T(0) ? -val : val; };
+
+					if (i == 0)
+					{
+						return gpu_abs(d_motionField[tmpIndex]) + 
+							gpu_abs(d_motionField[tmpIndex + 1]);
+					}
+					else if (i == sizeX - 1)
+					{
+						return gpu_abs(d_motionField[tmpIndex]) + 
+							gpu_abs(d_motionField[tmpIndex - 1]);
+					}
+					else
+					{
+						return gpu_abs(d_motionField[tmpIndex]) + 
+							gpu_abs(d_motionField[tmpIndex + 1]) + 
+							gpu_abs(d_motionField[tmpIndex - 1]);
+					}
+				}
+		}
+		else
+		{
+			printf("UpwindGradient not implemented for dim!={2,3}\n");
+		}
+		return result;
+	}
+	#endif
+
+
+	/*
+	#ifdef __CUDACC__
 	thrust::device_vector<T> getAbsRowSumCUDA(bool transposed)
 	{
 		thrust::device_vector<T> result(this->getNumRows());
@@ -1016,6 +2144,7 @@ public:
 		return result;
 	}
 	#endif
+	*/
 };
 
 #endif

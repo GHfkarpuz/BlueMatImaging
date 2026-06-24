@@ -29,7 +29,7 @@ endif()
 
 # Install shared libraries without execute permission?
 if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
-  set(CMAKE_INSTALL_SO_NO_EXE "1")
+  set(CMAKE_INSTALL_SO_NO_EXE "0")
 endif()
 
 # Is this installation the result of a crosscompile?
@@ -43,25 +43,25 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-312-x86_64-linux-gnu.so" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-312-x86_64-linux-gnu.so")
+  if(EXISTS "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-39-x86_64-linux-gnu.so" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-39-x86_64-linux-gnu.so")
     file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-312-x86_64-linux-gnu.so"
+         FILE "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-39-x86_64-linux-gnu.so"
          RPATH "")
   endif()
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/usr/local/lib/flexBoxPy.cpython-312-x86_64-linux-gnu.so")
+   "/usr/local/lib/flexBoxPy.cpython-39-x86_64-linux-gnu.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/usr/local/lib" TYPE MODULE FILES "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bindings/flexBoxPy.cpython-312-x86_64-linux-gnu.so")
-  if(EXISTS "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-312-x86_64-linux-gnu.so" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-312-x86_64-linux-gnu.so")
+  file(INSTALL DESTINATION "/usr/local/lib" TYPE MODULE FILES "/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build/bindings/flexBoxPy.cpython-39-x86_64-linux-gnu.so")
+  if(EXISTS "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-39-x86_64-linux-gnu.so" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-39-x86_64-linux-gnu.so")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-312-x86_64-linux-gnu.so")
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/usr/local/lib/flexBoxPy.cpython-39-x86_64-linux-gnu.so")
     endif()
   endif()
 endif()

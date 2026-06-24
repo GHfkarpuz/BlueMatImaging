@@ -1,8 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/flexBoxPy.dir/link.d"
   "CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o"
   "CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o.d"
-  "flexBoxPy.cpython-312-x86_64-linux-gnu.so"
+  "flexBoxPy.cpython-39-x86_64-linux-gnu.so"
   "flexBoxPy.pdb"
 )
 

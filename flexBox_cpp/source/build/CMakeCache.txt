@@ -36,15 +36,15 @@ CMAKE_BUILD_TYPE:STRING=Release
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
 //CXX compiler
-CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
+CMAKE_CXX_COMPILER:FILEPATH=/usr/lib64/ccache/c++
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
-CMAKE_CXX_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar-13
+CMAKE_CXX_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar
 
 //A wrapper around 'ranlib' adding the appropriate '--plugin' option
 // for the GCC compiler
-CMAKE_CXX_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib-13
+CMAKE_CXX_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib
 
 //Flags used by the CXX compiler during all build types.
 CMAKE_CXX_FLAGS:STRING=
@@ -62,15 +62,15 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
 //C compiler
-CMAKE_C_COMPILER:FILEPATH=/usr/bin/cc
+CMAKE_C_COMPILER:FILEPATH=/usr/lib64/ccache/cc
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
-CMAKE_C_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar-13
+CMAKE_C_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar
 
 //A wrapper around 'ranlib' adding the appropriate '--plugin' option
 // for the GCC compiler
-CMAKE_C_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib-13
+CMAKE_C_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib
 
 //Flags used by the C compiler during all build types.
 CMAKE_C_FLAGS:STRING=
@@ -148,6 +148,9 @@ CMAKE_OBJCOPY:FILEPATH=/usr/bin/objcopy
 
 //Path to a program.
 CMAKE_OBJDUMP:FILEPATH=/usr/bin/objdump
+
+//No help, variable specified on the command line.
+CMAKE_PREFIX_PATH:UNINITIALIZED=/home/karpuzfa/venv/lib64/python3.9/site-packages/pybind11/share/cmake/pybind11
 
 //Value Computed by CMake
 CMAKE_PROJECT_COMPAT_VERSION:STATIC=
@@ -229,6 +232,18 @@ CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Path to a file.
+FREETYPE_INCLUDE_DIR_freetype2:PATH=/usr/include/freetype2
+
+//Path to a file.
+FREETYPE_INCLUDE_DIR_ft2build:PATH=/usr/include/freetype2
+
+//Path to a library.
+FREETYPE_LIBRARY_DEBUG:FILEPATH=FREETYPE_LIBRARY_DEBUG-NOTFOUND
+
+//Path to a library.
+FREETYPE_LIBRARY_RELEASE:FILEPATH=/usr/lib64/libfreetype.so
+
 //Value Computed by CMake
 FlexBox_BINARY_DIR:STATIC=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source/build
 
@@ -237,6 +252,12 @@ FlexBox_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 FlexBox_SOURCE_DIR:STATIC=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
+
+//Path to a file.
+Fontconfig_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a library.
+Fontconfig_LIBRARY:FILEPATH=/usr/lib64/libfontconfig.so
 
 //Path to a file.
 Matlab_INCLUDE_DIRS:PATH=Matlab_INCLUDE_DIRS-NOTFOUND
@@ -253,6 +274,21 @@ Matlab_MX_LIBRARY:FILEPATH=Matlab_MX_LIBRARY-NOTFOUND
 //Matlab installation root path
 Matlab_ROOT_DIR:PATH=
 
+//Arguments to supply to pkg-config
+PKG_CONFIG_ARGN:STRING=
+
+//pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
+
+//No help, variable specified on the command line.
+Python_EXECUTABLE:UNINITIALIZED=/home/karpuzfa/venv/bin/python3
+
+//No help, variable specified on the command line.
+Python_FIND_STRATEGY:UNINITIALIZED=LOCATION
+
+//No help, variable specified on the command line.
+Python_ROOT_DIR:UNINITIALIZED=/home/karpuzfa/venv
+
 //Use CUDA
 USE_CUDA:BOOL=OFF
 
@@ -260,28 +296,28 @@ USE_CUDA:BOOL=OFF
 USE_OPENMP:BOOL=OFF
 
 //Path to a file.
-X11_ICE_INCLUDE_PATH:PATH=X11_ICE_INCLUDE_PATH-NOTFOUND
+X11_ICE_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_ICE_LIB:FILEPATH=X11_ICE_LIB-NOTFOUND
+X11_ICE_LIB:FILEPATH=/usr/lib64/libICE.so
 
 //Path to a file.
-X11_SM_INCLUDE_PATH:PATH=X11_SM_INCLUDE_PATH-NOTFOUND
+X11_SM_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_SM_LIB:FILEPATH=X11_SM_LIB-NOTFOUND
+X11_SM_LIB:FILEPATH=/usr/lib64/libSM.so
 
 //Path to a file.
 X11_X11_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_X11_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libX11.so
+X11_X11_LIB:FILEPATH=/usr/lib64/libX11.so
 
 //Path to a file.
-X11_X11_xcb_INCLUDE_PATH:PATH=X11_X11_xcb_INCLUDE_PATH-NOTFOUND
+X11_X11_xcb_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_X11_xcb_LIB:FILEPATH=X11_X11_xcb_LIB-NOTFOUND
+X11_X11_xcb_LIB:FILEPATH=/usr/lib64/libX11-xcb.so
 
 //Path to a file.
 X11_XRes_INCLUDE_PATH:PATH=X11_XRes_INCLUDE_PATH-NOTFOUND
@@ -290,10 +326,10 @@ X11_XRes_INCLUDE_PATH:PATH=X11_XRes_INCLUDE_PATH-NOTFOUND
 X11_XRes_LIB:FILEPATH=X11_XRes_LIB-NOTFOUND
 
 //Path to a file.
-X11_XShm_INCLUDE_PATH:PATH=X11_XShm_INCLUDE_PATH-NOTFOUND
+X11_XShm_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a file.
-X11_XSync_INCLUDE_PATH:PATH=X11_XSync_INCLUDE_PATH-NOTFOUND
+X11_XSync_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a file.
 X11_Xaccessrules_INCLUDE_PATH:PATH=X11_Xaccessrules_INCLUDE_PATH-NOTFOUND
@@ -305,70 +341,70 @@ X11_Xaccessstr_INCLUDE_PATH:PATH=/usr/include
 X11_Xau_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xau_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXau.so
+X11_Xau_LIB:FILEPATH=/usr/lib64/libXau.so
 
 //Path to a file.
-X11_Xaw_INCLUDE_PATH:PATH=X11_Xaw_INCLUDE_PATH-NOTFOUND
+X11_Xaw_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xaw_LIB:FILEPATH=X11_Xaw_LIB-NOTFOUND
+X11_Xaw_LIB:FILEPATH=/usr/lib64/libXaw.so
 
 //Path to a file.
-X11_Xcomposite_INCLUDE_PATH:PATH=X11_Xcomposite_INCLUDE_PATH-NOTFOUND
+X11_Xcomposite_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xcomposite_LIB:FILEPATH=X11_Xcomposite_LIB-NOTFOUND
+X11_Xcomposite_LIB:FILEPATH=/usr/lib64/libXcomposite.so
 
 //Path to a file.
-X11_Xcursor_INCLUDE_PATH:PATH=X11_Xcursor_INCLUDE_PATH-NOTFOUND
+X11_Xcursor_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xcursor_LIB:FILEPATH=X11_Xcursor_LIB-NOTFOUND
+X11_Xcursor_LIB:FILEPATH=/usr/lib64/libXcursor.so
 
 //Path to a file.
-X11_Xdamage_INCLUDE_PATH:PATH=X11_Xdamage_INCLUDE_PATH-NOTFOUND
+X11_Xdamage_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xdamage_LIB:FILEPATH=X11_Xdamage_LIB-NOTFOUND
+X11_Xdamage_LIB:FILEPATH=/usr/lib64/libXdamage.so
 
 //Path to a file.
-X11_Xdbe_INCLUDE_PATH:PATH=X11_Xdbe_INCLUDE_PATH-NOTFOUND
+X11_Xdbe_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a file.
-X11_Xdmcp_INCLUDE_PATH:PATH=/usr/include
+X11_Xdmcp_INCLUDE_PATH:PATH=X11_Xdmcp_INCLUDE_PATH-NOTFOUND
 
 //Path to a library.
-X11_Xdmcp_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXdmcp.so
+X11_Xdmcp_LIB:FILEPATH=X11_Xdmcp_LIB-NOTFOUND
 
 //Path to a file.
-X11_Xext_INCLUDE_PATH:PATH=X11_Xext_INCLUDE_PATH-NOTFOUND
+X11_Xext_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xext_LIB:FILEPATH=X11_Xext_LIB-NOTFOUND
+X11_Xext_LIB:FILEPATH=/usr/lib64/libXext.so
 
 //Path to a file.
-X11_Xfixes_INCLUDE_PATH:PATH=X11_Xfixes_INCLUDE_PATH-NOTFOUND
+X11_Xfixes_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xfixes_LIB:FILEPATH=X11_Xfixes_LIB-NOTFOUND
+X11_Xfixes_LIB:FILEPATH=/usr/lib64/libXfixes.so
 
 //Path to a file.
-X11_Xft_INCLUDE_PATH:PATH=X11_Xft_INCLUDE_PATH-NOTFOUND
+X11_Xft_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xft_LIB:FILEPATH=X11_Xft_LIB-NOTFOUND
+X11_Xft_LIB:FILEPATH=/usr/lib64/libXft.so
 
 //Path to a file.
-X11_Xi_INCLUDE_PATH:PATH=X11_Xi_INCLUDE_PATH-NOTFOUND
+X11_Xi_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xi_LIB:FILEPATH=X11_Xi_LIB-NOTFOUND
+X11_Xi_LIB:FILEPATH=/usr/lib64/libXi.so
 
 //Path to a file.
-X11_Xinerama_INCLUDE_PATH:PATH=X11_Xinerama_INCLUDE_PATH-NOTFOUND
+X11_Xinerama_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xinerama_LIB:FILEPATH=X11_Xinerama_LIB-NOTFOUND
+X11_Xinerama_LIB:FILEPATH=/usr/lib64/libXinerama.so
 
 //Path to a file.
 X11_Xkb_INCLUDE_PATH:PATH=/usr/include
@@ -380,16 +416,16 @@ X11_Xkblib_INCLUDE_PATH:PATH=/usr/include
 X11_Xlib_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a file.
-X11_Xmu_INCLUDE_PATH:PATH=X11_Xmu_INCLUDE_PATH-NOTFOUND
+X11_Xmu_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xmu_LIB:FILEPATH=X11_Xmu_LIB-NOTFOUND
+X11_Xmu_LIB:FILEPATH=/usr/lib64/libXmu.so
 
 //Path to a file.
-X11_Xpm_INCLUDE_PATH:PATH=X11_Xpm_INCLUDE_PATH-NOTFOUND
+X11_Xpm_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xpm_LIB:FILEPATH=X11_Xpm_LIB-NOTFOUND
+X11_Xpm_LIB:FILEPATH=/usr/lib64/libXpm.so
 
 //Path to a file.
 X11_Xpresent_INCLUDE_PATH:PATH=X11_Xpresent_INCLUDE_PATH-NOTFOUND
@@ -398,19 +434,19 @@ X11_Xpresent_INCLUDE_PATH:PATH=X11_Xpresent_INCLUDE_PATH-NOTFOUND
 X11_Xpresent_LIB:FILEPATH=X11_Xpresent_LIB-NOTFOUND
 
 //Path to a file.
-X11_Xrandr_INCLUDE_PATH:PATH=X11_Xrandr_INCLUDE_PATH-NOTFOUND
+X11_Xrandr_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xrandr_LIB:FILEPATH=X11_Xrandr_LIB-NOTFOUND
+X11_Xrandr_LIB:FILEPATH=/usr/lib64/libXrandr.so
 
 //Path to a file.
-X11_Xrender_INCLUDE_PATH:PATH=X11_Xrender_INCLUDE_PATH-NOTFOUND
+X11_Xrender_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xrender_LIB:FILEPATH=X11_Xrender_LIB-NOTFOUND
+X11_Xrender_LIB:FILEPATH=/usr/lib64/libXrender.so
 
 //Path to a file.
-X11_Xshape_INCLUDE_PATH:PATH=X11_Xshape_INCLUDE_PATH-NOTFOUND
+X11_Xshape_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a file.
 X11_Xss_INCLUDE_PATH:PATH=X11_Xss_INCLUDE_PATH-NOTFOUND
@@ -419,16 +455,16 @@ X11_Xss_INCLUDE_PATH:PATH=X11_Xss_INCLUDE_PATH-NOTFOUND
 X11_Xss_LIB:FILEPATH=X11_Xss_LIB-NOTFOUND
 
 //Path to a file.
-X11_Xt_INCLUDE_PATH:PATH=X11_Xt_INCLUDE_PATH-NOTFOUND
+X11_Xt_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xt_LIB:FILEPATH=X11_Xt_LIB-NOTFOUND
+X11_Xt_LIB:FILEPATH=/usr/lib64/libXt.so
 
 //Path to a file.
-X11_Xtst_INCLUDE_PATH:PATH=X11_Xtst_INCLUDE_PATH-NOTFOUND
+X11_Xtst_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_Xtst_LIB:FILEPATH=X11_Xtst_LIB-NOTFOUND
+X11_Xtst_LIB:FILEPATH=/usr/lib64/libXtst.so
 
 //Path to a file.
 X11_Xutil_INCLUDE_PATH:PATH=/usr/include
@@ -452,19 +488,19 @@ X11_Xxf86vm_INCLUDE_PATH:PATH=X11_Xxf86vm_INCLUDE_PATH-NOTFOUND
 X11_Xxf86vm_LIB:FILEPATH=X11_Xxf86vm_LIB-NOTFOUND
 
 //Path to a file.
-X11_dpms_INCLUDE_PATH:PATH=X11_dpms_INCLUDE_PATH-NOTFOUND
+X11_dpms_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a file.
 X11_xcb_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libxcb.so
+X11_xcb_LIB:FILEPATH=/usr/lib64/libxcb.so
 
 //Path to a file.
-X11_xcb_composite_INCLUDE_PATH:PATH=X11_xcb_composite_INCLUDE_PATH-NOTFOUND
+X11_xcb_composite_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_composite_LIB:FILEPATH=X11_xcb_composite_LIB-NOTFOUND
+X11_xcb_composite_LIB:FILEPATH=/usr/lib64/libxcb-composite.so
 
 //Path to a file.
 X11_xcb_cursor_INCLUDE_PATH:PATH=X11_xcb_cursor_INCLUDE_PATH-NOTFOUND
@@ -473,28 +509,28 @@ X11_xcb_cursor_INCLUDE_PATH:PATH=X11_xcb_cursor_INCLUDE_PATH-NOTFOUND
 X11_xcb_cursor_LIB:FILEPATH=X11_xcb_cursor_LIB-NOTFOUND
 
 //Path to a file.
-X11_xcb_damage_INCLUDE_PATH:PATH=X11_xcb_damage_INCLUDE_PATH-NOTFOUND
+X11_xcb_damage_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_damage_LIB:FILEPATH=X11_xcb_damage_LIB-NOTFOUND
+X11_xcb_damage_LIB:FILEPATH=/usr/lib64/libxcb-damage.so
 
 //Path to a file.
-X11_xcb_dpms_INCLUDE_PATH:PATH=X11_xcb_dpms_INCLUDE_PATH-NOTFOUND
+X11_xcb_dpms_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_dpms_LIB:FILEPATH=X11_xcb_dpms_LIB-NOTFOUND
+X11_xcb_dpms_LIB:FILEPATH=/usr/lib64/libxcb-dpms.so
 
 //Path to a file.
-X11_xcb_dri2_INCLUDE_PATH:PATH=X11_xcb_dri2_INCLUDE_PATH-NOTFOUND
+X11_xcb_dri2_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_dri2_LIB:FILEPATH=X11_xcb_dri2_LIB-NOTFOUND
+X11_xcb_dri2_LIB:FILEPATH=/usr/lib64/libxcb-dri2.so
 
 //Path to a file.
-X11_xcb_dri3_INCLUDE_PATH:PATH=X11_xcb_dri3_INCLUDE_PATH-NOTFOUND
+X11_xcb_dri3_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_dri3_LIB:FILEPATH=X11_xcb_dri3_LIB-NOTFOUND
+X11_xcb_dri3_LIB:FILEPATH=/usr/lib64/libxcb-dri3.so
 
 //Path to a file.
 X11_xcb_errors_INCLUDE_PATH:PATH=X11_xcb_errors_INCLUDE_PATH-NOTFOUND
@@ -509,10 +545,10 @@ X11_xcb_ewmh_INCLUDE_PATH:PATH=X11_xcb_ewmh_INCLUDE_PATH-NOTFOUND
 X11_xcb_ewmh_LIB:FILEPATH=X11_xcb_ewmh_LIB-NOTFOUND
 
 //Path to a file.
-X11_xcb_glx_INCLUDE_PATH:PATH=X11_xcb_glx_INCLUDE_PATH-NOTFOUND
+X11_xcb_glx_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_glx_LIB:FILEPATH=X11_xcb_glx_LIB-NOTFOUND
+X11_xcb_glx_LIB:FILEPATH=/usr/lib64/libxcb-glx.so
 
 //Path to a file.
 X11_xcb_icccm_INCLUDE_PATH:PATH=X11_xcb_icccm_INCLUDE_PATH-NOTFOUND
@@ -533,28 +569,28 @@ X11_xcb_keysyms_INCLUDE_PATH:PATH=X11_xcb_keysyms_INCLUDE_PATH-NOTFOUND
 X11_xcb_keysyms_LIB:FILEPATH=X11_xcb_keysyms_LIB-NOTFOUND
 
 //Path to a file.
-X11_xcb_present_INCLUDE_PATH:PATH=X11_xcb_present_INCLUDE_PATH-NOTFOUND
+X11_xcb_present_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_present_LIB:FILEPATH=X11_xcb_present_LIB-NOTFOUND
+X11_xcb_present_LIB:FILEPATH=/usr/lib64/libxcb-present.so
 
 //Path to a file.
-X11_xcb_randr_INCLUDE_PATH:PATH=X11_xcb_randr_INCLUDE_PATH-NOTFOUND
+X11_xcb_randr_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_randr_LIB:FILEPATH=X11_xcb_randr_LIB-NOTFOUND
+X11_xcb_randr_LIB:FILEPATH=/usr/lib64/libxcb-randr.so
 
 //Path to a file.
-X11_xcb_record_INCLUDE_PATH:PATH=X11_xcb_record_INCLUDE_PATH-NOTFOUND
+X11_xcb_record_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_record_LIB:FILEPATH=X11_xcb_record_LIB-NOTFOUND
+X11_xcb_record_LIB:FILEPATH=/usr/lib64/libxcb-record.so
 
 //Path to a file.
-X11_xcb_render_INCLUDE_PATH:PATH=X11_xcb_render_INCLUDE_PATH-NOTFOUND
+X11_xcb_render_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_render_LIB:FILEPATH=X11_xcb_render_LIB-NOTFOUND
+X11_xcb_render_LIB:FILEPATH=/usr/lib64/libxcb-render.so
 
 //Path to a file.
 X11_xcb_render_util_INCLUDE_PATH:PATH=X11_xcb_render_util_INCLUDE_PATH-NOTFOUND
@@ -563,34 +599,34 @@ X11_xcb_render_util_INCLUDE_PATH:PATH=X11_xcb_render_util_INCLUDE_PATH-NOTFOUND
 X11_xcb_render_util_LIB:FILEPATH=X11_xcb_render_util_LIB-NOTFOUND
 
 //Path to a file.
-X11_xcb_res_INCLUDE_PATH:PATH=X11_xcb_res_INCLUDE_PATH-NOTFOUND
+X11_xcb_res_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_res_LIB:FILEPATH=X11_xcb_res_LIB-NOTFOUND
+X11_xcb_res_LIB:FILEPATH=/usr/lib64/libxcb-res.so
 
 //Path to a file.
-X11_xcb_screensaver_INCLUDE_PATH:PATH=X11_xcb_screensaver_INCLUDE_PATH-NOTFOUND
+X11_xcb_screensaver_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_screensaver_LIB:FILEPATH=X11_xcb_screensaver_LIB-NOTFOUND
+X11_xcb_screensaver_LIB:FILEPATH=/usr/lib64/libxcb-screensaver.so
 
 //Path to a file.
-X11_xcb_shape_INCLUDE_PATH:PATH=X11_xcb_shape_INCLUDE_PATH-NOTFOUND
+X11_xcb_shape_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_shape_LIB:FILEPATH=X11_xcb_shape_LIB-NOTFOUND
+X11_xcb_shape_LIB:FILEPATH=/usr/lib64/libxcb-shape.so
 
 //Path to a file.
-X11_xcb_shm_INCLUDE_PATH:PATH=X11_xcb_shm_INCLUDE_PATH-NOTFOUND
+X11_xcb_shm_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_shm_LIB:FILEPATH=X11_xcb_shm_LIB-NOTFOUND
+X11_xcb_shm_LIB:FILEPATH=/usr/lib64/libxcb-shm.so
 
 //Path to a file.
-X11_xcb_sync_INCLUDE_PATH:PATH=X11_xcb_sync_INCLUDE_PATH-NOTFOUND
+X11_xcb_sync_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_sync_LIB:FILEPATH=X11_xcb_sync_LIB-NOTFOUND
+X11_xcb_sync_LIB:FILEPATH=/usr/lib64/libxcb-sync.so
 
 //Path to a file.
 X11_xcb_util_INCLUDE_PATH:PATH=X11_xcb_util_INCLUDE_PATH-NOTFOUND
@@ -599,34 +635,34 @@ X11_xcb_util_INCLUDE_PATH:PATH=X11_xcb_util_INCLUDE_PATH-NOTFOUND
 X11_xcb_util_LIB:FILEPATH=X11_xcb_util_LIB-NOTFOUND
 
 //Path to a file.
-X11_xcb_xf86dri_INCLUDE_PATH:PATH=X11_xcb_xf86dri_INCLUDE_PATH-NOTFOUND
+X11_xcb_xf86dri_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_xf86dri_LIB:FILEPATH=X11_xcb_xf86dri_LIB-NOTFOUND
+X11_xcb_xf86dri_LIB:FILEPATH=/usr/lib64/libxcb-xf86dri.so
 
 //Path to a file.
-X11_xcb_xfixes_INCLUDE_PATH:PATH=X11_xcb_xfixes_INCLUDE_PATH-NOTFOUND
+X11_xcb_xfixes_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_xfixes_LIB:FILEPATH=X11_xcb_xfixes_LIB-NOTFOUND
+X11_xcb_xfixes_LIB:FILEPATH=/usr/lib64/libxcb-xfixes.so
 
 //Path to a file.
-X11_xcb_xinerama_INCLUDE_PATH:PATH=X11_xcb_xinerama_INCLUDE_PATH-NOTFOUND
+X11_xcb_xinerama_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_xinerama_LIB:FILEPATH=X11_xcb_xinerama_LIB-NOTFOUND
+X11_xcb_xinerama_LIB:FILEPATH=/usr/lib64/libxcb-xinerama.so
 
 //Path to a file.
-X11_xcb_xinput_INCLUDE_PATH:PATH=X11_xcb_xinput_INCLUDE_PATH-NOTFOUND
+X11_xcb_xinput_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_xinput_LIB:FILEPATH=X11_xcb_xinput_LIB-NOTFOUND
+X11_xcb_xinput_LIB:FILEPATH=/usr/lib64/libxcb-xinput.so
 
 //Path to a file.
-X11_xcb_xkb_INCLUDE_PATH:PATH=X11_xcb_xkb_INCLUDE_PATH-NOTFOUND
+X11_xcb_xkb_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_xkb_LIB:FILEPATH=X11_xcb_xkb_LIB-NOTFOUND
+X11_xcb_xkb_LIB:FILEPATH=/usr/lib64/libxcb-xkb.so
 
 //Path to a file.
 X11_xcb_xrm_INCLUDE_PATH:PATH=X11_xcb_xrm_INCLUDE_PATH-NOTFOUND
@@ -635,28 +671,28 @@ X11_xcb_xrm_INCLUDE_PATH:PATH=X11_xcb_xrm_INCLUDE_PATH-NOTFOUND
 X11_xcb_xrm_LIB:FILEPATH=X11_xcb_xrm_LIB-NOTFOUND
 
 //Path to a file.
-X11_xcb_xtest_INCLUDE_PATH:PATH=X11_xcb_xtest_INCLUDE_PATH-NOTFOUND
+X11_xcb_xtest_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_xtest_LIB:FILEPATH=X11_xcb_xtest_LIB-NOTFOUND
+X11_xcb_xtest_LIB:FILEPATH=/usr/lib64/libxcb-xtest.so
 
 //Path to a file.
-X11_xcb_xv_INCLUDE_PATH:PATH=X11_xcb_xv_INCLUDE_PATH-NOTFOUND
+X11_xcb_xv_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_xv_LIB:FILEPATH=X11_xcb_xv_LIB-NOTFOUND
+X11_xcb_xv_LIB:FILEPATH=/usr/lib64/libxcb-xv.so
 
 //Path to a file.
-X11_xcb_xvmc_INCLUDE_PATH:PATH=X11_xcb_xvmc_INCLUDE_PATH-NOTFOUND
+X11_xcb_xvmc_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xcb_xvmc_LIB:FILEPATH=X11_xcb_xvmc_LIB-NOTFOUND
+X11_xcb_xvmc_LIB:FILEPATH=/usr/lib64/libxcb-xvmc.so
 
 //Path to a file.
-X11_xkbcommon_INCLUDE_PATH:PATH=X11_xkbcommon_INCLUDE_PATH-NOTFOUND
+X11_xkbcommon_INCLUDE_PATH:PATH=/usr/include
 
 //Path to a library.
-X11_xkbcommon_LIB:FILEPATH=X11_xkbcommon_LIB-NOTFOUND
+X11_xkbcommon_LIB:FILEPATH=/usr/lib64/libxkbcommon.so
 
 //Path to a file.
 X11_xkbcommon_X11_INCLUDE_PATH:PATH=X11_xkbcommon_X11_INCLUDE_PATH-NOTFOUND
@@ -670,8 +706,14 @@ X11_xkbfile_INCLUDE_PATH:PATH=X11_xkbfile_INCLUDE_PATH-NOTFOUND
 //Path to a library.
 X11_xkbfile_LIB:FILEPATH=X11_xkbfile_LIB-NOTFOUND
 
-//No help, variable specified on the command line.
-pybind11_DIR:UNINITIALIZED=/home/karpuzfa/venv/lib/python3.12/site-packages/pybind11/share/cmake/pybind11
+//Path to a library.
+pkgcfg_lib_PKG_FONTCONFIG_fontconfig:FILEPATH=/usr/lib64/libfontconfig.so
+
+//Path to a library.
+pkgcfg_lib_PKG_FONTCONFIG_freetype:FILEPATH=/usr/lib64/libfreetype.so
+
+//The directory containing a CMake configuration file for pybind11.
+pybind11_DIR:PATH=/home/karpuzfa/venv/lib64/python3.9/site-packages/pybind11/share/cmake/pybind11
 
 
 ########################
@@ -774,7 +816,9 @@ CMAKE_HAVE_SHMAT:INTERNAL=1
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/home/karpuzfa/CodeFatih/BlueMatImaging/flexBox_cpp/source
 //Install .so files without execute permission.
-CMAKE_INSTALL_SO_NO_EXE:INTERNAL=1
+CMAKE_INSTALL_SO_NO_EXE:INTERNAL=0
+//Have library ICE
+CMAKE_LIB_ICE_HAS_ICECONNECTIONNUMBER:INTERNAL=1
 //ADVANCED property for variable: CMAKE_LINKER
 CMAKE_LINKER-ADVANCED:INTERNAL=1
 //Name of CMakeLists files to read
@@ -840,11 +884,23 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Python
-FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/usr/bin/python3.12][/usr/include/python3.12][found components: Interpreter Development.Module Development.Embed ][v3.12.3(3.8)]
+FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/home/karpuzfa/venv/bin/python3][/usr/include/python3.9][found components: Interpreter Development.Module Development.Embed ][v3.9.25(3.8)]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //Details about finding X11
-FIND_PACKAGE_MESSAGE_DETAILS_X11:INTERNAL=[/usr/include][/usr/lib/x86_64-linux-gnu/libX11.so][ ][v()]
+FIND_PACKAGE_MESSAGE_DETAILS_X11:INTERNAL=[/usr/include][/usr/lib64/libX11.so][ ][v()]
+//ADVANCED property for variable: FREETYPE_INCLUDE_DIR_freetype2
+FREETYPE_INCLUDE_DIR_freetype2-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FREETYPE_INCLUDE_DIR_ft2build
+FREETYPE_INCLUDE_DIR_ft2build-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FREETYPE_LIBRARY_DEBUG
+FREETYPE_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FREETYPE_LIBRARY_RELEASE
+FREETYPE_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Fontconfig_INCLUDE_DIR
+Fontconfig_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Fontconfig_LIBRARY
+Fontconfig_LIBRARY-ADVANCED:INTERNAL=1
 //Test HAS_FLTO_AUTO
 HAS_FLTO_AUTO:INTERNAL=1
 //internal matlab location for the discovered version
@@ -853,17 +909,56 @@ Matlab_PROG_VERSION_STRING_AUTO_DETECT:INTERNAL=
 Matlab_ROOT_DIR_LAST_CACHED:INTERNAL=
 //internal matlab location for the discovered version
 Matlab_VERSION_STRING_INTERNAL:INTERNAL=
+//ADVANCED property for variable: PKG_CONFIG_ARGN
+PKG_CONFIG_ARGN-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
+PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
+PKG_FONTCONFIG_CFLAGS:INTERNAL=-I/usr/include;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/harfbuzz;-I/usr/include/glib-2.0;-I/usr/lib64/glib-2.0/include;-I/usr/include/sysprof-4;-pthread;-I/usr/include/libxml2
+PKG_FONTCONFIG_CFLAGS_I:INTERNAL=
+PKG_FONTCONFIG_CFLAGS_OTHER:INTERNAL=-pthread
+PKG_FONTCONFIG_FOUND:INTERNAL=1
+PKG_FONTCONFIG_INCLUDEDIR:INTERNAL=/usr/include
+PKG_FONTCONFIG_INCLUDE_DIRS:INTERNAL=/usr/include;/usr/include/freetype2;/usr/include/libpng16;/usr/include/harfbuzz;/usr/include/glib-2.0;/usr/lib64/glib-2.0/include;/usr/include/sysprof-4;/usr/include/libxml2
+PKG_FONTCONFIG_LDFLAGS:INTERNAL=-L/usr/lib64;-lfontconfig;-lfreetype
+PKG_FONTCONFIG_LDFLAGS_OTHER:INTERNAL=
+PKG_FONTCONFIG_LIBDIR:INTERNAL=/usr/lib64
+PKG_FONTCONFIG_LIBRARIES:INTERNAL=fontconfig;freetype
+PKG_FONTCONFIG_LIBRARY_DIRS:INTERNAL=/usr/lib64
+PKG_FONTCONFIG_LIBS:INTERNAL=
+PKG_FONTCONFIG_LIBS_L:INTERNAL=
+PKG_FONTCONFIG_LIBS_OTHER:INTERNAL=
+PKG_FONTCONFIG_LIBS_PATHS:INTERNAL=
+PKG_FONTCONFIG_MODULE_NAME:INTERNAL=fontconfig
+PKG_FONTCONFIG_PREFIX:INTERNAL=/usr
+PKG_FONTCONFIG_STATIC_CFLAGS:INTERNAL=-I/usr/include;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/harfbuzz;-I/usr/include/glib-2.0;-I/usr/lib64/glib-2.0/include;-I/usr/include/sysprof-4;-pthread;-I/usr/include/libxml2
+PKG_FONTCONFIG_STATIC_CFLAGS_I:INTERNAL=
+PKG_FONTCONFIG_STATIC_CFLAGS_OTHER:INTERNAL=-pthread
+PKG_FONTCONFIG_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include;/usr/include/freetype2;/usr/include/libpng16;/usr/include/harfbuzz;/usr/include/glib-2.0;/usr/lib64/glib-2.0/include;/usr/include/sysprof-4;/usr/include/libxml2
+PKG_FONTCONFIG_STATIC_LDFLAGS:INTERNAL=-L/usr/lib64;-lfontconfig;-lfreetype;-L/usr/lib64;-L/usr/lib64;-lz;-lbz2;-lpng16;-lm;-lm;-lz;-lharfbuzz;-lm;-L/usr/lib64;-lglib-2.0;-lm;-L/usr/lib64;-lpcre;-lsysprof-capture-4;-pthread;-lgraphite2;-lbrotlidec;-L/usr/lib64;-lbrotlicommon;-L/usr/lib64;-lxml2;-lz;-llzma;-lm
+PKG_FONTCONFIG_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread
+PKG_FONTCONFIG_STATIC_LIBDIR:INTERNAL=
+PKG_FONTCONFIG_STATIC_LIBRARIES:INTERNAL=fontconfig;freetype;z;bz2;png16;m;m;z;harfbuzz;m;glib-2.0;m;pcre;sysprof-capture-4;graphite2;brotlidec;brotlicommon;xml2;z;lzma;m
+PKG_FONTCONFIG_STATIC_LIBRARY_DIRS:INTERNAL=/usr/lib64;/usr/lib64;/usr/lib64;/usr/lib64;/usr/lib64;/usr/lib64;/usr/lib64
+PKG_FONTCONFIG_STATIC_LIBS:INTERNAL=
+PKG_FONTCONFIG_STATIC_LIBS_L:INTERNAL=
+PKG_FONTCONFIG_STATIC_LIBS_OTHER:INTERNAL=
+PKG_FONTCONFIG_STATIC_LIBS_PATHS:INTERNAL=
+PKG_FONTCONFIG_VERSION:INTERNAL=2.14.0
+PKG_FONTCONFIG_fontconfig_INCLUDEDIR:INTERNAL=
+PKG_FONTCONFIG_fontconfig_LIBDIR:INTERNAL=
+PKG_FONTCONFIG_fontconfig_PREFIX:INTERNAL=
+PKG_FONTCONFIG_fontconfig_VERSION:INTERNAL=
 //Python executable during the last CMake run
-PYBIND11_PYTHON_EXECUTABLE_LAST:INTERNAL=/usr/bin/python3.12
+PYBIND11_PYTHON_EXECUTABLE_LAST:INTERNAL=/home/karpuzfa/venv/bin/python3
 //Python debug status
 PYTHON_IS_DEBUG:INTERNAL=0
 PYTHON_MODULE_DEBUG_POSTFIX:INTERNAL=
-PYTHON_MODULE_EXTENSION:INTERNAL=.cpython-312-x86_64-linux-gnu.so
+PYTHON_MODULE_EXTENSION:INTERNAL=.cpython-39-x86_64-linux-gnu.so
 //ADVANCED property for variable: X11_ICE_INCLUDE_PATH
 X11_ICE_INCLUDE_PATH-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: X11_ICE_LIB
 X11_ICE_LIB-ADVANCED:INTERNAL=1
-//Have library /usr/lib/x86_64-linux-gnu/libX11.so
+//Have library /usr/lib64/libX11.so;/usr/lib64/libXext.so
 X11_LIB_X11_SOLO:INTERNAL=1
 //ADVANCED property for variable: X11_SM_INCLUDE_PATH
 X11_SM_INCLUDE_PATH-ADVANCED:INTERNAL=1
@@ -1137,21 +1232,27 @@ _PYBIND11_CROSSCOMPILING:INTERNAL=OFF
 _Python:INTERNAL=Python
 //Compiler reason failure
 _Python_Compiler_REASON_FAILURE:INTERNAL=
-_Python_DEVELOPMENT_EMBED_SIGNATURE:INTERNAL=d80544d2ab3d7b907eb5fd9046b551b5
-_Python_DEVELOPMENT_MODULE_SIGNATURE:INTERNAL=b07e55b6953c4af2b25fefd6debc56ee
+_Python_DEVELOPMENT_EMBED_SIGNATURE:INTERNAL=faba226b783ee7137e2254dd8ed36b3a
+_Python_DEVELOPMENT_MODULE_SIGNATURE:INTERNAL=82b7953a3c95406919a919c5b14e6ff9
 //Development reason failure
 _Python_Development_REASON_FAILURE:INTERNAL=
-//Path to a program.
-_Python_EXECUTABLE:INTERNAL=/usr/bin/python3.12
+_Python_EXECUTABLE:INTERNAL=/home/karpuzfa/venv/bin/python3
 //Path to a file.
-_Python_INCLUDE_DIR:INTERNAL=/usr/include/python3.12
+_Python_INCLUDE_DIR:INTERNAL=/usr/include/python3.9
 //Python Properties
-_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;12;3;64;<none>;cpython-312-x86_64-linux-gnu;abi3;/usr/lib/python3.12;/usr/lib/python3.12;/usr/local/lib/python3.12/dist-packages;/usr/local/lib/python3.12/dist-packages
-_Python_INTERPRETER_SIGNATURE:INTERNAL=2cc06b640ea2f5bbf165012d05859a36
+_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;9;25;64;<none>;cpython-39-x86_64-linux-gnu;abi3;/usr/lib64/python3.9;/usr/lib64/python3.9;/home/karpuzfa/venv/lib/python3.9/site-packages;/home/karpuzfa/venv/lib64/python3.9/site-packages
+_Python_INTERPRETER_SIGNATURE:INTERNAL=44dc4f07fec73e167c64a5daac67d146
 //Path to a library.
-_Python_LIBRARY_RELEASE:INTERNAL=/usr/lib/x86_64-linux-gnu/libpython3.12.so
+_Python_LIBRARY_RELEASE:INTERNAL=/usr/lib64/libpython3.9.so
 //NumPy reason failure
 _Python_NumPy_REASON_FAILURE:INTERNAL=
+__pkg_config_arguments_PKG_FONTCONFIG:INTERNAL=QUIET;fontconfig
+__pkg_config_checked_PKG_FONTCONFIG:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_PKG_FONTCONFIG_fontconfig
+pkgcfg_lib_PKG_FONTCONFIG_fontconfig-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_PKG_FONTCONFIG_freetype
+pkgcfg_lib_PKG_FONTCONFIG_freetype-ADVANCED:INTERNAL=1
+prefix_result:INTERNAL=/usr/lib64
 //Directories where pybind11 and possibly Python headers are located
-pybind11_INCLUDE_DIRS:INTERNAL=/home/karpuzfa/venv/lib/python3.12/site-packages/pybind11/include;/usr/include/python3.12
+pybind11_INCLUDE_DIRS:INTERNAL=/home/karpuzfa/venv/lib64/python3.9/site-packages/pybind11/include;/usr/include/python3.9
 

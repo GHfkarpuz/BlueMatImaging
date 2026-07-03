@@ -246,13 +246,13 @@ bool testUpwindGradientY2d(std::vector<floatingType>& x, std::vector<floatingTyp
         return false;
     }
 }
-/*
+
 bool testUpwindGradientX3d(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny, int Nz)
 {
     flexUpwindGradientOperator<floatingType> A = flexUpwindGradientOperator<floatingType>(std::vector<int>{Nx,Ny,Nz}, 0, motionField, false);
 
-    std::vector<floatingType> op(Nx * Ny, 0.0);
-    std::vector<floatingType> opT(Nx * Ny, 0.0);
+    std::vector<floatingType> op(Nx * Ny * Nz, 0.0);
+    std::vector<floatingType> opT(Nx * Ny * Nz, 0.0);
 	
     A.doTimes(false, x, op, EQUALS);
     A.doTimes(true, y, opT, EQUALS);
@@ -262,7 +262,7 @@ bool testUpwindGradientX3d(std::vector<floatingType>& x, std::vector<floatingTyp
     floatingType lhs = 0.0;
     floatingType rhs = 0.0;
 
-    for (int i = 0; i < Nx*Ny; ++i)
+    for (int i = 0; i < Nx*Ny*Nz; ++i)
     {
         lhs += op[i] * y[i];
         rhs += x[i] * opT[i];
@@ -270,12 +270,12 @@ bool testUpwindGradientX3d(std::vector<floatingType>& x, std::vector<floatingTyp
 
     if(std::abs(lhs-rhs)<1e-12)
     {
-        std::cout << "adjoint test for upwind gradient operator in the direction of x passed."<<std::endl;
+        std::cout << "adjoint test for upwind gradient operator in 3d in the direction of x passed."<<std::endl;
         return true;
     }
     else
     {
-        std::cout << "adjoint test for upwind gradient operator in the direction of x did not pass."<<std::endl;
+        std::cout << "adjoint test for upwind gradient operator in 3d in the direction of x did not pass."<<std::endl;
         std::cout << "lhs: " << lhs << std::endl;
         std::cout << "rhs: " << rhs << std::endl;
         std::cout << "diff: " << std::abs(lhs - rhs) << std::endl;
@@ -284,12 +284,12 @@ bool testUpwindGradientX3d(std::vector<floatingType>& x, std::vector<floatingTyp
     }
 }
 
-bool testUpwindGradientY3d(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny)
+bool testUpwindGradientY3d(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny, int Nz)
 {
-    flexUpwindGradientOperator<floatingType> A = flexUpwindGradientOperator<floatingType>(std::vector<int>{Nx,Ny}, 1, motionField, false);
+    flexUpwindGradientOperator<floatingType> A = flexUpwindGradientOperator<floatingType>(std::vector<int>{Nx,Ny,Nz}, 1, motionField, false);
 
-    std::vector<floatingType> op(Nx * Ny, 0.0);
-    std::vector<floatingType> opT(Nx * Ny, 0.0);
+    std::vector<floatingType> op(Nx * Ny * Nz, 0.0);
+    std::vector<floatingType> opT(Nx * Ny * Nz, 0.0);
 	
     A.doTimes(false, x, op, EQUALS);
     A.doTimes(true, y, opT, EQUALS);
@@ -299,7 +299,7 @@ bool testUpwindGradientY3d(std::vector<floatingType>& x, std::vector<floatingTyp
     floatingType lhs = 0.0;
     floatingType rhs = 0.0;
 
-    for (int i = 0; i < Nx*Ny; ++i)
+    for (int i = 0; i < Nx*Ny*Nz; ++i)
     {
         lhs += op[i] * y[i];
         rhs += x[i] * opT[i];
@@ -307,19 +307,19 @@ bool testUpwindGradientY3d(std::vector<floatingType>& x, std::vector<floatingTyp
 
     if(std::abs(lhs-rhs)<1e-12)
     {
-        std::cout << "adjoint test for upwind gradient operator in the direction of y passed."<<std::endl;
+        std::cout << "adjoint test for upwind gradient operator in 3d in the direction of y passed."<<std::endl;
         return true;
     }
     else
     {
-        std::cout << "adjoint test for upwind gradient operator in the direction of y did not pass."<<std::endl;
+        std::cout << "adjoint test for upwind gradient operator in 3d in the direction of y did not pass."<<std::endl;
         std::cout << "lhs: " << lhs << std::endl;
         std::cout << "rhs: " << rhs << std::endl;
         std::cout << "diff: " << std::abs(lhs - rhs) << std::endl;
 
         return false;
     }
-}*/
+}
 
 bool testUpwindDivergenceXforward(std::vector<floatingType>& x, std::vector<floatingType>& y, std::vector<floatingType>& motionField, int Nx, int Ny)
 {
@@ -1221,18 +1221,23 @@ TEST_CASE("Adjoint operator tests")
 {
     int Nx = 100;
     int Ny = 100;
+    int Nz = 5;
 
     std::vector<floatingType> x(Nx * Ny);
+    std::vector<floatingType> x3d(Nx * Ny * Nz);
     std::vector<floatingType> xLong(Nx * Ny * 3);
     std::vector<floatingType> y(Nx * Ny);
+    std::vector<floatingType> y3d(Nx * Ny * Nz);
     std::vector<floatingType> image(Nx * Ny);
     std::vector<floatingType> prevImage(Nx * Ny);
     std::vector<floatingType> nextImage(Nx * Ny);
     std::vector<floatingType> motionField(Nx * Ny);
+    std::vector<floatingType> motionField3d(Nx * Ny * Nz);
 
     std::vector<floatingType> xNeg(Nx * Ny);
     std::vector<floatingType> yNeg(Nx * Ny);
     std::vector<floatingType> motionFieldNeg(Nx * Ny);
+    std::vector<floatingType> motionFieldNeg3d(Nx * Ny * Nz);
 
     flexMassPreservationOperator<floatingType> op = flexMassPreservationOperator<floatingType>(image, {Nx,Ny}, 0, false);
 
@@ -1260,6 +1265,14 @@ TEST_CASE("Adjoint operator tests")
     for (int i = 0; i < Nx * Ny * 3; ++i)
     {
         xLong[i] = rand() / (floatingType)RAND_MAX;
+    }
+
+    for (int i = 0; i<Nx*Ny*Nz; ++i)
+    {
+        motionField3d[i] = rand() / (floatingType)RAND_MAX;
+        motionFieldNeg3d[i] = -rand() / (floatingType)RAND_MAX;
+
+        motionField3d[i] += motionFieldNeg3d[i];
     }
 
     SECTION("Forward gradient x")
@@ -1290,6 +1303,16 @@ TEST_CASE("Adjoint operator tests")
     SECTION("Upwind gradient y in 2d")
     {
         REQUIRE(testUpwindGradientY2d(x, y, motionField, Nx, Ny));
+    }
+
+    SECTION("Upwind gradient x in 3d")
+    {
+        REQUIRE(testUpwindGradientX3d(x3d, y3d, motionField3d, Nx, Ny, Nz));
+    }
+
+    SECTION("Upwind gradient y in 3d")
+    {
+        REQUIRE(testUpwindGradientY3d(x3d, y3d, motionField3d, Nx, Ny, Nz));
     }
 
     SECTION("Upwind divergence x (forward gradient for weights)")

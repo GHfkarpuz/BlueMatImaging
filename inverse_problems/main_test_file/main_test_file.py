@@ -8,61 +8,65 @@ import matplotlib.pyplot as plt
 import os
 from wrapper import FlexBoxSolver # python wrapper
 
-num_iterations = 20
+num_iterations = 1000
 
 throughVideoPath = True
-video_path = "city.mp4"
+video_path = "media3.avi"
 image_folder = "Urban2_twoFrames"
 
 groundFlowExists = False
 if groundFlowExists:
     flo_path="Urban2"
-name = "City"
+name = "BlueMat"
 
 if not os.path.exists(video_path):
     raise FileNotFoundError(f"Video '{video_path}' does not exist. Stopping execution.")
 
 
 
-resize_value = 0.2#choose a value between 0.0 and 1.0
+resize_value = 0.8#choose a value between 0.0 and 1.0
 
-cut = False
-cut_width = [0.3 , 0.0]
+cut = True
+cut_width = [0.45 , 0.0]
 cut_height = [0.0 , 0.0]
-
-start_sec = 1.0
-end_sec = 1.2
+"""
+start_sec = 63.5
+end_sec = 65.5
 n_frames = 4
+"""
+start_sec = 62.5
+end_sec = 68
+n_frames = 9
 
-#denoiseByAveraging = True
-denoiseByAveraging = False
+denoiseByAveraging = True
+#denoiseByAveraging = False
 denoiseWithSameFrames = False
 
-denoise_start_sec = 45.0
-denoise_end_sec = 110.0
-denoise_n_frames = n_frames
+denoise_start_sec = 79.0
+denoise_end_sec = 104.8
+denoise_n_frames = 170
 
 visualizeInEachStep = False
 
-figures_frequence = 1
+figures_frequence = 3
 
 
 # Parameter
 weight_1 = 1.0    # Datenterm u
-weight_2 = 0.0    # Regularizer of u
+weight_2 = 0.3    # Regularizer of u
 weight_3 = 1.0    # motion term for u
 weight_4 = 1.0    # motion term for v
-weight_5 = 0.05    # Regularizer of v
+weight_5 = 0.3    # Regularizer of v
 
 tol = 1e-4 #for outer iterations
 
 #parameters for first solver
-maxIterations_first_solver = 300
+maxIterations_first_solver = 10
 tol_first_solver = 1e-6
 verbose_first_solver = 1
 
 #parameters for second solver
-maxIterations_second_solver = 300
+maxIterations_second_solver = 20
 tol_second_solver = 1e-6
 verbose_second_solver = 1
 
@@ -71,13 +75,14 @@ dataTerm_norm_list      = ["","L1",             "L2"                    ]
 reg_u_norm_list         = ["","TVIso",          "TVAniso",          "L2"]
 motionTerm_u_list       = ["","OpticalFlow",    "MassPreservation"      ]
 motionTerm_u_norm_list  = ["","L1Iso",          "L1Aniso",          "L2"]
+motionTerm_u_upwind     = True
 motionTerm_v_list       = ["","OpticalFlow",    "MassPreservation"      ]
 motionTerm_v_norm_list  = ["","L1",             "L2"                    ]
 reg_v_norm_list         = ["","TVIso",          "TVAniso",          "L2"]
 
 
 dataTerm_norm = 2 # choose from dataTerm_list above
-reg_u_norm = 1
+reg_u_norm = 2
 motionTerm_u = 1
 motionTerm_u_norm = 2
 motionTerm_v = 1
@@ -100,17 +105,32 @@ def read_flo_file(file_path):
         # In separate vx und vy Maps aufteilen
         return flow[:, :, 0], flow[:, :, 1]
 
-folder_name = (
-    f"result{name}"
-    f"resizeValue{resize_value}"
-    f"{weight_1}{dataTerm_norm_list[dataTerm_norm]}"
-    f"{weight_2}{reg_u_norm_list[reg_u_norm]}"
-    f"{weight_3}{motionTerm_u_norm_list[motionTerm_u_norm]}"
-    f"{motionTerm_u_list[motionTerm_u]}"
-    f"{weight_4}{motionTerm_v_norm_list[motionTerm_v_norm]}"
-    f"{motionTerm_v_list[motionTerm_v]}"
-    f"{weight_5}{reg_v_norm_list[reg_v_norm]}"
-)
+if(motionTerm_u_upwind):
+    folder_name = (
+        f"result{name}"
+        f"resizeValue{resize_value}"
+        f"{weight_1}{dataTerm_norm_list[dataTerm_norm]}"
+        f"{weight_2}{reg_u_norm_list[reg_u_norm]}"
+        f"{weight_3}{motionTerm_u_norm_list[motionTerm_u_norm]}"
+        "Upwind"
+        f"{motionTerm_u_list[motionTerm_u]}"
+        f"{weight_4}{motionTerm_v_norm_list[motionTerm_v_norm]}"
+        f"{motionTerm_v_list[motionTerm_v]}"
+        f"{weight_5}{reg_v_norm_list[reg_v_norm]}"
+    )
+else:
+    folder_name = (
+        f"result{name}"
+        f"resizeValue{resize_value}"
+        f"{weight_1}{dataTerm_norm_list[dataTerm_norm]}"
+        f"{weight_2}{reg_u_norm_list[reg_u_norm]}"
+        f"{weight_3}{motionTerm_u_norm_list[motionTerm_u_norm]}"
+        f"{motionTerm_u_list[motionTerm_u]}"
+        f"{weight_4}{motionTerm_v_norm_list[motionTerm_v_norm]}"
+        f"{motionTerm_v_list[motionTerm_v]}"
+        f"{weight_5}{reg_v_norm_list[reg_v_norm]}"
+    )
+
             
 # create thje folder in which we will store the figures
 if not os.path.exists(folder_name):
@@ -321,24 +341,23 @@ if(denoiseByAveraging):
     # save the denoised frames that we start with
     for i in range(len(frames)):
         result_1_u = frames[i].reshape(inputDimension, order="F")
-        magnitude_u = np.sqrt(result_1_u**2)
+        magnitude_u_new = np.sqrt(result_1_u**2)
 
         umax1 = np.max(np.abs(result_1_u))
         umax_mag = np.percentile(magnitude_u, 99)
 
         plt.figure(figsize=(7,7))
 
-        plt.title(f"magnitude of denoised u_{i+1}")
-        plt.imshow(magnitude_u, cmap="gray", vmin=0, vmax=umax_mag)
+        plt.title(f"magnitude of new u_{i+1}")
+        plt.imshow(magnitude_u_new, cmap="gray", vmin=0, vmax=umax_mag)
         plt.axis("off")
 
-        file_path = os.path.join(folder_name, f"denoised{name},{i}.png")
+        file_path = os.path.join(folder_name, f"subtractedAverageFrames{name},{i}.png")
         plt.savefig(file_path, dpi=200, bbox_inches="tight")
 
         plt.close()
 
 cap.release()
-
 
 # Initialisierung der Primalen als C-Contiguous flache Arrays (Inhalt wird im Fortran-Stil verwaltet)
 reconstructed_image = np.concatenate([frames[i].flatten(order="F") for i in range(len(frames))]) 
@@ -352,7 +371,7 @@ reconstructed_image = np.concatenate([frames[i].flatten(order="F") for i in rang
 
 motionField_0_list = []
 motionField_1_list = []
-
+"""
 for j in range(len(frames) - 1):
     diff = frames[j+1] - frames[j]
     motionField_0_list.append(diff.flatten(order="F"))
@@ -365,7 +384,7 @@ motionField_1_list.append(motionField_1_list[-1])
 """
 motionField_0_list = [np.zeros(nPx) for i in range(len(frames))]
 motionField_1_list = [np.zeros(nPx) for i in range(len(frames))]
-"""
+
 motionField_0 = np.concatenate(motionField_0_list)
 motionField_1 = np.concatenate(motionField_1_list)
 
@@ -552,13 +571,38 @@ for i in range(num_iterations):
                 "gradDirection": 1,
                 "inputDimension": dimensionsWithTime
             }
-            concatUpwindGradientOp = {
+            weightedGradientOp1 = {
+                "type": "weightedGradientOperator",
+                "weights": motionField_0,
+                "gradType": "forward",
+                "gradDirection": 0,
+                "inputDimension": dimensionsWithTime
+            }
+            weightedGradientOp2 = {
+                "type": "weightedGradientOperator",
+                "weights": motionField_1,
+                "gradType": "forward",
+                "gradDirection": 1,
+                "inputDimension": dimensionsWithTime
+            }
+            concatGradientOp = {}
+            if(motionTerm_u_upwind):
+                concatGradientOp = {
                 "type": "concatOperator",
                 "operation": "addition",
                 "A": upwindGradientOp1,
                 "B": upwindGradientOp2,
                 "isMinus": False
-            }
+                }
+            else:
+                concatGradientOp = {
+                "type": "concatOperator",
+                "operation": "addition",
+                "A": weightedGradientOp1,
+                "B": weightedGradientOp2,
+                "isMinus": False
+                }
+            
             timeDerivativeOp = {
                 "type": "gradientOperator",
                 "gradType": "forward",
@@ -566,28 +610,67 @@ for i in range(num_iterations):
                 "inputDimension": dimensionsWithTime,
                 "isMinus": False
             }
-            concatUpwindGradientTimeDerivativeOp = {
+            weightedTimeDerivativeOp = {
+                "type": "weightedGradientOperator",
+                "weights": np.ones(nPx*len(frames))*0.05,
+                "gradType": "forward",
+                "gradDirection": 2,  # Zeitableitung entlang Achse 2
+                "inputDimension": dimensionsWithTime,
+                "isMinus": False
+            }
+            concatGradientTimeDerivativeOp = {
                 "type": "concatOperator",
                 "operation": "addition",
-                "A": concatUpwindGradientOp,
+                "A": concatGradientOp,
                 "B": timeDerivativeOp,
                 "isMinus": False
             }
+            concatWeightedGradientTimeDerivativeOp = {
+                "type": "concatOperator",
+                "operation": "addition",
+                "A": concatGradientOp,
+                "B": weightedTimeDerivativeOp,
+                "isMinus": False
+            }
             if(motionTerm_u_norm==1):
+                """
                 solver.add_dual(
                     prox_type="L1IsoProxDual",
                     alpha=weight_3 / timeIntervall,
                     f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
                     corresponding_primals=[corresponding_primals[0]],
-                    operator_dict=[concatUpwindGradientTimeDerivativeOp]
+                    operator_dict=[concatGradientTimeDerivativeOp]
+                )
+                """
+                solver.add_dual(
+                    prox_type="L1IsoProxDual",
+                    alpha=weight_3 / timeIntervall,
+                    f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
+                    corresponding_primals=[corresponding_primals[0],corresponding_primals[0],corresponding_primals[0]],
+                    operator_dict=[upwindGradientOp1,upwindGradientOp2,timeDerivativeOp]
                 )
             if(motionTerm_u_norm==2):
+                """
                 solver.add_dual(
                     prox_type="L1AnisoProxDual",
                     alpha=weight_3 / timeIntervall,
                     f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
                     corresponding_primals=[corresponding_primals[0]],
-                    operator_dict=[concatUpwindGradientTimeDerivativeOp]
+                    operator_dict=[concatGradientTimeDerivativeOp]
+                )
+                solver.add_dual(
+                    prox_type="L1AnisoProxDual",
+                    alpha=weight_3 / timeIntervall,
+                    f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
+                    corresponding_primals=[corresponding_primals[0],corresponding_primals[0],corresponding_primals[0]],
+                    operator_dict=[upwindGradientOp1,upwindGradientOp2,timeDerivativeOp]
+                )"""
+                solver.add_dual(
+                    prox_type="L1AnisoProxDual",
+                    alpha=weight_3 / timeIntervall,
+                    f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
+                    corresponding_primals=[corresponding_primals[0]],
+                    operator_dict=[concatWeightedGradientTimeDerivativeOp]
                 )
             if(motionTerm_u_norm==3):
                 solver.add_dual(
@@ -595,7 +678,7 @@ for i in range(num_iterations):
                     alpha=weight_3 / timeIntervall,
                     f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
                     corresponding_primals=[corresponding_primals[0]],
-                    operator_dict=[concatUpwindGradientTimeDerivativeOp]
+                    operator_dict=[concatGradientTimeDerivativeOp]
                 )
     elif(motionTerm_u == 2):
         #mass preservation for u
@@ -616,6 +699,40 @@ for i in range(num_iterations):
                 "gradDirection": 1,
                 "inputDimension": dimensionsWithTime
             }
+
+            weightedDivergenceOp1 = {
+                "type": "weightedDivergenceOperator",
+                "weights": motionField_0,
+                "gradType": "forward",
+                "gradDirection": 0,
+                "inputDimension": dimensionsWithTime
+            }
+            weightedDivergenceOp2 = {
+                "type": "weightedDivergenceOperator",
+                "weights": motionField_1,
+                "gradType": "forward",
+                "gradDirection": 1,
+                "inputDimension": dimensionsWithTime
+            }
+            concatDivergenceOp = {}
+            if(motionTerm_u_upwind):
+                concatDivergenceOp = {
+                "type": "concatOperator",
+                "operation": "addition",
+                "A": upwindDivergenceOp1,
+                "B": upwindDivergenceOp2,
+                "isMinus": False
+                }
+            else:
+                concatDivergenceOp = {
+                "type": "concatOperator",
+                "operation": "addition",
+                "A": weightedDivergenceOp1,
+                "B": weightedDivergenceOp2,
+                "isMinus": False
+                }
+            
+
             concatUpwindDivergenceOp = {
                 "type": "concatOperator",
                 "operation": "addition",
@@ -629,7 +746,7 @@ for i in range(num_iterations):
                 "gradDirection": 2,  # Zeitableitung entlang Achse 2
                 "inputDimension": dimensionsWithTime
             }
-            concatUpwindDivergenceTimeDerivativeOp = {
+            concatDivergenceTimeDerivativeOp = {
                 "type": "concatOperator",
                 "operation": "addition",
                 "A": concatUpwindDivergenceOp,
@@ -637,20 +754,38 @@ for i in range(num_iterations):
                 "isMinus": False
             }
             if(motionTerm_u_norm==1):
+                """
                 solver.add_dual(
                     prox_type="L1IsoProxDual",
                     alpha=weight_3 / timeIntervall,
                     f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
                     corresponding_primals=[corresponding_primals[0]],
-                    operator_dict=[concatUpwindDivergenceTimeDerivativeOp]
+                    operator_dict=[concatDivergenceTimeDerivativeOp]
+                )
+                """
+                solver.add_dual(
+                    prox_type="L1IsoProxDual",
+                    alpha=weight_3 / timeIntervall,
+                    f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
+                    corresponding_primals=[corresponding_primals[0],corresponding_primals[0],corresponding_primals[0]],
+                    operator_dict=[upwindDivergenceOp1,upwindDivergenceOp2,timeDerivativeOp]
                 )
             if(motionTerm_u_norm==2):
+                """
                 solver.add_dual(
                     prox_type="L1AnisoProxDual",
                     alpha=weight_3 / timeIntervall,
                     f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
                     corresponding_primals=[corresponding_primals[0]],
-                    operator_dict=[concatUpwindDivergenceTimeDerivativeOp]
+                    operator_dict=[concatDivergenceTimeDerivativeOp]
+                )
+                """
+                solver.add_dual(
+                    prox_type="L1AnisoProxDual",
+                    alpha=weight_3 / timeIntervall,
+                    f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
+                    corresponding_primals=[corresponding_primals[0],corresponding_primals[0],corresponding_primals[0]],
+                    operator_dict=[upwindDivergenceOp1,upwindDivergenceOp2,timeDerivativeOp]
                 )
             if(motionTerm_u_norm==3):
                 solver.add_dual(
@@ -658,17 +793,20 @@ for i in range(num_iterations):
                     alpha=weight_3 / timeIntervall,
                     f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
                     corresponding_primals=[corresponding_primals[0]],
-                    operator_dict=[concatUpwindDivergenceTimeDerivativeOp]
+                    operator_dict=[concatDivergenceTimeDerivativeOp]
                 )
     
     print("before first solver")
     u_out, _ = solver.solve()
     print("after first solver")
-    
+
     #reorder
     reconstructed_image = np.array(u_out[0], dtype=np.float32)
-    reconstructed_image_frames = np.split(reconstructed_image, len(frames))
+    
+    del solver
 
+    reconstructed_image_frames = np.split(reconstructed_image, len(frames))
+        
     # save the frames after first solver
     if(visualizeInEachStep):
         for j in range(len(frames)):
@@ -692,7 +830,6 @@ for i in range(num_iterations):
 
             plt.close()
     
-    del solver
     
     # second solver for v
     solver = FlexBoxSolver(maxIt=maxIterations_second_solver, tol=tol_second_solver, verbose=verbose_second_solver)
@@ -837,6 +974,7 @@ for i in range(num_iterations):
             solver.add_dual(
                 prox_type="L1AnisoProxDual",
                 alpha=weight_5 / timeIntervall,
+                #alpha=5.0 / timeIntervall,
                 f_list=[(np.zeros(nPx * len(frames), dtype=np.float32))],
                 corresponding_primals=[corresponding_primals[1]],
                 operator_dict=[grad_x,grad_y]
@@ -919,12 +1057,12 @@ for i in range(num_iterations):
             
             plt.subplot(2,2,3)
             plt.title("v_x")
-            plt.imshow(result_2_v, cmap="seismic", vmin=-vmax1, vmax=vmax2)
+            plt.imshow(result_2_v, cmap="seismic", vmin=-vmax2, vmax=vmax2)
             plt.axis("off")
 
             plt.subplot(2,2,4)
             plt.title("v_y")
-            plt.imshow(result_1_v, cmap="seismic", vmin=-vmax2, vmax=vmax1)
+            plt.imshow(result_1_v, cmap="seismic", vmin=-vmax1, vmax=vmax1)
             plt.axis("off")
 
             plt.subplot(2,2,2)

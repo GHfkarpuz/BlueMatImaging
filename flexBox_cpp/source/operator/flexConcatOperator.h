@@ -32,7 +32,7 @@ public:
 		\param aS type of concatenation. Possible values are PLUS, SUBTRACT and COMPOSE.
 		\param aMinus determines if operator is negated \sa isMinus
 	*/
-	flexConcatOperator(flexLinearOperator<T>* aA, flexLinearOperator<T>* aB, mySign aS, bool aMinus) : A(aA), B(aB), s(aS), tmpVec(aA->getNumRows()), flexLinearOperator<T>(aA->getNumRows(), aB->getNumCols(), concatOp, aMinus)
+	flexConcatOperator(flexLinearOperator<T>* aA, flexLinearOperator<T>* aB, mySign aS, bool aMinus) : A(aA), B(aB), s(aS), tmpVec(aB->getNumRows()), flexLinearOperator<T>(aA->getNumRows(), aB->getNumCols(), concatOp, aMinus)
 	{
 
 	}
@@ -269,6 +269,9 @@ public:
         switch (this->s)
         {
             case PLUS:
+                result.resize(rowSumA.size());
+                thrust::transform(rowSumA.begin(), rowSumA.end(), rowSumB.begin(), result.begin(), thrust::plus<T>());
+                break;
             case MINUS:
                 result.resize(rowSumA.size());
                 thrust::transform(rowSumA.begin(), rowSumA.end(), rowSumB.begin(), result.begin(), thrust::plus<T>());

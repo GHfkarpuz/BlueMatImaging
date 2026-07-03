@@ -798,961 +798,1367 @@ public:
 	#endif
 
 
-	// 2D cases
+	//new with sign cases here
 	void dxUpwind2d(const Tdata &input, Tdata &output, mySign s)
-	{
-		int sizeY = this->inputDimension[1];
-		int sizeX = this->inputDimension[0];
-		std::fill(output.begin(), output.end(), 0.0);
-		#pragma omp parallel for
-		for (int j = 0; j < sizeY; ++j)
-		{
-			for (int i = 1; i < sizeX-1; ++i)
-			{
-				int tmpIndex = index2DtoLinear(i,j);
-				int tmpIndex1 = index2DtoLinear(i+1,j);
-				int tmpIndex2 = index2DtoLinear(i-1,j);
+    {
+        int sizeY = this->inputDimension[1];
+        int sizeX = this->inputDimension[0];
 
-				if(motionField[tmpIndex]<0)
-				{
-					output[tmpIndex] = motionField[tmpIndex]*(input[tmpIndex1]-input[tmpIndex]);
-				}
-				else
-				{
-					output[tmpIndex] = motionField[tmpIndex]*(input[tmpIndex]-input[tmpIndex2]);
-				}
-			}
-			
-			int tmpIndex_edge1 = index2DtoLinear(0,j);
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), static_cast<T>(0));
+            #pragma omp parallel for
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 1; i < sizeX-1; ++i)
+                {
+                    int tmpIndex = index2DtoLinear(i,j);
+                    if(motionField[tmpIndex]<0)
+                        output[tmpIndex] = motionField[tmpIndex]*(input[index2DtoLinear(i+1,j)]-input[tmpIndex]);
+                    else
+                        output[tmpIndex] = motionField[tmpIndex]*(input[tmpIndex]-input[index2DtoLinear(i-1,j)]);
+                }
+                int tmpIndex_edge1 = index2DtoLinear(0,j);
+                if(motionField[tmpIndex_edge1]<0)
+                    output[tmpIndex_edge1] = motionField[tmpIndex_edge1]*(input[index2DtoLinear(1,j)]-input[tmpIndex_edge1]);
+                else
+                    output[tmpIndex_edge1] = static_cast<T>(0);
 
-			if(motionField[tmpIndex_edge1]<0)
-			{
-				int tmpIndex_edge2 = index2DtoLinear(1,j);
+                int tmpIndex_edge3 = index2DtoLinear(sizeX-1,j);
+                if(motionField[tmpIndex_edge3]>0)
+                    output[tmpIndex_edge3] = motionField[tmpIndex_edge3]*(input[tmpIndex_edge3]-input[index2DtoLinear(sizeX-2,j)]);
+                else
+                    output[tmpIndex_edge3] = static_cast<T>(0);
+            }
+        }
+        else if (s == PLUS)
+        {
+            #pragma omp parallel for
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 1; i < sizeX-1; ++i)
+                {
+                    int tmpIndex = index2DtoLinear(i,j);
+                    if(motionField[tmpIndex]<0)
+                        output[tmpIndex] += motionField[tmpIndex]*(input[index2DtoLinear(i+1,j)]-input[tmpIndex]);
+                    else
+                        output[tmpIndex] += motionField[tmpIndex]*(input[tmpIndex]-input[index2DtoLinear(i-1,j)]);
+                }
+                int tmpIndex_edge1 = index2DtoLinear(0,j);
+                if(motionField[tmpIndex_edge1]<0)
+                    output[tmpIndex_edge1] += motionField[tmpIndex_edge1]*(input[index2DtoLinear(1,j)]-input[tmpIndex_edge1]);
 
-				output[tmpIndex_edge1] = motionField[tmpIndex_edge1]*(input[tmpIndex_edge2]-input[tmpIndex_edge1]);
-			}
-			else
-			{
-				output[tmpIndex_edge1] = 0.0f;
-			}
+                int tmpIndex_edge3 = index2DtoLinear(sizeX-1,j);
+                if(motionField[tmpIndex_edge3]>0)
+                    output[tmpIndex_edge3] += motionField[tmpIndex_edge3]*(input[tmpIndex_edge3]-input[index2DtoLinear(sizeX-2,j)]);
+            }
+        }
+        else if (s == MINUS)
+        {
+            #pragma omp parallel for
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 1; i < sizeX-1; ++i)
+                {
+                    int tmpIndex = index2DtoLinear(i,j);
+                    if(motionField[tmpIndex]<0)
+                        output[tmpIndex] -= motionField[tmpIndex]*(input[index2DtoLinear(i+1,j)]-input[tmpIndex]);
+                    else
+                        output[tmpIndex] -= motionField[tmpIndex]*(input[tmpIndex]-input[index2DtoLinear(i-1,j)]);
+                }
+                int tmpIndex_edge1 = index2DtoLinear(0,j);
+                if(motionField[tmpIndex_edge1]<0)
+                    output[tmpIndex_edge1] -= motionField[tmpIndex_edge1]*(input[index2DtoLinear(1,j)]-input[tmpIndex_edge1]);
 
+                int tmpIndex_edge3 = index2DtoLinear(sizeX-1,j);
+                if(motionField[tmpIndex_edge3]>0)
+                    output[tmpIndex_edge3] -= motionField[tmpIndex_edge3]*(input[tmpIndex_edge3]-input[index2DtoLinear(sizeX-2,j)]);
+            }
+        }
+    }
 
-			int tmpIndex_edge3 = index2DtoLinear(sizeX-1,j);
+    void dyUpwind2d(const Tdata &input, Tdata &output, mySign s)
+    {
+        int sizeY = this->inputDimension[1];
+        int sizeX = this->inputDimension[0];
 
-			if(motionField[tmpIndex_edge3]>0)
-			{
-				int tmpIndex_edge4 = index2DtoLinear(sizeX - 2,j);
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), static_cast<T>(0));
+            #pragma omp parallel for
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 1; j < sizeY - 1; ++j)
+                {
+                    int tmpIndex = index2DtoLinear(i,j);
+                    if (motionField[tmpIndex] < 0)
+                        output[tmpIndex] = motionField[tmpIndex] * (input[index2DtoLinear(i,j+1)] - input[tmpIndex]);
+                    else
+                        output[tmpIndex] = motionField[tmpIndex] * (input[tmpIndex] - input[index2DtoLinear(i,j-1)]);
+                }
+                int tmpIndex_edge1 = index2DtoLinear(i,0);
+                if (motionField[tmpIndex_edge1] < 0)
+                    output[tmpIndex_edge1] = motionField[tmpIndex_edge1] * (input[index2DtoLinear(i,1)] - input[tmpIndex_edge1]);
+                else
+                    output[tmpIndex_edge1] = static_cast<T>(0);
 
-				output[tmpIndex_edge3] = motionField[tmpIndex_edge3]*(input[tmpIndex_edge3]-input[tmpIndex_edge4]);
-			}
-			else
-			{
-				output[tmpIndex_edge3] = 0.0f;
-			}
-			
-		}
-	}
+                int tmpIndex_edge3 = index2DtoLinear(i, sizeY-1);
+                if (motionField[tmpIndex_edge3] > 0)
+                    output[tmpIndex_edge3] = motionField[tmpIndex_edge3] * (input[tmpIndex_edge3] - input[index2DtoLinear(i,sizeY-2)]);
+                else
+                    output[tmpIndex_edge3] = static_cast<T>(0);
+            }
+        }
+        else if (s == PLUS)
+        {
+            #pragma omp parallel for
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 1; j < sizeY - 1; ++j)
+                {
+                    int tmpIndex = index2DtoLinear(i,j);
+                    if (motionField[tmpIndex] < 0)
+                        output[tmpIndex] += motionField[tmpIndex] * (input[index2DtoLinear(i,j+1)] - input[tmpIndex]);
+                    else
+                        output[tmpIndex] += motionField[tmpIndex] * (input[tmpIndex] - input[index2DtoLinear(i,j-1)]);
+                }
+                int tmpIndex_edge1 = index2DtoLinear(i,0);
+                if (motionField[tmpIndex_edge1] < 0)
+                    output[tmpIndex_edge1] += motionField[tmpIndex_edge1] * (input[index2DtoLinear(i,1)] - input[tmpIndex_edge1]);
 
-	void dyUpwind2d(const Tdata &input, Tdata &output, mySign s)
-	{
-		int sizeY = this->inputDimension[1];
-		int sizeX = this->inputDimension[0];
-		std::fill(output.begin(), output.end(), 0.0);
-		#pragma omp parallel for
-		for (int i = 0; i < sizeX; ++i)
-		{
-			for (int j = 1; j < sizeY - 1; ++j)
-			{
-				int tmpIndex  = index2DtoLinear(i,j);
-				int tmpIndex1 = index2DtoLinear(i,j+1);
-				int tmpIndex2 = index2DtoLinear(i,j-1);
+                int tmpIndex_edge3 = index2DtoLinear(i, sizeY-1);
+                if (motionField[tmpIndex_edge3] > 0)
+                    output[tmpIndex_edge3] += motionField[tmpIndex_edge3] * (input[tmpIndex_edge3] - input[index2DtoLinear(i,sizeY-2)]);
+            }
+        }
+        else if (s == MINUS)
+        {
+            #pragma omp parallel for
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 1; j < sizeY - 1; ++j)
+                {
+                    int tmpIndex = index2DtoLinear(i,j);
+                    if (motionField[tmpIndex] < 0)
+                        output[tmpIndex] -= motionField[tmpIndex] * (input[index2DtoLinear(i,j+1)] - input[tmpIndex]);
+                    else
+                        output[tmpIndex] -= motionField[tmpIndex] * (input[tmpIndex] - input[index2DtoLinear(i,j-1)]);
+                }
+                int tmpIndex_edge1 = index2DtoLinear(i,0);
+                if (motionField[tmpIndex_edge1] < 0)
+                    output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * (input[index2DtoLinear(i,1)] - input[tmpIndex_edge1]);
 
-				if (motionField[tmpIndex] < 0)
-				{
-					output[tmpIndex] = motionField[tmpIndex] * (input[tmpIndex1] - input[tmpIndex]);
-				}
-				else
-				{
-					output[tmpIndex] = motionField[tmpIndex] * (input[tmpIndex] - input[tmpIndex2]);
-				}
-			}
-			
-			int tmpIndex_edge1 = index2DtoLinear(i,0);
+                int tmpIndex_edge3 = index2DtoLinear(i, sizeY-1);
+                if (motionField[tmpIndex_edge3] > 0)
+                    output[tmpIndex_edge3] -= motionField[tmpIndex_edge3] * (input[tmpIndex_edge3] - input[index2DtoLinear(i,sizeY-2)]);
+            }
+        }
+    }
 
-			if (motionField[tmpIndex_edge1] < 0)
-			{
-				int tmpIndex_edge2 = index2DtoLinear(i,1);
-
-				output[tmpIndex_edge1] = motionField[tmpIndex_edge1] * (input[tmpIndex_edge2] - input[tmpIndex_edge1]);
-			}
-			else
-			{
-				output[tmpIndex_edge1] = 0.0f;
-			}
-			
-			int tmpIndex_edge3 = index2DtoLinear(i, sizeY-1);
-
-			if (motionField[tmpIndex_edge3] > 0)
-			{
-				int tmpIndex_edge4 = index2DtoLinear(i,sizeY-2);
-
-				output[tmpIndex_edge3] = motionField[tmpIndex_edge3] * (input[tmpIndex_edge3] - input[tmpIndex_edge4]);
-			}
-			else
-			{
-				output[tmpIndex_edge3] = 0.0f;
-			}
-		}
-	}
-
-	
 	void dxUpwind2dT(const Tdata &input, Tdata &output, mySign s)
-	{
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
+    {
+        int sizeX = this->inputDimension[0];
+        int sizeY = this->inputDimension[1];
 
-		std::fill(output.begin(), output.end(), 0.0);
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), 0.0);
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 2; i < sizeX-2; ++i)
+                {
+                    int tmpIndex = index2DtoLinear(i, j);
+                    int tmpIndex1 = index2DtoLinear(i+1, j);
+                    int tmpIndex2 = index2DtoLinear(i-1, j);
 
-		for (int j = 0; j < sizeY; ++j)
-		{
-			for (int i = 2; i < sizeX-2; ++i)
-			{
-				int tmpIndex = index2DtoLinear(i, j);
-				int tmpIndex1 = index2DtoLinear(i+1, j);
-				int tmpIndex2 = index2DtoLinear(i-1, j);
+                    if (motionField[tmpIndex] < 0) output[tmpIndex] = -motionField[tmpIndex]*input[tmpIndex];
+                    else                           output[tmpIndex] =  motionField[tmpIndex]*input[tmpIndex];
 
-				/*
-				int motionFieldIsNegative = std::max(motionFieldField[tmpIndex], 0);
-				int motionFieldIsNegative1 = std::max(motionFieldField[tmpIndex1], 0);
-				int motionFieldIsNegative2 = std::max(motionFieldField[tmpIndex2], 0);
+                    if (motionField[tmpIndex1] > 0) output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
+                    if (motionField[tmpIndex2] < 0) output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
+                }
 
-				output[tmpIndex] = -motionFieldIsNegative * motionField[tmpIndex]*input[tmpIndex]*/
-				if (motionField[tmpIndex] < 0)
-				{
-					output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
-				}
-				else
-				{
-					output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
-				}
+                int tmpIndex_edge1 = index2DtoLinear(0,j);
+                int tmpIndex_edge2 = index2DtoLinear(1,j);
+                int tmpIndex_edge3 = index2DtoLinear(2,j);
+
+                output[tmpIndex_edge1] = 0.0;
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] > 0) output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                output[tmpIndex_edge2] = 0.0;
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] < 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                else                                 output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                if (motionField[tmpIndex_edge3] > 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                int tmpIndex_edge4 = index2DtoLinear(sizeX-1, j);
+                int tmpIndex_edge5 = index2DtoLinear(sizeX-2, j);
+                int tmpIndex_edge6 = index2DtoLinear(sizeX-3, j);
+
+                output[tmpIndex_edge5] = 0.0;
+                if (motionField[tmpIndex_edge6] < 0) output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                else                                 output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                output[tmpIndex_edge4] = 0.0;
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+            }
+        }
+        else if (s == PLUS)
+        {
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 2; i < sizeX-2; ++i)
+                {
+                    int tmpIndex = index2DtoLinear(i, j);
+                    int tmpIndex1 = index2DtoLinear(i+1, j);
+                    int tmpIndex2 = index2DtoLinear(i-1, j);
+
+                    if (motionField[tmpIndex] < 0) output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
+                    else                           output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
+
+                    if (motionField[tmpIndex1] > 0) output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
+                    if (motionField[tmpIndex2] < 0) output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
+                }
+
+                int tmpIndex_edge1 = index2DtoLinear(0,j);
+                int tmpIndex_edge2 = index2DtoLinear(1,j);
+                int tmpIndex_edge3 = index2DtoLinear(2,j);
+
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] > 0) output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] < 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                else                                 output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                if (motionField[tmpIndex_edge3] > 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                int tmpIndex_edge4 = index2DtoLinear(sizeX-1, j);
+                int tmpIndex_edge5 = index2DtoLinear(sizeX-2, j);
+                int tmpIndex_edge6 = index2DtoLinear(sizeX-3, j);
+
+                if (motionField[tmpIndex_edge6] < 0) output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                else                                 output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+            }
+        }
+        else if (s == MINUS)
+        {
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 2; i < sizeX-2; ++i)
+                {
+                    int tmpIndex = index2DtoLinear(i, j);
+                    int tmpIndex1 = index2DtoLinear(i+1, j);
+                    int tmpIndex2 = index2DtoLinear(i-1, j);
+
+                    if (motionField[tmpIndex] < 0) output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
+                    else                           output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
+
+                    if (motionField[tmpIndex1] > 0) output[tmpIndex] += motionField[tmpIndex1]*input[tmpIndex1];
+                    if (motionField[tmpIndex2] < 0) output[tmpIndex] -= motionField[tmpIndex2]*input[tmpIndex2];
+                }
+
+                int tmpIndex_edge1 = index2DtoLinear(0,j);
+                int tmpIndex_edge2 = index2DtoLinear(1,j);
+                int tmpIndex_edge3 = index2DtoLinear(2,j);
+
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge1] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] > 0) output[tmpIndex_edge1] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] < 0) output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                else                                 output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                if (motionField[tmpIndex_edge3] > 0) output[tmpIndex_edge2] += motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                int tmpIndex_edge4 = index2DtoLinear(sizeX-1, j);
+                int tmpIndex_edge5 = index2DtoLinear(sizeX-2, j);
+                int tmpIndex_edge6 = index2DtoLinear(sizeX-3, j);
+
+                if (motionField[tmpIndex_edge6] < 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                else                                 output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge5] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge4] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge4] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+            }
+        }
+    }
+
+    void dyUpwind2dT(const Tdata &input, Tdata &output, mySign s)
+    {
+        int sizeX = this->inputDimension[0];
+        int sizeY = this->inputDimension[1];
+
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), 0.0);
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 2; j < sizeY-2; ++j)
+                {
+                    int tmpIndex = index2DtoLinear(i, j);
+                    int tmpIndex1 = index2DtoLinear(i, j+1);
+                    int tmpIndex2 = index2DtoLinear(i, j-1);
+
+                    if (motionField[tmpIndex] < 0) output[tmpIndex] = -motionField[tmpIndex]*input[tmpIndex];
+                    else                           output[tmpIndex] =  motionField[tmpIndex]*input[tmpIndex];
+
+                    if (motionField[tmpIndex1] > 0) output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
+                    if (motionField[tmpIndex2] < 0) output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
+                }
+
+                int tmpIndex_edge1 = index2DtoLinear(i,0);
+                int tmpIndex_edge2 = index2DtoLinear(i,1);
+                int tmpIndex_edge3 = index2DtoLinear(i,2);
+
+                output[tmpIndex_edge1] = 0.0;
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] > 0) output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                output[tmpIndex_edge2] = 0.0;
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] < 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                else                                 output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                if (motionField[tmpIndex_edge3] > 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                int tmpIndex_edge4 = index2DtoLinear(i,sizeY-1);
+                int tmpIndex_edge5 = index2DtoLinear(i,sizeY-2);
+                int tmpIndex_edge6 = index2DtoLinear(i,sizeY-3);
+
+                output[tmpIndex_edge5] = 0.0;
+                if (motionField[tmpIndex_edge6] < 0) output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                else                                 output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                output[tmpIndex_edge4] = 0.0;
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+            }
+        }
+        else if (s == PLUS)
+        {
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 2; j < sizeY-2; ++j)
+                {
+                    int tmpIndex = index2DtoLinear(i, j);
+                    int tmpIndex1 = index2DtoLinear(i, j+1);
+                    int tmpIndex2 = index2DtoLinear(i, j-1);
+
+                    if (motionField[tmpIndex] < 0) output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
+                    else                           output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
+
+                    if (motionField[tmpIndex1] > 0) output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
+                    if (motionField[tmpIndex2] < 0) output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
+                }
+
+                int tmpIndex_edge1 = index2DtoLinear(i,0);
+                int tmpIndex_edge2 = index2DtoLinear(i,1);
+                int tmpIndex_edge3 = index2DtoLinear(i,2);
+
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] > 0) output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] < 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                else                                 output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                if (motionField[tmpIndex_edge3] > 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                int tmpIndex_edge4 = index2DtoLinear(i,sizeY-1);
+                int tmpIndex_edge5 = index2DtoLinear(i,sizeY-2);
+                int tmpIndex_edge6 = index2DtoLinear(i,sizeY-3);
+
+                if (motionField[tmpIndex_edge6] < 0) output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                else                                 output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+            }
+        }
+        else if (s == MINUS)
+        {
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 2; j < sizeY-2; ++j)
+                {
+                    int tmpIndex = index2DtoLinear(i, j);
+                    int tmpIndex1 = index2DtoLinear(i, j+1);
+                    int tmpIndex2 = index2DtoLinear(i, j-1);
+
+                    if (motionField[tmpIndex] < 0) output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
+                    else                           output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
+
+                    if (motionField[tmpIndex1] > 0) output[tmpIndex] += motionField[tmpIndex1]*input[tmpIndex1];
+                    if (motionField[tmpIndex2] < 0) output[tmpIndex] -= motionField[tmpIndex2]*input[tmpIndex2];
+                }
+
+                int tmpIndex_edge1 = index2DtoLinear(i,0);
+                int tmpIndex_edge2 = index2DtoLinear(i,1);
+                int tmpIndex_edge3 = index2DtoLinear(i,2);
+
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge1] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] > 0) output[tmpIndex_edge1] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                if (motionField[tmpIndex_edge1] < 0) output[tmpIndex_edge2] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                if (motionField[tmpIndex_edge2] < 0) output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                else                                 output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                if (motionField[tmpIndex_edge3] > 0) output[tmpIndex_edge2] += motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                int tmpIndex_edge4 = index2DtoLinear(i,sizeY-1);
+                int tmpIndex_edge5 = index2DtoLinear(i,sizeY-2);
+                int tmpIndex_edge6 = index2DtoLinear(i,sizeY-3);
+
+                if (motionField[tmpIndex_edge6] < 0) output[tmpIndex_edge5] -= motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                else                                 output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge5] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                if (motionField[tmpIndex_edge5] < 0) output[tmpIndex_edge4] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                if (motionField[tmpIndex_edge4] > 0) output[tmpIndex_edge4] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+            }
+        }
+    }
 
 
-				if (motionField[tmpIndex1] > 0)
-				{
-					output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
-				}
-
-
-				if (motionField[tmpIndex2] < 0)
-				{
-					output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
-				}
-			}
-
-			int tmpIndex_edge1 = index2DtoLinear(0,j);
-			int tmpIndex_edge2 = index2DtoLinear(1,j);
-			int tmpIndex_edge3 = index2DtoLinear(2,j);
-
-			if (motionField[tmpIndex_edge1] < 0)
-			{
-				output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-			}
-			if (motionField[tmpIndex_edge2] > 0)
-			{
-				output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-			}
-
-
-			if (motionField[tmpIndex_edge1] < 0)
-			{
-				output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-			}
-			if (motionField[tmpIndex_edge2] < 0)
-			{
-				output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-			}
-			else
-			{
-				output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-			}
-			if (motionField[tmpIndex_edge3] > 0)
-			{
-				output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
-			}
-
-			int tmpIndex_edge4 = index2DtoLinear(sizeX-1, j);
-			int tmpIndex_edge5 = index2DtoLinear(sizeX-2, j);
-			int tmpIndex_edge6 = index2DtoLinear(sizeX-3, j);
-
-			if (motionField[tmpIndex_edge6] < 0)
-			{
-				output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
-			}
-			if (motionField[tmpIndex_edge5] < 0)
-			{
-				output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-			}
-			else
-			{
-				output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-			}
-			if (motionField[tmpIndex_edge4] > 0)
-			{
-				output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-			}
-
-
-			if (motionField[tmpIndex_edge5] < 0)
-			{
-				output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-			}
-			if (motionField[tmpIndex_edge4] > 0)
-			{
-				output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-			}
-		}
-	}
-
-
-	void dyUpwind2dT(const Tdata &input, Tdata &output, mySign s)
-	{
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-
-		std::fill(output.begin(), output.end(), 0.0);
-
-		for (int i = 0; i < sizeX; ++i)
-		{
-			for (int j = 2; j < sizeY-2; ++j)
-			{
-				int tmpIndex = index2DtoLinear(i, j);
-				int tmpIndex1 = index2DtoLinear(i, j+1);
-				int tmpIndex2 = index2DtoLinear(i, j-1);
-
-				if (motionField[tmpIndex] < 0)
-				{
-					output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
-				}
-				else
-				{
-					output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
-				}
-
-
-				if (motionField[tmpIndex1] > 0)
-				{
-					output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
-				}
-
-
-				if (motionField[tmpIndex2] < 0)
-				{
-					output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
-				}
-			}
-			
-
-			
-			int tmpIndex_edge1 = index2DtoLinear(i,0);
-			int tmpIndex_edge2 = index2DtoLinear(i,1);
-			int tmpIndex_edge3 = index2DtoLinear(i,2);
-
-			if (motionField[tmpIndex_edge1] < 0)
-			{
-				output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-			}
-			if (motionField[tmpIndex_edge2] > 0)
-			{
-				output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-			}
-
-
-			if (motionField[tmpIndex_edge1] < 0)
-			{
-				output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-			}
-			if (motionField[tmpIndex_edge2] < 0)
-			{
-				output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-			}
-			else
-			{
-				output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-			}
-			if (motionField[tmpIndex_edge3] > 0)
-			{
-				output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
-			}
-
-			int tmpIndex_edge4 = index2DtoLinear(i,sizeY-1);
-			int tmpIndex_edge5 = index2DtoLinear(i,sizeY-2);
-			int tmpIndex_edge6 = index2DtoLinear(i,sizeY-3);
-
-			if (motionField[tmpIndex_edge6] < 0)
-			{
-				output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
-			}
-			if (motionField[tmpIndex_edge5] < 0)
-			{
-				output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-			}
-			else
-			{
-				output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-			}
-			if (motionField[tmpIndex_edge4] > 0)
-			{
-				output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-			}
-
-
-			if (motionField[tmpIndex_edge5] < 0)
-			{
-				output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-			}
-			if (motionField[tmpIndex_edge4] > 0)
-			{
-				output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-			}
-		}
-	}
-
-
-	// 3D cases, TODO: extend an correct them using the 2D cases as a template
+	//3D cases CPU
 	void dxUpwind3d(const Tdata &input, Tdata &output, mySign s)
-	{
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
-		std::fill(output.begin(), output.end(), 0.0);
-		#pragma omp parallel for collapse(2)
-		for (int k = 0; k < sizeZ; ++k)
-		{
-			for (int j = 0; j < sizeY; ++j)
-			{
-				for (int i = 1; i < sizeX - 1; ++i)
-				{
-					int idx  = index3DtoLinear(i,   j, k);
-					int idxP = index3DtoLinear(i+1, j, k);
-					int idxM = index3DtoLinear(i-1, j, k);
+    {
+        int sizeX = this->inputDimension[0];
+        int sizeY = this->inputDimension[1];
+        int sizeZ = this->inputDimension[2];
 
-					if (motionField[idx] < 0)
-					{
-						output[idx] = motionField[idx] * (input[idxP] - input[idx]);
-					}
-					else
-					{
-						output[idx] = motionField[idx] * (input[idx] - input[idxM]);
-					}
-				}
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), 0.0);
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int i = 1; i < sizeX - 1; ++i)
+                    {
+                        int idx  = index3DtoLinear(i,   j, k);
+                        if (motionField[idx] < 0)
+                            output[idx] = motionField[idx] * (input[index3DtoLinear(i+1, j, k)] - input[idx]);
+                        else
+                            output[idx] = motionField[idx] * (input[idx] - input[index3DtoLinear(i-1, j, k)]);
+                    }
+                    int idx0 = index3DtoLinear(0, j, k);
+                    if (motionField[idx0] < 0)
+                        output[idx0] = motionField[idx0] * (input[index3DtoLinear(1, j, k)] - input[idx0]);
+                    else
+                        output[idx0] = 0.0f;
 
-				{
-					int idx0 = index3DtoLinear(0, j, k);
+                    int idxN = index3DtoLinear(sizeX - 1, j, k);
+                    if (motionField[idxN] > 0)
+                        output[idxN] = motionField[idxN] * (input[idxN] - input[index3DtoLinear(sizeX - 2, j, k)]);
+                    else
+                        output[idxN] = 0.0f;
+                }
+            }
+        }
+        else if (s == PLUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int i = 1; i < sizeX - 1; ++i)
+                    {
+                        int idx  = index3DtoLinear(i,   j, k);
+                        if (motionField[idx] < 0)
+                            output[idx] += motionField[idx] * (input[index3DtoLinear(i+1, j, k)] - input[idx]);
+                        else
+                            output[idx] += motionField[idx] * (input[idx] - input[index3DtoLinear(i-1, j, k)]);
+                    }
+                    int idx0 = index3DtoLinear(0, j, k);
+                    if (motionField[idx0] < 0)
+                        output[idx0] += motionField[idx0] * (input[index3DtoLinear(1, j, k)] - input[idx0]);
 
-					if (motionField[idx0] < 0)
-					{
-						int idx1 = index3DtoLinear(1, j, k);
+                    int idxN = index3DtoLinear(sizeX - 1, j, k);
+                    if (motionField[idxN] > 0)
+                        output[idxN] += motionField[idxN] * (input[idxN] - input[index3DtoLinear(sizeX - 2, j, k)]);
+                }
+            }
+        }
+        else if (s == MINUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int i = 1; i < sizeX - 1; ++i)
+                    {
+                        int idx  = index3DtoLinear(i,   j, k);
+                        if (motionField[idx] < 0)
+                            output[idx] -= motionField[idx] * (input[index3DtoLinear(i+1, j, k)] - input[idx]);
+                        else
+                            output[idx] -= motionField[idx] * (input[idx] - input[index3DtoLinear(i-1, j, k)]);
+                    }
+                    int idx0 = index3DtoLinear(0, j, k);
+                    if (motionField[idx0] < 0)
+                        output[idx0] -= motionField[idx0] * (input[index3DtoLinear(1, j, k)] - input[idx0]);
 
-						output[idx0] = motionField[idx0] * (input[idx1] - input[idx0]);
-					}
-					else
-					{
-						output[idx0] = 0.0f;
-					}
-				}
+                    int idxN = index3DtoLinear(sizeX - 1, j, k);
+                    if (motionField[idxN] > 0)
+                        output[idxN] -= motionField[idxN] * (input[idxN] - input[index3DtoLinear(sizeX - 2, j, k)]);
+                }
+            }
+        }
+    }
 
-				{
-					int idxN = index3DtoLinear(sizeX - 1, j, k);
+    void dyUpwind3d(const Tdata &input, Tdata &output, mySign s)
+    {
+        int sizeX = this->inputDimension[0];
+        int sizeY = this->inputDimension[1];
+        int sizeZ = this->inputDimension[2];
 
-					if (motionField[idxN] > 0)
-					{
-						int idxNm1 = index3DtoLinear(sizeX - 2, j, k);
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), 0.0);
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int j = 1; j < sizeY - 1; ++j)
+                    {
+                        int idx  = index3DtoLinear(i, j,   k);
+                        if (motionField[idx] < 0)
+                            output[idx] = motionField[idx] * (input[index3DtoLinear(i, j+1, k)] - input[idx]);
+                        else
+                            output[idx] = motionField[idx] * (input[idx] - input[index3DtoLinear(i, j-1, k)]);
+                    }
+                    int idx0 = index3DtoLinear(i, 0, k);
+                    if (motionField[idx0] < 0)
+                        output[idx0] = motionField[idx0] * (input[index3DtoLinear(i, 1, k)] - input[idx0]);
+                    else
+                        output[idx0] = 0.0f;
 
-						output[idxN] = motionField[idxN] * (input[idxN] - input[idxNm1]);
-					}
-					else
-					{
-						output[idxN] = 0.0f;
-					}
-				}
-			}
-		}
-	}
+                    int idxN = index3DtoLinear(i, sizeY-1, k);
+                    if (motionField[idxN] > 0)
+                        output[idxN] = motionField[idxN] * (input[idxN] - input[index3DtoLinear(i, sizeY-2, k)]);
+                    else
+                        output[idxN] = 0.0f;
+                }
+            }
+        }
+        else if (s == PLUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int j = 1; j < sizeY - 1; ++j)
+                    {
+                        int idx  = index3DtoLinear(i, j,   k);
+                        if (motionField[idx] < 0)
+                            output[idx] += motionField[idx] * (input[index3DtoLinear(i, j+1, k)] - input[idx]);
+                        else
+                            output[idx] += motionField[idx] * (input[idx] - input[index3DtoLinear(i, j-1, k)]);
+                    }
+                    int idx0 = index3DtoLinear(i, 0, k);
+                    if (motionField[idx0] < 0)
+                        output[idx0] += motionField[idx0] * (input[index3DtoLinear(i, 1, k)] - input[idx0]);
 
-	void dyUpwind3d(const Tdata &input, Tdata &output, mySign s)
-	{
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
-		std::fill(output.begin(), output.end(), 0.0);
-		#pragma omp parallel for collapse(2)
-		for (int k = 0; k < sizeZ; ++k)
-		{
-			for (int i = 0; i < sizeX; ++i)
-			{
-				for (int j = 1; j < sizeY - 1; ++j)
-				{
-					int idx  = index3DtoLinear(i, j,   k);
-					int idxP = index3DtoLinear(i, j+1, k);
-					int idxM = index3DtoLinear(i, j-1, k);
+                    int idxN = index3DtoLinear(i, sizeY-1, k);
+                    if (motionField[idxN] > 0)
+                        output[idxN] += motionField[idxN] * (input[idxN] - input[index3DtoLinear(i, sizeY-2, k)]);
+                }
+            }
+        }
+        else if (s == MINUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int j = 1; j < sizeY - 1; ++j)
+                    {
+                        int idx  = index3DtoLinear(i, j,   k);
+                        if (motionField[idx] < 0)
+                            output[idx] -= motionField[idx] * (input[index3DtoLinear(i, j+1, k)] - input[idx]);
+                        else
+                            output[idx] -= motionField[idx] * (input[idx] - input[index3DtoLinear(i, j-1, k)]);
+                    }
+                    int idx0 = index3DtoLinear(i, 0, k);
+                    if (motionField[idx0] < 0)
+                        output[idx0] -= motionField[idx0] * (input[index3DtoLinear(i, 1, k)] - input[idx0]);
 
-					if (motionField[idx] < 0)
-					{
-						output[idx] = motionField[idx] * (input[idxP] - input[idx]);
-					}
-					else
-					{
-						output[idx] = motionField[idx] * (input[idx] - input[idxM]);
-					}
-				}
+                    int idxN = index3DtoLinear(i, sizeY-1, k);
+                    if (motionField[idxN] > 0)
+                        output[idxN] -= motionField[idxN] * (input[idxN] - input[index3DtoLinear(i, sizeY-2, k)]);
+                }
+            }
+        }
+    }
 
-				{
-					int idx0 = index3DtoLinear(i, 0, k);
+    void dzUpwind3d(const Tdata &input, Tdata &output, mySign s)
+    {
+        int sizeX = this->inputDimension[0];
+        int sizeY = this->inputDimension[1];
+        int sizeZ = this->inputDimension[2];
 
-					if (motionField[idx0] < 0)
-					{
-						int idx1 = index3DtoLinear(i, 1, k);
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), 0.0);
+            #pragma omp parallel for collapse(2)
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int k = 1; k < sizeZ - 1; ++k)
+                    {
+                        int idx  = index3DtoLinear(i, j, k);
+                        if (motionField[idx] < 0)
+                            output[idx] = motionField[idx] * (input[index3DtoLinear(i, j, k+1)] - input[idx]);
+                        else
+                            output[idx] = motionField[idx] * (input[idx] - input[index3DtoLinear(i, j, k-1)]);
+                    }
+                    int idx0 = index3DtoLinear(i, j, 0);
+                    if (motionField[idx0] < 0)
+                        output[idx0] = motionField[idx0] * (input[index3DtoLinear(i, j, 1)] - input[idx0]);
+                    else
+                        output[idx0] = 0.0f;
 
-						output[idx0] = motionField[idx0] * (input[idx1] - input[idx0]);
-					}
-					else
-					{
-						output[idx0] = 0.0f;
-					}
-				}
+                    int idxN = index3DtoLinear(i, j, sizeZ-1);
+                    if (motionField[idxN] > 0)
+                        output[idxN] = motionField[idxN] * (input[idxN] - input[index3DtoLinear(i, j, sizeZ-2)]);
+                    else
+                        output[idxN] = 0.0f;
+                }
+            }
+        }
+        else if (s == PLUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int k = 1; k < sizeZ - 1; ++k)
+                    {
+                        int idx  = index3DtoLinear(i, j, k);
+                        if (motionField[idx] < 0)
+                            output[idx] += motionField[idx] * (input[index3DtoLinear(i, j, k+1)] - input[idx]);
+                        else
+                            output[idx] += motionField[idx] * (input[idx] - input[index3DtoLinear(i, j, k-1)]);
+                    }
+                    int idx0 = index3DtoLinear(i, j, 0);
+                    if (motionField[idx0] < 0)
+                        output[idx0] += motionField[idx0] * (input[index3DtoLinear(i, j, 1)] - input[idx0]);
 
-				{
-					int idxN = index3DtoLinear(i, sizeY-1, k);
+                    int idxN = index3DtoLinear(i, j, sizeZ-1);
+                    if (motionField[idxN] > 0)
+                        output[idxN] += motionField[idxN] * (input[idxN] - input[index3DtoLinear(i, j, sizeZ-2)]);
+                }
+            }
+        }
+        else if (s == MINUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int j = 0; j < sizeY; ++j)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int k = 1; k < sizeZ - 1; ++k)
+                    {
+                        int idx  = index3DtoLinear(i, j, k);
+                        if (motionField[idx] < 0)
+                            output[idx] -= motionField[idx] * (input[index3DtoLinear(i, j, k+1)] - input[idx]);
+                        else
+                            output[idx] -= motionField[idx] * (input[idx] - input[index3DtoLinear(i, j, k-1)]);
+                    }
+                    int idx0 = index3DtoLinear(i, j, 0);
+                    if (motionField[idx0] < 0)
+                        output[idx0] -= motionField[idx0] * (input[index3DtoLinear(i, j, 1)] - input[idx0]);
 
-					if (motionField[idxN] > 0)
-					{
-						int idxNm1 = index3DtoLinear(i, sizeY-2, k);
-
-						output[idxN] = motionField[idxN] * (input[idxN] - input[idxNm1]);
-					}
-					else
-					{
-						output[idxN] = 0.0f;
-					}
-				}
-			}
-		}
-	}
-
-	void dzUpwind3d(const Tdata &input, Tdata &output, mySign s)
-	{
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
-		std::fill(output.begin(), output.end(), 0.0);
-		#pragma omp parallel for collapse(2)
-		for (int j = 0; j < sizeY; ++j)
-		{
-			for (int i = 0; i < sizeX; ++i)
-			{
-				for (int k = 1; k < sizeZ - 1; ++k)
-				{
-					int idx  = index3DtoLinear(i, j, k);
-					int idxP = index3DtoLinear(i, j, k+1);
-					int idxM = index3DtoLinear(i, j, k-1);
-
-					if (motionField[idx] < 0)
-					{
-						output[idx] = motionField[idx] * (input[idxP] - input[idx]);
-					}
-					else
-					{
-						output[idx] = motionField[idx] * (input[idx] - input[idxM]);
-					}
-				}
-
-				{
-					int idx0 = index3DtoLinear(i, j, 0);
-
-					if (motionField[idx0] < 0)
-					{
-						int idx1 = index3DtoLinear(i, j, 1);
-
-						output[idx0] = motionField[idx0] * (input[idx1] - input[idx0]);
-					}
-					else
-					{
-						output[idx0] = 0.0f;
-					}
-				}
-
-				{
-					int idxN = index3DtoLinear(i, j, sizeZ-1);
-
-					if (motionField[idxN] > 0)
-					{
-						int idxNm1 = index3DtoLinear(i, j, sizeZ-2);
-
-						output[idxN] = motionField[idxN] * (input[idxN] - input[idxNm1]);
-					}
-					else
-					{
-						output[idxN] = 0.0f;
-					}
-				}
-			}
-		}
-	}
-
+                    int idxN = index3DtoLinear(i, j, sizeZ-1);
+                    if (motionField[idxN] > 0)
+                        output[idxN] -= motionField[idxN] * (input[idxN] - input[index3DtoLinear(i, j, sizeZ-2)]);
+                }
+            }
+        }
+    }
 
 	void dxUpwind3dT(const Tdata &input, Tdata &output, mySign s)
-	{
-		/*
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
-		std::fill(output.begin(), output.end(), 0.0);
-		#pragma omp parallel for collapse(2)
-		for (int k = 0; k < sizeZ; ++k)
-		{
-			for (int j = 0; j < sizeY; ++j)
-			{
-				for (int i = 1; i < sizeX; ++i)
-				{
-					int idx = index3DtoLinear(i, j, k);
+    {
+        int sizeX = this->inputDimension[0];
+        int sizeY = this->inputDimension[1];
+        int sizeZ = this->inputDimension[2];
 
-					float v = motionField[idx];
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), 0.0);
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int i = 2; i < sizeX - 2; ++i)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i + 1, j, k);
+                        int tmpIndex2 = index3DtoLinear(i - 1, j, k);
 
-					if (v < 0)
-					{
-						output[idx]     += -v * input[idx];
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] = -motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] = motionField[tmpIndex] * input[tmpIndex];
 
-						if (i > 0)
-						{
-							int idxM = index3DtoLinear(i - 1, j, k);
-							output[idxM] += v * input[idx];
-						}
-					}
-					else
-					{
-						output[idx] += v * input[idx];
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] -= motionField[tmpIndex1] * input[tmpIndex1];
 
-						if (i < sizeX - 1)
-						{
-							int idxP = index3DtoLinear(i + 1, j, k);
-							output[idxP] += -v * input[idx];
-						}
-					}
-				}
-			}
-		}
-		*/
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] += motionField[tmpIndex2] * input[tmpIndex2];
+                    }
 
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
+                    int tmpIndex_edge1 = index3DtoLinear(0, j, k);
+                    int tmpIndex_edge2 = index3DtoLinear(1, j, k);
+                    int tmpIndex_edge3 = index3DtoLinear(2, j, k);
 
-		std::fill(output.begin(), output.end(), 0.0);
-		for (int k = 0; k < sizeZ; ++k)
-		{
-			for (int j = 0; j < sizeY; ++j)
-			{
-				for (int i = 2; i < sizeX-2; ++i)
-				{
-					int tmpIndex = index3DtoLinear(i, j, k);
-					int tmpIndex1 = index3DtoLinear(i+1, j, k);
-					int tmpIndex2 = index3DtoLinear(i-1, j, k);
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] = -motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                    else
+                        output[tmpIndex_edge1] = 0.0f;
 
-					/*
-					int motionFieldIsNegative = std::max(motionFieldField[tmpIndex], 0);
-					int motionFieldIsNegative1 = std::max(motionFieldField[tmpIndex1], 0);
-					int motionFieldIsNegative2 = std::max(motionFieldField[tmpIndex2], 0);
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
 
-					output[tmpIndex] = -motionFieldIsNegative * motionField[tmpIndex]*input[tmpIndex]*/
-					if (motionField[tmpIndex] < 0)
-					{
-						output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
-					}
-					else
-					{
-						output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
-					}
+                    output[tmpIndex_edge2] = 0.0f;
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
 
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
 
-					if (motionField[tmpIndex1] > 0)
-					{
-						output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
-					}
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
 
+                    int tmpIndex_edge4 = index3DtoLinear(sizeX - 1, j, k);
+                    int tmpIndex_edge5 = index3DtoLinear(sizeX - 2, j, k);
+                    int tmpIndex_edge6 = index3DtoLinear(sizeX - 3, j, k);
 
-					if (motionField[tmpIndex2] < 0)
-					{
-						output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
-					}
-				}
+                    output[tmpIndex_edge5] = 0.0f;
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
 
-				int tmpIndex_edge1 = index3DtoLinear(0,j,k);
-				int tmpIndex_edge2 = index3DtoLinear(1,j,k);
-				int tmpIndex_edge3 = index3DtoLinear(2,j,k);
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
 
-				if (motionField[tmpIndex_edge1] < 0)
-				{
-					output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-				}
-				if (motionField[tmpIndex_edge2] > 0)
-				{
-					output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
 
+                    output[tmpIndex_edge4] = 0.0f;
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
 
-				if (motionField[tmpIndex_edge1] < 0)
-				{
-					output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-				}
-				if (motionField[tmpIndex_edge2] < 0)
-				{
-					output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
-				else
-				{
-					output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
-				if (motionField[tmpIndex_edge3] > 0)
-				{
-					output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
-				}
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+        else if (s == PLUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int i = 2; i < sizeX - 2; ++i)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i + 1, j, k);
+                        int tmpIndex2 = index3DtoLinear(i - 1, j, k);
 
-				int tmpIndex_edge4 = index3DtoLinear(sizeX-1, j, k);
-				int tmpIndex_edge5 = index3DtoLinear(sizeX-2, j, k);
-				int tmpIndex_edge6 = index3DtoLinear(sizeX-3, j, k);
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] -= motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] += motionField[tmpIndex] * input[tmpIndex];
 
-				if (motionField[tmpIndex_edge6] < 0)
-				{
-					output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
-				}
-				if (motionField[tmpIndex_edge5] < 0)
-				{
-					output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				else
-				{
-					output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				if (motionField[tmpIndex_edge4] > 0)
-				{
-					output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-				}
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] -= motionField[tmpIndex1] * input[tmpIndex1];
 
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] += motionField[tmpIndex2] * input[tmpIndex2];
+                    }
 
-				if (motionField[tmpIndex_edge5] < 0)
-				{
-					output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				if (motionField[tmpIndex_edge4] > 0)
-				{
-					output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-				}
-			}
-		}
-	}
+                    int tmpIndex_edge1 = index3DtoLinear(0, j, k);
+                    int tmpIndex_edge2 = index3DtoLinear(1, j, k);
+                    int tmpIndex_edge3 = index3DtoLinear(2, j, k);
 
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
 
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
 
-	void dyUpwind3dT(const Tdata &input, Tdata &output, mySign s)
-	{
-		/*
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
-		std::fill(output.begin(), output.end(), 0.0);
-		#pragma omp parallel for collapse(2)
-		for (int k = 0; k < sizeZ; ++k)
-		{
-			for (int i = 0; i < sizeX; ++i)
-			{
-				for (int j = 1; j < sizeY; ++j)
-				{
-					int idx = index3DtoLinear(i, j, k);
-					float v = motionField[idx];
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
 
-					if (v < 0)
-					{
-						output[idx] += -v * input[idx];
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
 
-						if (j > 0)
-						{
-							int idxM = index3DtoLinear(i, j - 1, k);
-							output[idxM] += v * input[idx];
-						}
-					}
-					else
-					{
-						output[idx] += v * input[idx];
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
 
-						if (j < sizeY - 1)
-						{
-							int idxP = index3DtoLinear(i, j + 1, k);
-							output[idxP] += -v * input[idx];
-						}
-					}
-				}
-			}
-		}
-		*/
+                    int tmpIndex_edge4 = index3DtoLinear(sizeX - 1, j, k);
+                    int tmpIndex_edge5 = index3DtoLinear(sizeX - 2, j, k);
+                    int tmpIndex_edge6 = index3DtoLinear(sizeX - 3, j, k);
 
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
 
-		std::fill(output.begin(), output.end(), 0.0);
-		for (int k = 0; k < sizeZ; ++k)
-		{
-			for (int i = 0; i < sizeX; ++i)
-			{
-				for (int j = 2; j < sizeY-2; ++j)
-				{
-					int tmpIndex = index3DtoLinear(i, j, k);
-					int tmpIndex1 = index3DtoLinear(i, j+1, k);
-					int tmpIndex2 = index3DtoLinear(i, j-1, k);
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
 
-					/*
-					int motionFieldIsNegative = std::max(motionFieldField[tmpIndex], 0);
-					int motionFieldIsNegative1 = std::max(motionFieldField[tmpIndex1], 0);
-					int motionFieldIsNegative2 = std::max(motionFieldField[tmpIndex2], 0);
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
 
-					output[tmpIndex] = -motionFieldIsNegative * motionField[tmpIndex]*input[tmpIndex]*/
-					if (motionField[tmpIndex] < 0)
-					{
-						output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
-					}
-					else
-					{
-						output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
-					}
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
 
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+        else if (s == MINUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int i = 2; i < sizeX - 2; ++i)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i + 1, j, k);
+                        int tmpIndex2 = index3DtoLinear(i - 1, j, k);
 
-					if (motionField[tmpIndex1] > 0)
-					{
-						output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
-					}
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] += motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] -= motionField[tmpIndex] * input[tmpIndex];
 
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] += motionField[tmpIndex1] * input[tmpIndex1];
 
-					if (motionField[tmpIndex2] < 0)
-					{
-						output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
-					}
-				}
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] -= motionField[tmpIndex2] * input[tmpIndex2];
+                    }
 
-				int tmpIndex_edge1 = index3DtoLinear(i,0,k);
-				int tmpIndex_edge2 = index3DtoLinear(i,1,k);
-				int tmpIndex_edge3 = index3DtoLinear(i,2,k);
+                    int tmpIndex_edge1 = index3DtoLinear(0, j, k);
+                    int tmpIndex_edge2 = index3DtoLinear(1, j, k);
+                    int tmpIndex_edge3 = index3DtoLinear(2, j, k);
 
-				if (motionField[tmpIndex_edge1] < 0)
-				{
-					output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-				}
-				if (motionField[tmpIndex_edge2] > 0)
-				{
-					output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
 
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
 
-				if (motionField[tmpIndex_edge1] < 0)
-				{
-					output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-				}
-				if (motionField[tmpIndex_edge2] < 0)
-				{
-					output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
-				else
-				{
-					output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
-				if (motionField[tmpIndex_edge3] > 0)
-				{
-					output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
-				}
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
 
-				int tmpIndex_edge4 = index3DtoLinear(i,sizeY-1, k);
-				int tmpIndex_edge5 = index3DtoLinear(i,sizeY-2, k);
-				int tmpIndex_edge6 = index3DtoLinear(i,sizeY-3, k);
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
 
-				if (motionField[tmpIndex_edge6] < 0)
-				{
-					output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
-				}
-				if (motionField[tmpIndex_edge5] < 0)
-				{
-					output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				else
-				{
-					output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				if (motionField[tmpIndex_edge4] > 0)
-				{
-					output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-				}
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
 
+                    int tmpIndex_edge4 = index3DtoLinear(sizeX - 1, j, k);
+                    int tmpIndex_edge5 = index3DtoLinear(sizeX - 2, j, k);
+                    int tmpIndex_edge6 = index3DtoLinear(sizeX - 3, j, k);
 
-				if (motionField[tmpIndex_edge5] < 0)
-				{
-					output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				if (motionField[tmpIndex_edge4] > 0)
-				{
-					output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-				}
-			}
-		}
-	}
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
 
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
 
-	void dzUpwind3dT(const Tdata &input, Tdata &output, mySign s)
-	{
-		/*
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
-		std::fill(output.begin(), output.end(), 0.0);
-		#pragma omp parallel for collapse(2)
-		for (int j = 0; j < sizeY; ++j)
-		{
-			for (int i = 0; i < sizeX; ++i)
-			{
-				for (int k = 1; k < sizeZ; ++k)
-				{
-					int idx = index3DtoLinear(i, j, k);
-					float v = motionField[idx];
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
 
-					if (v < 0)
-					{
-						output[idx] += -v * input[idx];
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
 
-						if (k > 0)
-						{
-							int idxM = index3DtoLinear(i, j, k - 1);
-							output[idxM] += v * input[idx];
-						}
-					}
-					else
-					{
-						output[idx] += v * input[idx];
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+    }
 
-						if (k < sizeZ - 1)
-						{
-							int idxP = index3DtoLinear(i, j, k + 1);
-							output[idxP] += -v * input[idx];
-						}
-					}
-				}
-			}
-		}
-		*/
+    void dyUpwind3dT(const Tdata &input, Tdata &output, mySign s)
+    {
+        int sizeX = this->inputDimension[0];
+        int sizeY = this->inputDimension[1];
+        int sizeZ = this->inputDimension[2];
 
-		int sizeX = this->inputDimension[0];
-		int sizeY = this->inputDimension[1];
-		int sizeZ = this->inputDimension[2];
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), 0.0);
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int j = 2; j < sizeY - 2; ++j)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i, j + 1, k);
+                        int tmpIndex2 = index3DtoLinear(i, j - 1, k);
 
-		std::fill(output.begin(), output.end(), 0.0);
-		for (int i = 0; i < sizeX; ++i)
-		{
-			for (int j = 0; j < sizeY; ++j)
-			{
-				for (int k = 2; k < sizeZ-2; ++k)
-				{
-					int tmpIndex = index3DtoLinear(i, j, k);
-					int tmpIndex1 = index3DtoLinear(i, j, k+1);
-					int tmpIndex2 = index3DtoLinear(i, j, k-1);
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] = -motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] = motionField[tmpIndex] * input[tmpIndex];
 
-					/*
-					int motionFieldIsNegative = std::max(motionFieldField[tmpIndex], 0);
-					int motionFieldIsNegative1 = std::max(motionFieldField[tmpIndex1], 0);
-					int motionFieldIsNegative2 = std::max(motionFieldField[tmpIndex2], 0);
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] -= motionField[tmpIndex1] * input[tmpIndex1];
 
-					output[tmpIndex] = -motionFieldIsNegative * motionField[tmpIndex]*input[tmpIndex]*/
-					if (motionField[tmpIndex] < 0)
-					{
-						output[tmpIndex] -= motionField[tmpIndex]*input[tmpIndex];
-					}
-					else
-					{
-						output[tmpIndex] += motionField[tmpIndex]*input[tmpIndex];
-					}
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] += motionField[tmpIndex2] * input[tmpIndex2];
+                    }
 
+                    int tmpIndex_edge1 = index3DtoLinear(i, 0, k);
+                    int tmpIndex_edge2 = index3DtoLinear(i, 1, k);
+                    int tmpIndex_edge3 = index3DtoLinear(i, 2, k);
 
-					if (motionField[tmpIndex1] > 0)
-					{
-						output[tmpIndex] -= motionField[tmpIndex1]*input[tmpIndex1];
-					}
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] = -motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                    else
+                        output[tmpIndex_edge1] = 0.0f;
 
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
 
-					if (motionField[tmpIndex2] < 0)
-					{
-						output[tmpIndex] += motionField[tmpIndex2]*input[tmpIndex2];
-					}
-				}
+                    output[tmpIndex_edge2] = 0.0f;
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
 
-				int tmpIndex_edge1 = index3DtoLinear(i,j,0);
-				int tmpIndex_edge2 = index3DtoLinear(i,j,1);
-				int tmpIndex_edge3 = index3DtoLinear(i,j,2);
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
 
-				if (motionField[tmpIndex_edge1] < 0)
-				{
-					output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-				}
-				if (motionField[tmpIndex_edge2] > 0)
-				{
-					output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
 
+                    int tmpIndex_edge4 = index3DtoLinear(i, sizeY - 1, k);
+                    int tmpIndex_edge5 = index3DtoLinear(i, sizeY - 2, k);
+                    int tmpIndex_edge6 = index3DtoLinear(i, sizeY - 3, k);
 
-				if (motionField[tmpIndex_edge1] < 0)
-				{
-					output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
-				}
-				if (motionField[tmpIndex_edge2] < 0)
-				{
-					output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
-				else
-				{
-					output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
-				}
-				if (motionField[tmpIndex_edge3] > 0)
-				{
-					output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
-				}
+                    output[tmpIndex_edge5] = 0.0f;
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
 
-				int tmpIndex_edge4 = index3DtoLinear(i,j,sizeZ-1);
-				int tmpIndex_edge5 = index3DtoLinear(i,j,sizeZ-2);
-				int tmpIndex_edge6 = index3DtoLinear(i,j,sizeZ-3);
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
 
-				if (motionField[tmpIndex_edge6] < 0)
-				{
-					output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
-				}
-				if (motionField[tmpIndex_edge5] < 0)
-				{
-					output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				else
-				{
-					output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				if (motionField[tmpIndex_edge4] > 0)
-				{
-					output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-				}
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
 
+                    output[tmpIndex_edge4] = 0.0f;
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
 
-				if (motionField[tmpIndex_edge5] < 0)
-				{
-					output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
-				}
-				if (motionField[tmpIndex_edge4] > 0)
-				{
-					output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
-				}
-			}
-		}
-	}
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+        else if (s == PLUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int j = 2; j < sizeY - 2; ++j)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i, j + 1, k);
+                        int tmpIndex2 = index3DtoLinear(i, j - 1, k);
+
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] -= motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] += motionField[tmpIndex] * input[tmpIndex];
+
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] -= motionField[tmpIndex1] * input[tmpIndex1];
+
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] += motionField[tmpIndex2] * input[tmpIndex2];
+                    }
+
+                    int tmpIndex_edge1 = index3DtoLinear(i, 0, k);
+                    int tmpIndex_edge2 = index3DtoLinear(i, 1, k);
+                    int tmpIndex_edge3 = index3DtoLinear(i, 2, k);
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                    int tmpIndex_edge4 = index3DtoLinear(i, sizeY - 1, k);
+                    int tmpIndex_edge5 = index3DtoLinear(i, sizeY - 2, k);
+                    int tmpIndex_edge6 = index3DtoLinear(i, sizeY - 3, k);
+
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+        else if (s == MINUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int k = 0; k < sizeZ; ++k)
+            {
+                for (int i = 0; i < sizeX; ++i)
+                {
+                    for (int j = 2; j < sizeY - 2; ++j)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i, j + 1, k);
+                        int tmpIndex2 = index3DtoLinear(i, j - 1, k);
+
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] += motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] -= motionField[tmpIndex] * input[tmpIndex];
+
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] += motionField[tmpIndex1] * input[tmpIndex1];
+
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] -= motionField[tmpIndex2] * input[tmpIndex2];
+                    }
+
+                    int tmpIndex_edge1 = index3DtoLinear(i, 0, k);
+                    int tmpIndex_edge2 = index3DtoLinear(i, 1, k);
+                    int tmpIndex_edge3 = index3DtoLinear(i, 2, k);
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                    int tmpIndex_edge4 = index3DtoLinear(i, sizeY - 1, k);
+                    int tmpIndex_edge5 = index3DtoLinear(i, sizeY - 2, k);
+                    int tmpIndex_edge6 = index3DtoLinear(i, sizeY - 3, k);
+
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+    }
+
+    void dzUpwind3dT(const Tdata &input, Tdata &output, mySign s)
+    {
+        int sizeX = this->inputDimension[0];
+        int sizeY = this->inputDimension[1];
+        int sizeZ = this->inputDimension[2];
+
+        if (s == EQUALS)
+        {
+            std::fill(output.begin(), output.end(), 0.0);
+            #pragma omp parallel for collapse(2)
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int k = 2; k < sizeZ - 2; ++k)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i, j, k + 1);
+                        int tmpIndex2 = index3DtoLinear(i, j, k - 1);
+
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] = -motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] = motionField[tmpIndex] * input[tmpIndex];
+
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] -= motionField[tmpIndex1] * input[tmpIndex1];
+
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] += motionField[tmpIndex2] * input[tmpIndex2];
+                    }
+
+                    int tmpIndex_edge1 = index3DtoLinear(i, j, 0);
+                    int tmpIndex_edge2 = index3DtoLinear(i, j, 1);
+                    int tmpIndex_edge3 = index3DtoLinear(i, j, 2);
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] = -motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+                    else
+                        output[tmpIndex_edge1] = 0.0f;
+
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    output[tmpIndex_edge2] = 0.0f;
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                    int tmpIndex_edge4 = index3DtoLinear(i, j, sizeZ - 1);
+                    int tmpIndex_edge5 = index3DtoLinear(i, j, sizeZ - 2);
+                    int tmpIndex_edge6 = index3DtoLinear(i, j, sizeZ - 3);
+
+                    output[tmpIndex_edge5] = 0.0f;
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                    output[tmpIndex_edge4] = 0.0f;
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+        else if (s == PLUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int k = 2; k < sizeZ - 2; ++k)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i, j, k + 1);
+                        int tmpIndex2 = index3DtoLinear(i, j, k - 1);
+
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] -= motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] += motionField[tmpIndex] * input[tmpIndex];
+
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] -= motionField[tmpIndex1] * input[tmpIndex1];
+
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] += motionField[tmpIndex2] * input[tmpIndex2];
+                    }
+
+                    int tmpIndex_edge1 = index3DtoLinear(i, j, 0);
+                    int tmpIndex_edge2 = index3DtoLinear(i, j, 1);
+                    int tmpIndex_edge3 = index3DtoLinear(i, j, 2);
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                    int tmpIndex_edge4 = index3DtoLinear(i, j, sizeZ - 1);
+                    int tmpIndex_edge5 = index3DtoLinear(i, j, sizeZ - 2);
+                    int tmpIndex_edge6 = index3DtoLinear(i, j, sizeZ - 3);
+
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+        else if (s == MINUS)
+        {
+            #pragma omp parallel for collapse(2)
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for (int j = 0; j < sizeY; ++j)
+                {
+                    for (int k = 2; k < sizeZ - 2; ++k)
+                    {
+                        int tmpIndex = index3DtoLinear(i, j, k);
+                        int tmpIndex1 = index3DtoLinear(i, j, k + 1);
+                        int tmpIndex2 = index3DtoLinear(i, j, k - 1);
+
+                        if (motionField[tmpIndex] < 0)
+                            output[tmpIndex] += motionField[tmpIndex] * input[tmpIndex];
+                        else
+                            output[tmpIndex] -= motionField[tmpIndex] * input[tmpIndex];
+
+                        if (motionField[tmpIndex1] > 0)
+                            output[tmpIndex] += motionField[tmpIndex1] * input[tmpIndex1];
+
+                        if (motionField[tmpIndex2] < 0)
+                            output[tmpIndex] -= motionField[tmpIndex2] * input[tmpIndex2];
+                    }
+
+                    int tmpIndex_edge1 = index3DtoLinear(i, j, 0);
+                    int tmpIndex_edge2 = index3DtoLinear(i, j, 1);
+                    int tmpIndex_edge3 = index3DtoLinear(i, j, 2);
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge1] += motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] > 0)
+                        output[tmpIndex_edge1] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge1] < 0)
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge1] * input[tmpIndex_edge1];
+
+                    if (motionField[tmpIndex_edge2] < 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+                    else
+                        output[tmpIndex_edge2] -= motionField[tmpIndex_edge2] * input[tmpIndex_edge2];
+
+                    if (motionField[tmpIndex_edge3] > 0)
+                        output[tmpIndex_edge2] += motionField[tmpIndex_edge3] * input[tmpIndex_edge3];
+
+                    int tmpIndex_edge4 = index3DtoLinear(i, j, sizeZ - 1);
+                    int tmpIndex_edge5 = index3DtoLinear(i, j, sizeZ - 2);
+                    int tmpIndex_edge6 = index3DtoLinear(i, j, sizeZ - 3);
+
+                    if (motionField[tmpIndex_edge6] < 0)
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge6] * input[tmpIndex_edge6];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+                    else
+                        output[tmpIndex_edge5] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge5] += motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+
+                    if (motionField[tmpIndex_edge5] < 0)
+                        output[tmpIndex_edge4] -= motionField[tmpIndex_edge5] * input[tmpIndex_edge5];
+
+                    if (motionField[tmpIndex_edge4] > 0)
+                        output[tmpIndex_edge4] -= motionField[tmpIndex_edge4] * input[tmpIndex_edge4];
+                }
+            }
+        }
+    }
 
 	void doTimesCPU(bool transposed, const Tdata &input, Tdata &output, mySign s)
 	{
@@ -1764,22 +2170,22 @@ public:
 			{
 				if (transposed == false)
 				{
-					this->dxUpwind2d(input, tmp, EQUALS);
+					this->dxUpwind2d(input, tmp, s);
 				}
 				else
 				{
-					this->dxUpwind2dT(input, tmp, EQUALS);
+					this->dxUpwind2dT(input, tmp, s);
 				}
 			}
 			else if (this->gradDirection == 1)
 			{
 				if (transposed == false)
 				{
-					this->dyUpwind2d(input, tmp, EQUALS);
+					this->dyUpwind2d(input, tmp, s);
 				}
 				else
 				{
-					this->dyUpwind2dT(input, tmp, EQUALS);
+					this->dyUpwind2dT(input, tmp, s);
 				}
 			}
 		}
@@ -1789,33 +2195,33 @@ public:
 			{
 				if (transposed == false)
 				{
-					this->dxUpwind3d(input, tmp, EQUALS);
+					this->dxUpwind3d(input, tmp, s);
 				}
 				else
 				{
-					this->dxUpwind3dT(input, tmp, EQUALS);
+					this->dxUpwind3dT(input, tmp, s);
 				}
 			}
 			else if (this->gradDirection == 1)
 			{
 				if (transposed == false)
 				{
-					this->dyUpwind3d(input, tmp, EQUALS);
+					this->dyUpwind3d(input, tmp, s);
 				}
 				else
 				{
-					this->dyUpwind3dT(input, tmp, EQUALS);
+					this->dyUpwind3dT(input, tmp, s);
 				}
 			}
 			else if (this->gradDirection == 2)
 			{
 				if (transposed == false)
 				{
-					this->dzUpwind3d(input, tmp, EQUALS);
+					this->dzUpwind3d(input, tmp, s);
 				}
 				else
 				{
-					this->dzUpwind3dT(input, tmp, EQUALS);
+					this->dzUpwind3dT(input, tmp, s);
 				}
 			}
 		}
@@ -1823,23 +2229,6 @@ public:
 		{
 			printf("UpwindGradient not implemented for dim!={2,3}\n");
 			//TODO: implement gradient for dim!={2,3} for CPU version
-		}
-
-		switch(s)
-		{
-			case EQUALS:
-				output = tmp;
-				break;
-
-			case PLUS:
-				for(size_t i=0;i<output.size();++i)
-					output[i] += tmp[i];
-				break;
-
-			case MINUS:
-				for(size_t i=0;i<output.size();++i)
-					output[i] -= tmp[i];
-				break;
 		}
 	}
 

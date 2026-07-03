@@ -57,7 +57,7 @@ public:
 	{
 		this->calculateTauSigma(data);
 	}
-
+	/*
 	void calculateTauSigma(flexBoxData<T> *data)
 	{
 		// reset
@@ -137,10 +137,10 @@ public:
 				tau[j] = (T)1 / (tau[j] + 1e-8);
 			}
 		}
-	}
+	}*/
 
 
-	/*
+	
 	void calculateTauSigma(flexBoxData<T> *data)
 	{
 		std::vector<T> tmpVec;
@@ -195,7 +195,7 @@ public:
 			}
 		}
 	}
-	*/
+	
 
 	void addTerm(flexBoxData<T> *data, flexTerm<T>* aDualPart, std::vector<int> aCorrespondingPrimals)
 	{

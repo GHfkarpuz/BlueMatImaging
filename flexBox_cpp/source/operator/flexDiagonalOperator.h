@@ -24,7 +24,7 @@ public:
 		\param aDiagonalElements vector of diagonal Elements
 		\param aMinus determines if operator is negated \sa isMinus
 	*/
-	flexDiagonalOperator(std::vector<T> aDiagonalElements, bool aMinus)
+	flexDiagonalOperator(const std::vector<T>& aDiagonalElements, bool aMinus)
 	: flexLinearOperator<T>(static_cast<int>(aDiagonalElements.size()), static_cast<int>(aDiagonalElements.size()), diagonalOp, aMinus)
 	{
 		this->diagonalElements.resize(aDiagonalElements.size());
@@ -128,7 +128,7 @@ public:
 	{
 		std::vector<T> result(this->getNumRows());
 
-		#pragma omp parallel for
+		#pragma omp parallel for schedule(static) if(flexUseThreads(this->getNumRows()))
 		for (int k = 0; k < this->getNumRows(); ++k)
 		{
 			result[k] = std::abs(this->diagonalElements[k]);
@@ -158,12 +158,11 @@ public:
 	}
 	#endif
 
-private:
 	void doTimesCPU(const Tdata &input, Tdata &output,const mySign s)
 	{
         int numElements = (int)output.size();
 
-		#pragma omp parallel for
+		#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 		for (int i = 0; i < numElements; ++i)
 		{
 			switch (s)
@@ -197,7 +196,7 @@ private:
         #else
             this->doTimesCPU(input,output,s);
         #endif
-  }
+	}
 };
 
 #endif

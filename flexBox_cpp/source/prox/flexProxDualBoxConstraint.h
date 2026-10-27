@@ -75,7 +75,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[k]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int i = 0; i < numElements; i++)
 				{
 					ptrY[i] = myMax<T>((T)0, ptrYtilde[i] - ptrSigma[i] * this->maxVal) + myMin<T>((T)0, ptrYtilde[i] - ptrSigma[i] * this->minVal);

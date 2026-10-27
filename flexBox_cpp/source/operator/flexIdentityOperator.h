@@ -44,7 +44,7 @@ public:
 		{
 			if(transposed)
 			{
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numCols))
 				for (int i = 0; i < numCols; ++i)
 				{
 					if(numCols > numRows && i >= numRows)
@@ -55,7 +55,7 @@ public:
 			}
 			else
 			{
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numRows))
 				for (int i = 0; i < numRows; ++i)
 				{
 					if(numRows > numCols && i >= numCols)
@@ -69,7 +69,7 @@ public:
 		{
 			if(transposed)
 			{
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numCols))
 				for (int i = 0; i < numCols; ++i)
 				{
 					if(numCols > numRows && i >= numRows)
@@ -80,7 +80,7 @@ public:
 			}
 			else
 			{
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numRows))
 				for (int i = 0; i < numRows; ++i)
 				{
 					if(numRows > numCols && i >= numCols)
@@ -164,7 +164,7 @@ private:
 				}
 
 			#else
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numCols))
 				for (int i = 0; i < numCols; ++i)
 				{
 					if(numCols <= numRows || i < numRows)
@@ -182,7 +182,7 @@ private:
 					thrust::transform(output.begin(), output.begin() + numCols, input.begin(), output.begin(), thrust::plus<T>());
 				}
 			#else
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numRows))
 				for (int i = 0; i < numRows; ++i)
 				{
 					if(numRows <= numCols || i < numCols)
@@ -208,7 +208,7 @@ private:
 				}
 
 			#else
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numCols))
 				for (int i = 0; i < numCols; ++i)
 				{
 					if(numCols <= numRows || i < numRows)
@@ -226,7 +226,7 @@ private:
 					thrust::transform(output.begin(), output.begin() + numCols, input.begin(), output.begin(), thrust::minus<T>());
 				}
 			#else
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numRows))
 				for (int i = 0; i < numRows; ++i)
 				{
 					if(numRows <= numCols || i < numCols)

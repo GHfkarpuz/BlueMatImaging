@@ -38,7 +38,7 @@ public:
 		__host__ __device__
         void operator()(Tuple t)
 		{
-			thrust::get<0>(t) = min(this->alpha, max(-this->alpha,thrust::get<1>(t) - this->alpha * thrust::get<2>(t) * thrust::get<3>(t)));
+			thrust::get<0>(t) = min(this->alpha, max(-this->alpha,thrust::get<1>(t) - thrust::get<2>(t) * thrust::get<3>(t)));
 		}
 
 		T alpha;
@@ -71,10 +71,10 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[i]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int j = 0; j < numElements; j++)
 				{
-					ptrY[j] = myMin<T>(alpha, myMax<T>(-alpha, ptrYtilde[j] - alpha * ptrSigma[j] * ptrF[j]));
+					ptrY[j] = myMin<T>(alpha, myMax<T>(-alpha, ptrYtilde[j] - ptrSigma[j] * ptrF[j]));
 				}
 			}
 		#endif

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.3.1)
+cmake_minimum_required(VERSION 3.31.8)
 project(FlexBox)
 set (FlexBox_VERSION_MAJOR 1)
 set (FlexBox_VERSION_MINOR 4)
@@ -7,8 +7,9 @@ set (FlexBox_VERSION_MINOR 4)
 #        OPTIONS         #
 ##########################
 
-option(USE_OPENMP "Use OpenMP" OFF)
-option(USE_CUDA "Use CUDA" OFF)
+option(USE_OPENMP "Use OpenMP (CPU parallelization)" ON)
+option(USE_CUDA "Also build the CUDA (GPU) version of the Python bindings: flexBoxPyCuda" OFF)
+set(FLEXBOX_CUDA_ARCHITECTURES "native" CACHE STRING "CUDA architectures for flexBoxPyCuda, e.g. native or 80;86;90")
 option(BUILD_MATLAB "Build Matlab (mex) interface" ON)
 option(BUILD_EXAMPLES "Build C++/CUDA examples" ON)
 option(BUILD_TESTS "Run tests using CATCH framework" ON)
@@ -125,7 +126,8 @@ if (CMAKE_VERSION VERSION_LESS "3.1")
         message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Aborting...")
   endif()
 else()
-  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -167,19 +169,19 @@ endif(BUILD_MATLAB)
 
 
 if(USE_CUDA)
-  find_package(CUDA)
+  # modern CUDA support of CMake (FindCUDA is removed in new CMake versions),
+  # the compiler can be given with -DCMAKE_CUDA_COMPILER=/path/to/nvcc
+  include(CheckLanguage)
+  check_language(CUDA)
 
-  if(NOT CUDA_FOUND)
-    message (STATUS "Couldn't find CUDA. Building without...")
+  if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+    set(CMAKE_CUDA_STANDARD 17)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+    set(FLEXBOX_BUILD_CUDA ON)
+    message(STATUS "Building CUDA version flexBoxPyCuda with ${CMAKE_CUDA_COMPILER}, architectures: ${FLEXBOX_CUDA_ARCHITECTURES}")
   else()
-    if(CUDA_VERSION VERSION_LESS "3.2")
-      message (STATUS "At least CUDA 3.2 is needed. Only found: " ${CUDA_VERSION} ". Building without...")
-      set(CUDA_FOUND OFF)
-    endif()
-
-    include(${CMAKE_CURRENT_LIST_DIR}/cmake/FlexBoxCudaFlags.cmake)
-    FLEXBOX_CUDA_SELECT_NVCC_ARCH_FLAGS(FLEXBOX_NVCC_FLAGS)
-
+    message(STATUS "Couldn't find CUDA (nvcc). Set CMAKE_CUDA_COMPILER. Building without...")
   endif()
 endif(USE_CUDA)
 

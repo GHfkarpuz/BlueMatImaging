@@ -117,7 +117,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[0]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int i = 0; i < numElements; i++)
 				{
 					T yTmp = (T)1 / myMax<T>((T)1, fabs(ptrYtilde0[i]) / alpha);
@@ -135,7 +135,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[0]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int i = 0; i < numElements; i++)
 				{
 					T yTmp = (T)1 / std::max((T)1, std::sqrt(ptrYtilde0[i] * ptrYtilde0[i] + ptrYtilde1[i] * ptrYtilde1[i]) / alpha);
@@ -156,7 +156,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[0]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int i = 0; i < numElements; i++)
 				{
 					T yTmp = (T)1 / myMax<T>((T)1, sqrtf(pow2(ptrYtilde0[i]) + pow2(ptrYtilde1[i]) + pow2(ptrYtilde2[i])) / alpha);

@@ -117,7 +117,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[0]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int i = 0; i < numElements; i++)
 				{
 					T huberFactor = alpha / (alpha + ptrSigma[i] * this->huberEpsilon);
@@ -139,7 +139,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[0]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int i = 0; i < numElements; i++)
 				{
 					T huberFactor = alpha / (alpha + ptrSigma[i] * this->huberEpsilon);
@@ -164,7 +164,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[0]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int i = 0; i < numElements; i++)
 				{
 					T huberFactor = alpha / (alpha + ptrSigma[i] * this->huberEpsilon);

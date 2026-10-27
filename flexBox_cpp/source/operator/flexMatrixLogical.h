@@ -213,8 +213,7 @@ public:
 		{
 			if (transposed)
 			{
-				//todo: check if transposed multiplication can be parallelized
-				#pragma omp parallel for
+				// serial on purpose: several rows write into the same output element (a parallel loop is a race condition)
 				for (int i = 0; i < this->getNumRows(); ++i)
 				{
 					int indexNext = rowToIndexList[i + 1];

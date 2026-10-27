@@ -3,6 +3,10 @@
 
 #include "flexProx.h"
 
+#ifdef __CUDACC__
+	#include <thrust/sort.h>
+#endif
+
 //! represents prox for a L2,inf non-data term
 /*!
 	\f$ \frac{\alpha}{2} \|\cdot\|_{2,\inf} \f$
@@ -166,7 +170,7 @@ public:
             {
                 T* ptrYtilde0 = data->yTilde[dualNumbers[0]].data();
 
-                #pragma omp parallel for
+                #pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
                 for (int i = 0; i < numElements; i++)
                 {
                     ptrYTildeNorm[i] = fabs(ptrYtilde0[i]);
@@ -177,7 +181,7 @@ public:
                 T* ptrYtilde0 = data->yTilde[dualNumbers[0]].data();
                 T* ptrYtilde1 = data->yTilde[dualNumbers[1]].data();
 
-                #pragma omp parallel for
+                #pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
                 for (int i = 0; i < numElements; i++)
                 {
                     ptrYTildeNorm[i] = std::sqrt(ptrYtilde0[i] * ptrYtilde0[i] + ptrYtilde1[i] * ptrYtilde1[i]);
@@ -190,7 +194,7 @@ public:
                 T* ptrYtilde1 = data->yTilde[dualNumbers[1]].data();
                 T* ptrYtilde2 = data->yTilde[dualNumbers[2]].data();
 
-                #pragma omp parallel for
+                #pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
                 for (int i = 0; i < numElements; i++)
                 {
                     ptrYTildeNorm[i] = (T)sqrtf(pow2(ptrYtilde0[i]) + pow2(ptrYtilde1[i]) + pow2(ptrYtilde2[i]));
@@ -220,13 +224,13 @@ public:
             else
                 lambda = (yTildeSum - alpha) / index;
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads(dualNumbers.size()))
 			for (int k = 0; k < dualNumbers.size(); k++)
             {
 				T* ptrY = data->y[dualNumbers[k]].data();
 				T* ptrYtilde = data->yTilde[dualNumbers[k]].data();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
                 for (int i = 0; i < numElements; i++)
                 {
                     ptrY[i] = (ptrYTildeNorm[i] > lambda) ? ((T)1 - (lambda / ptrYTildeNorm[i])) * ptrYtilde[i] : 0;

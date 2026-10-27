@@ -17,6 +17,7 @@
 #include "flexMassPreservationOperator.h"
 #include "flexProjectionOperator.h"
 #include "flexProjectionOutputOperator.h"
+#include "flexConvolutionSquareMinusCircleOperator.h"
 
 
 using namespace std;
@@ -1215,6 +1216,43 @@ bool testProjection(flexLinearOperator<floatingType>& projOp, std::vector<floati
     }
 }
 
+bool testConvolutionSquareMinusCircle2dWithTime(std::vector<floatingType>& x, std::vector<floatingType>& y, int radius, int Nx, int Ny, int Nz)
+{
+    flexConvolutionSquareMinusCircleOperator<floatingType> A = flexConvolutionSquareMinusCircleOperator<floatingType>(radius, true, {Nx,Ny}, false);
+    
+    std::vector<floatingType> op(Nx * Ny * Nz, 0.0);
+    std::vector<floatingType> opT(Nx * Ny * Nz, 0.0);
+	
+    A.doTimes(false, x, op, EQUALS);
+    A.doTimes(true, y, opT, EQUALS);
+
+
+    // scalar products
+    floatingType lhs = 0.0;
+    floatingType rhs = 0.0;
+
+    for (int i = 0; i < Nx*Ny*Nz; ++i)
+    {
+        lhs += op[i] * y[i];
+        rhs += x[i] * opT[i];
+    }
+
+    if(std::abs(lhs-rhs)<1e-12)
+    {
+        std::cout << "adjoint test for convolution square minus circle pass."<<std::endl;
+        return true;
+    }
+    else
+    {
+        std::cout << "adjoint test for convolution square minus circle did not pass."<<std::endl;
+        std::cout << "lhs: " << lhs << std::endl;
+        std::cout << "rhs: " << rhs << std::endl;
+        std::cout << "diff: " << std::abs(lhs - rhs) << std::endl;
+
+        return false;
+    }
+}
+
 
 
 TEST_CASE("Adjoint operator tests")
@@ -1418,6 +1456,10 @@ TEST_CASE("Adjoint operator tests")
         REQUIRE(testProjection(op, xLong, y, 1, Nx, Ny));
     }
     
+    SECTION("concolution square minus circle operator")
+    {
+        REQUIRE(testConvolutionSquareMinusCircle2dWithTime(x3d, y3d, 5, Nx, Ny, Nz));
+    }
 
     SECTION("Upwind gradient x simple case")
     {

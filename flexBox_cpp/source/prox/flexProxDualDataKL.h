@@ -71,7 +71,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[i]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int j = 0; j < numElements; j++)
 				{
 					ptrY[j] = (T)0.5 * (alpha + ptrYtilde[j] - std::sqrt(std::pow(ptrYtilde[j] + alpha, (int)2) + (T)4 * (alpha * ptrSigma[j] * ptrF[j] - alpha * ptrYtilde[j])));

@@ -50,8 +50,24 @@ public:
 		this->calculateTauSigma(data);
 	}
 
+	//! step size from the accumulated row sum, same formula as the CPU solver: 1 / max(0.001, rowSum)
+	struct stepSizeFunctor
+	{
+		__host__ __device__ T operator()(const T& x) const
+		{
+			const T lowerBound = (T)0.001f;
+			return (T)1 / (x > lowerBound ? x : lowerBound);
+		}
+	};
+
 	void calculateTauSigma(flexBoxData<T> *data)
 	{
+		//reset, init() is called again if the solver is restarted (firstRun == false)
+		for (int i = 0; i < (int)data->sigmaElt.size(); ++i)
+			thrust::fill(data->sigmaElt[i].begin(), data->sigmaElt[i].end(), (T)0);
+		for (int i = 0; i < (int)data->tauElt.size(); ++i)
+			thrust::fill(data->tauElt[i].begin(), data->tauElt[i].end(), (T)0);
+
 		for (int k = 0; k < (int)termsDual.size(); ++k)
 		{
 			auto numPrimals = (int)dcp[k].size();
@@ -78,12 +94,12 @@ public:
 
 		for (int i = 0; i < (int)data->y.size(); ++i)
 		{
-            thrust::transform(data->sigmaElt[i].begin(), data->sigmaElt[i].end(), data->sigmaElt[i].begin(), (T)1 / (0.00001 + _1) );
+            thrust::transform(data->sigmaElt[i].begin(), data->sigmaElt[i].end(), data->sigmaElt[i].begin(), stepSizeFunctor());
 		}
 
 		for (int i = 0; i < data->x.size(); ++i)
 		{
-            thrust::transform(data->tauElt[i].begin(), data->tauElt[i].end(), data->tauElt[i].begin(), (T)1 / (0.00001 + _1) );
+            thrust::transform(data->tauElt[i].begin(), data->tauElt[i].end(), data->tauElt[i].begin(), stepSizeFunctor());
 		}
 	}
 
@@ -245,9 +261,6 @@ public:
 				const int primalNum = primalNumbers[j];
 				const int dualNum = dualNumbers[i];
 
-				data->xTmp[primalNum] = data->x[primalNum];
-				vectorMinus(data->xTmp[primalNum], data->xOld[primalNum]);
-
 				dualTerm->operatorList[operatorNumber]->timesMinus(false, data->xTmp[primalNum], data->yError[dualNum]);
 			}
 		}
@@ -264,9 +277,6 @@ public:
 
 				const int primalNum = primalNumbers[j];
 				const int dualNum = dualNumbers[i];
-
-				data->yTmp[dualNum] = data->y[dualNum];
-				vectorMinus(data->yTmp[dualNum], data->yOld[dualNum]);
 
 				dualTerm->operatorList[operatorNumber]->timesMinus(true, data->yTmp[dualNum], data->xError[primalNum]);
 			}
@@ -305,6 +315,12 @@ public:
                 thrust::make_zip_iterator(thrust::make_tuple(data->yError[i].end(),   data->y[i].end(),   data->yOld[i].end(),   data->sigmaElt[i].end())),
             calculateErrorFunctor());
 		}
+
+		//x - xOld and y - yOld, computed once per variable (used by xError / yError)
+		for (int i = 0; i < (int)data->x.size(); ++i)
+			thrust::transform(data->x[i].begin(), data->x[i].end(), data->xOld[i].begin(), data->xTmp[i].begin(), thrust::minus<T>());
+		for (int i = 0; i < (int)data->y.size(); ++i)
+			thrust::transform(data->y[i].begin(), data->y[i].end(), data->yOld[i].begin(), data->yTmp[i].begin(), thrust::minus<T>());
 
 		//operator specifiy error
 		for (int i = 0; i < (int)termsDual.size(); ++i)

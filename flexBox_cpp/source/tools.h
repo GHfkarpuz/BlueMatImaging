@@ -19,6 +19,17 @@
 	#include <omp.h>
 #endif
 
+//! minimum vector length for which OpenMP threads are started, shorter loops run serially
+//! (starting and synchronizing threads costs more than the work for small vectors)
+#ifndef FLEX_OMP_MIN_SIZE
+	#define FLEX_OMP_MIN_SIZE 16384
+#endif
+
+inline bool flexUseThreads(long long n)
+{
+	return n >= FLEX_OMP_MIN_SIZE;
+}
+
 #ifdef __CUDACC__
 	#include <thrust/device_vector.h>
 	#include <thrust/transform.h>
@@ -84,6 +95,7 @@ enum prox
 enum linOp
 {
 	linearOp,
+	gradientDiagonalOp,
 	diagonalOp,
 	gradientOp,
 	identityOp,
@@ -93,14 +105,17 @@ enum linOp
 	superpixelOp,
   	concatOp,
 	opticalFlowOp,
+	opticalFlowPhaseFieldOp,
 	jointOpticalFlowOp,
 	projectionOp,
 	projectionOutputOp,
 	massPreservationOp,
+	massPreservationPhaseFieldOp,
 	weightedGradientOp,
 	weightedDivergenceOp,
 	upwindGradientOp,
-	upwindDivergenceOp
+	upwindDivergenceOp,
+	ConvolutionSquareMinusCircleOp
 };
 
 //! enum representing the type of gradient
@@ -150,7 +165,12 @@ T vectorProduct(const std::vector<T> &v)
 template < typename T >
 T vectorSum(const std::vector<T> &v)
 {
-	return std::accumulate(v.begin(), v.end(), (T)0);
+	const int n = (int)v.size();
+	T sum = (T)0;
+	#pragma omp parallel for schedule(static) reduction(+:sum) if(flexUseThreads(n))
+	for (int i = 0; i < n; ++i)
+		sum += v[i];
+	return sum;
 }
 
 template < typename T >
@@ -162,38 +182,56 @@ float vectorMax(std::vector<T> &v)
 template < typename T >
 void vectorScalarProduct(std::vector<T> &v,T scalarValue)
 {
-	std::transform(v.begin(), v.end(), v.begin(), [scalarValue](T x) {return scalarValue*x;});
+	const int n = (int)v.size();
+	#pragma omp parallel for schedule(static) if(flexUseThreads(n))
+	for (int i = 0; i < n; ++i)
+		v[i] *= scalarValue;
 }
 
 template < typename T >
 void vectorScalarSet(std::vector<T> &v, const T scalarValue)
 {
-	std::fill(v.begin(), v.end(), scalarValue);
+	const int n = (int)v.size();
+	#pragma omp parallel for schedule(static) if(flexUseThreads(n))
+	for (int i = 0; i < n; ++i)
+		v[i] = scalarValue;
 }
 
 template < typename T >
 void vectorPlus(std::vector<T> &v1, std::vector<T> &v2)
 {
-	std::transform(v1.begin(), v1.end(), v2.begin(), v1.begin(), std::plus<T>());
+	const int n = (int)v1.size();
+	#pragma omp parallel for schedule(static) if(flexUseThreads(n))
+	for (int i = 0; i < n; ++i)
+		v1[i] += v2[i];
 }
 
 template < typename T >
 void vectorMinus(std::vector<T> &v1, std::vector<T> &v2)
 {
-	std::transform(v1.begin(), v1.end(), v2.begin(), v1.begin(), std::minus<T>());
+	const int n = (int)v1.size();
+	#pragma omp parallel for schedule(static) if(flexUseThreads(n))
+	for (int i = 0; i < n; ++i)
+		v1[i] -= v2[i];
 }
 
 template < typename T >
 void vectorAbs(std::vector<T> &v)
 {
-	std::transform(v.begin(), v.end(), v.begin(), [](T x) { return std::abs(x); });
+	const int n = (int)v.size();
+	#pragma omp parallel for schedule(static) if(flexUseThreads(n))
+	for (int i = 0; i < n; ++i)
+		v[i] = std::abs(v[i]);
 }
 
 
 template < typename T >
 void doOverrelaxation(std::vector<T> &x, std::vector<T> &xOld, std::vector<T> &xBar)
 {
-	std::transform(x.begin(), x.end(), xOld.begin(), xBar.begin(), [](T x, T y) { return x + x - y; });
+	const int n = (int)x.size();
+	#pragma omp parallel for schedule(static) if(flexUseThreads(n))
+	for (int i = 0; i < n; ++i)
+		xBar[i] = x[i] + x[i] - xOld[i];
 }
 
 template < typename T >

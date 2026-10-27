@@ -31,7 +31,7 @@ public:
 		\param aType type of linear operator sa type \sa type
 		\param aIsMinus determines if operator is negated \sa isMinus
 	*/
-	flexLinearOperator(int aNumRows, int aNumCols, linOp aType, bool aIsMinus) : numRows(aNumRows), numCols(aNumCols), type(linearOp), isMinus(aIsMinus)
+	flexLinearOperator(int aNumRows, int aNumCols, linOp aType, bool aIsMinus) : numRows(aNumRows), numCols(aNumCols), type(aType), isMinus(aIsMinus)
 	{
 
 	}

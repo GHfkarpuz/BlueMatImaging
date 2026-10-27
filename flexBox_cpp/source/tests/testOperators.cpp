@@ -229,7 +229,8 @@ TEST_CASE("Operator flexGradientOperator<floatingType>", "[flexGradientOperator]
 		gradOpBackward.times(false, v, resultBackward);
 
 		std::vector<floatingType> resultForwardExpected = { 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0};
-		std::vector<floatingType> resultBackwardExpected = { 1, 1, -2, 4, 1, -5, 7, 1, -8, 10, 1, -11 };
+		// backward differences u_i - u_{i-1}, 0 at the first element of each line (a constant has derivative 0)
+		std::vector<floatingType> resultBackwardExpected = { 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1 };
 
 		for (int i = 0; i < resultForward.size(); ++i)
 		{

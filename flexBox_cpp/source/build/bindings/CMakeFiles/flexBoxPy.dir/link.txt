@@ -1,1 +1,1 @@
-/usr/lib64/ccache/c++ -fPIC -O3 -DNDEBUG  -shared -flto=auto  -o flexBoxPy.cpython-39-x86_64-linux-gnu.so CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o
+/usr/lib64/ccache/c++ -fPIC  -fopenmp -O3 -DNDEBUG  -flto=auto -shared  -o flexBoxPy.cpython-39-x86_64-linux-gnu.so CMakeFiles/flexBoxPy.dir/flexBoxPy.cpp.o  /usr/lib/gcc/x86_64-redhat-linux/11/libgomp.so /usr/lib64/libpthread.a

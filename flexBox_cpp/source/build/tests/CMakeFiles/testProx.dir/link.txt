@@ -1,1 +1,1 @@
-/usr/lib64/ccache/c++ -O3 -DNDEBUG  CMakeFiles/testProx.dir/testMain.cpp.o CMakeFiles/testProx.dir/testProx.cpp.o -o testProx
+/usr/lib64/ccache/c++  -fopenmp -O3 -DNDEBUG  CMakeFiles/testProx.dir/testMain.cpp.o CMakeFiles/testProx.dir/testProx.cpp.o -o testProx

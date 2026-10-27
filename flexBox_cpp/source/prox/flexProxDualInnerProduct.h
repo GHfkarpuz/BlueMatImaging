@@ -50,7 +50,7 @@ public:
 
 				int numElements = (int)data->yTilde[dualNumbers[i]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int j = 0; j < numElements; j++)
 				{
 					ptrY[j] = alpha * ptrF[j];

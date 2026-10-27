@@ -12,8 +12,14 @@ inverse_problems/joint_image_motion_approach/*.mp4
 inverse_problems/main_test_file/*.mp4
 inverse_problems/main_test_file/*.avi
 
-.avi
-.mp4
+
+inverse_problems/main_test_file/*.avi
+
+inverse_problems/main_test_file/*.mp4
+inverse_problems/main_test_file/*.pdf
+inverse_problems/main_test_file/*.jpg
+inverse_problems/main_test_file/parameter_search
+
 
 # less figures
 inverse_problems/motion_estimation/*.png

@@ -120,7 +120,7 @@ public:
 		{
 			auto &sigma = data->sigmaElt[i];
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads((int)sigma.size()))
 			for (int j = 0; j < (int)sigma.size(); ++j)
 			{
 				sigma[j] = (T)1 / (sigma[j] + 1e-8);
@@ -131,7 +131,7 @@ public:
 		{
 			auto &tau = data->tauElt[i];
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads((int)tau.size()))
 			for (int j = 0; j < (int)tau.size(); ++j)
 			{
 				tau[j] = (T)1 / (tau[j] + 1e-8);
@@ -143,6 +143,11 @@ public:
 	
 	void calculateTauSigma(flexBoxData<T> *data)
 	{
+		for (auto &v : data->sigmaElt)
+			std::fill(v.begin(), v.end(), 0);
+		for (auto &v : data->tauElt)
+			std::fill(v.begin(), v.end(), 0);
+
 		std::vector<T> tmpVec;
 
 		for (int k = 0; k < (int)termsDual.size(); ++k)
@@ -175,7 +180,7 @@ public:
 
 			int numElements = (int)data->y[i].size();
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 			for (int j = 0; j < numElements; ++j)
 			{
 				ptrSigma[j] = (T)1 / myMax<T>(0.001f, ptrSigma[j]);
@@ -188,7 +193,7 @@ public:
 
 			int numElements = (int)data->x[i].size();
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 			for (int j = 0; j < numElements; ++j)
 			{
 				ptrTau[j] = (T)1 / myMax<T>(0.001f, ptrTau[j]);
@@ -234,7 +239,7 @@ public:
 
             int numElements = (int)data->yTilde[dualNum].size();
 
-            #pragma omp parallel for
+            #pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
             for (int k = 0; k < numElements; ++k)
             {
 				ptrYtilde[k] = ptrYold[k] + ptrSigma[k] * ptrYtilde[k];
@@ -307,7 +312,7 @@ public:
 
 			int numElements = (int)data->xTilde[i].size();
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 			for (int k = 0; k < numElements; ++k)
 			{
 				ptrX[k] = ptrXold[k] - ptrTau[k] * ptrXtilde[k];
@@ -326,7 +331,7 @@ public:
 
 			int numElements = (int)data->x[i].size();
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 			for (int k = 0; k < numElements; ++k)
 			{
 				ptrXbar[k] = 2 * ptrX[k] - ptrXold[k];
@@ -347,9 +352,6 @@ public:
 				const int primalNum = primalNumbers[j];
 				const int dualNum = dualNumbers[i];
 
-				data->xTmp[primalNum] = data->x[primalNum];
-				vectorMinus(data->xTmp[primalNum], data->xOld[primalNum]);
-
 				dualTerm->operatorList[operatorNumber]->timesMinus(false, data->xTmp[primalNum], data->yError[dualNum]);
 			}
 		}
@@ -366,9 +368,6 @@ public:
 
 				const int primalNum = primalNumbers[j];
 				const int dualNum = dualNumbers[i];
-
-				data->yTmp[dualNum] = data->y[dualNum];
-				vectorMinus(data->yTmp[dualNum], data->yOld[dualNum]);
 
 				dualTerm->operatorList[operatorNumber]->timesMinus(true, data->yTmp[dualNum], data->xError[primalNum]);
 			}
@@ -388,7 +387,7 @@ public:
 
 			int numElements = (int)data->x[i].size();
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 			for (int k = 0; k < numElements; ++k)
 			{
 				ptrxError[k] = (ptrX[k] - ptrXold[k]) / ptrTau[k];
@@ -405,11 +404,35 @@ public:
 
 			int numElements = (int)data->y[i].size();
 
-			#pragma omp parallel for
+			#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 			for (int k = 0; k < numElements; ++k)
 			{
 				ptrYError[k] = (ptrY[k] - ptrYold[k]) / ptrSigma[k];
 			}
+		}
+
+		//x - xOld and y - yOld, computed once per variable (used by xError / yError)
+		for (int i = 0; i < (int)data->x.size(); ++i)
+		{
+			T* ptrXTmp = data->xTmp[i].data();
+			T* ptrX = data->x[i].data();
+			T* ptrXold = data->xOld[i].data();
+			int numElements = (int)data->x[i].size();
+
+			#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
+			for (int k = 0; k < numElements; ++k)
+				ptrXTmp[k] = ptrX[k] - ptrXold[k];
+		}
+		for (int i = 0; i < (int)data->y.size(); ++i)
+		{
+			T* ptrYTmp = data->yTmp[i].data();
+			T* ptrY = data->y[i].data();
+			T* ptrYold = data->yOld[i].data();
+			int numElements = (int)data->y[i].size();
+
+			#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
+			for (int k = 0; k < numElements; ++k)
+				ptrYTmp[k] = ptrY[k] - ptrYold[k];
 		}
 
 		//operator specifiy error

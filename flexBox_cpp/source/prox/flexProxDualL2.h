@@ -61,11 +61,11 @@ public:
 				T* ptrY = data->y[dualNumbers[k]].data();
 				T* ptrYtilde = data->yTilde[dualNumbers[k]].data();
 
-				T* ptrSigma = data->sigmaElt[dualNumbers[0]].data();
+				T* ptrSigma = data->sigmaElt[dualNumbers[k]].data();
 
 				int numElements = (int)data->yTilde[dualNumbers[k]].size();
 
-				#pragma omp parallel for
+				#pragma omp parallel for schedule(static) if(flexUseThreads(numElements))
 				for (int i = 0; i < numElements; i++)
 				{
 					ptrY[i] = alpha / (ptrSigma[i] + alpha) * ptrYtilde[i];

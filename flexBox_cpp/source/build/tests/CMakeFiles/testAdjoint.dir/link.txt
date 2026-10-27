@@ -1,1 +1,1 @@
-/usr/lib64/ccache/c++ -O3 -DNDEBUG  CMakeFiles/testAdjoint.dir/testMain.cpp.o CMakeFiles/testAdjoint.dir/testAdjoint.cpp.o -o testAdjoint
+/usr/lib64/ccache/c++  -fopenmp -O3 -DNDEBUG  CMakeFiles/testAdjoint.dir/testMain.cpp.o CMakeFiles/testAdjoint.dir/testAdjoint.cpp.o -o testAdjoint

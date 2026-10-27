@@ -1,1 +1,1 @@
-/usr/lib64/ccache/c++ -O3 -DNDEBUG  CMakeFiles/exampleROF.dir/exampleROF.cpp.o -o exampleROF  /usr/lib64/libSM.so /usr/lib64/libICE.so /usr/lib64/libX11.so /usr/lib64/libXext.so
+/usr/lib64/ccache/c++  -fopenmp -O3 -DNDEBUG  CMakeFiles/exampleROF.dir/exampleROF.cpp.o -o exampleROF  /usr/lib64/libSM.so /usr/lib64/libICE.so /usr/lib64/libX11.so /usr/lib64/libXext.so
